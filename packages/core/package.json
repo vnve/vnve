@@ -1,9 +1,11 @@
 {
   "name": "@vnve/core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "use pixijs + webcodecs to generate mp4 video, for create some video like visual novel",
   "main": "./dist/core.umd.js",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "module": "./dist/core.js",
   "types": "./dist/core.d.ts",
   "exports": {
