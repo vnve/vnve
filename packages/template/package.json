@@ -2,19 +2,7 @@
   "name": "@vnve/template",
   "version": "1.0.2",
   "description": "",
-  "main": "./dist/template.umd.js",
-  "files": [
-    "dist"
-  ],
-  "module": "./dist/template.js",
-  "types": "./dist/template.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/template.js",
-      "require": "./dist/template.umd.js",
-      "types": "./dist/template.d.ts"
-    }
-  },
+  "main": "./src/index.ts",
   "scripts": {
     "dev": "vite build --watch",
     "build": "rimraf dist && tsc && vite build",
