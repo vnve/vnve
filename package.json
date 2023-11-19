@@ -1,0 +1,47 @@
+{
+  "name": "vnve",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm -F editor run dev",
+    "dev:all": "OPEN_SOURCEMAP=true pnpm -r --filter=./packages/** --parallel run dev",
+    "dev:editor": "pnpm -F editor run dev",
+    "build:editor": "pnpm -F editor run build",
+    "release:editor": "pnpm -F editor run release",
+    "dev:core": "pnpm -F core run dev",
+    "build:core": "pnpm -F core run build",
+    "release:core": "pnpm -F core run release",
+    "dev:template": "pnpm -F template run dev",
+    "build:template": "pnpm -F template run build",
+    "release:template": "pnpm -F template run release"
+  },
+  "devDependencies": {
+    "@release-it/conventional-changelog": "^8.0.1",
+    "@types/dom-webcodecs": "^0.1.9",
+    "@types/node": "^20.9.0",
+    "@types/react": "^18.2.34",
+    "@types/react-dom": "^18.2.14",
+    "@typescript-eslint/eslint-plugin": "^6.8.0",
+    "@typescript-eslint/parser": "^6.8.0",
+    "eslint": "^8.51.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-html": "^7.1.0",
+    "eslint-plugin-prettier": "^5.0.1",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.4",
+    "prettier": "^3.0.3",
+    "release-it": "^17.0.0",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.2.2",
+    "vite": "^4.4.5",
+    "vite-plugin-dts": "^3.6.3"
+  },
+  "keywords": [],
+  "author": "ForeverSc",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=8"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "name": "@vnve/core",
+  "version": "1.0.1",
+  "description": "",
+  "main": "./src/index.ts",
+  "scripts": {
+    "dev": "vite build --watch",
+    "build": "rimraf dist && tsc && vite build",
+    "prepublishOnly": "npm run build",
+    "release": "release-it"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@pixi-essentials/transformer": "^3.0.4",
+    "@types/lodash-es": "^4.17.10",
+    "@types/uuid": "^9.0.6",
+    "gsap": "^3.12.2",
+    "lodash-es": "^4.17.21",
+    "mp4-muxer": "^2.2.2",
+    "pixi.js": "^7.3.2",
+    "uuid": "^9.0.1"
+  }
+}
