@@ -1,4 +1,3 @@
-<h4 align="right"><a href="https://github.com/vnve/vnve/blob/main/README.md">English</a> | <strong>简体中文</strong></h4>
 <p align="center">
   <img src="https://vnve.github.io/vnve/logo.png" width=138/>
 </p>
@@ -18,12 +17,16 @@
 - 🚀 纯前端实现，核心通过 PixiJS + Webcodecs 驱动
 > 👻 定位只是一个为视觉小说量身定制的视频创作工具，假如你想制作分支逻辑、数值等更具游戏性的行为，可以去利用类似b站的[互动视频](https://member.bilibili.com/platform/upload/video/interactive)去实现
 
-
 ## 网页用法
 只需要访问: [vnve.github.io/vnve](https://vnve.github.io/vnve/)，就可以开始创作
 
+### 演示视频
+https://github.com/vnve/vnve/assets/14970577/b7b78ea4-9695-430c-b401-898065c31940
+
 ## 代码用法
+
 ### 基础
+
 #### 安装
 ```bash
 npm install @vnve/core
