@@ -26,7 +26,7 @@ scene.addChild(sound)
 text.addAnimation(PREST_ANIMATION.FADE_IN)
 
 // 把场景提供给创作者，然后开始生成视频
-creator.addScene(scene)
+creator.add(scene)
 creator.start().then(videoBlob => {
   URL.createObjectURL(videoBlob) // 稍等片刻，你就可以获得一个mp4文件
 })

@@ -27,8 +27,8 @@ const dialogueScene = new DialogueScene({
   soundSources: [{ source: "音频链接" }],
 });
 
-creator.addScene(titleScene)
-creator.addScene(dialogueScene)
+creator.add(titleScene)
+creator.add(dialogueScene)
 creator.start().then(videoBlob => {
   URL.createObjectURL(videoBlob) // 稍等片刻，你就可以获得一个mp4文件
 })
