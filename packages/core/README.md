@@ -3,19 +3,6 @@ Use PixiJS + Webcodecs to create mp4 videos in browser.
 
 > You can view the browser's online editor at: [vnve](https://github.com/vnve/vnve)
 
-## Created with VNVE
-<table>
-<tr>
-<td align="center">
-<img style="width: 360px" src="demo/titleScene.gif" />
-<p>Video title scene</p>
-<td align="center">
-<img style="width: 360px" src="demo/dialogueScene.gif" />
-<p>Character dialog scenes</p>
-</td>
-</tr>
-</table>
-
 ## Install
 ```bash
 npm install @vnve/core
