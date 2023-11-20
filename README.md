@@ -135,7 +135,7 @@ creator.start().then(videoBlob => {
 [![Open in CodeSandbox](https://img.shields.io/badge/Open%20in-CodeSandbox-blue?style=flat-square&logo=codesandbox)](https://codesandbox.io/s/make-video-programmatically-with-vnve-template-4j467p)
 
 ## Core Packages
-| 包名 | 简介 | 文档 |
+| package name | brief | docs |
 |  ----  | ----  | ---- |
 | @vnve/editor | Web UI page for the online editor | - |
 | @vnve/core | Core module, using PixiJS + Webcodes to achieve scene dynamization and export Mp4 video | [📖](https://github.com/vnve/vnve/blob/main/packages/core/README.md) |
