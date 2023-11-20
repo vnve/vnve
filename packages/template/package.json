@@ -1,6 +1,6 @@
 {
   "name": "@vnve/template",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "vnve's video templates in order to make creating visual novel videos quicker",
   "main": "./src/index.ts",
   "publishConfig": {
