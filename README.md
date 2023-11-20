@@ -4,7 +4,7 @@
 </p>
 <h1 align="center">V N V E</h1>
 <p align="center"><strong>Visual Novel Video Editor</strong></p>
-<p align="center"><strong>Browser-based online creation of videos in the Visual Novel/Interactive Movie/GalGame genres <a href="https://vnve.github.io/vnve/">link: 🔗 </a></strong></p>
+<p align="center"><strong>Making Visual Novel Videos in Your Browser<a href="https://vnve.github.io/vnve/"> 🔗 </a></strong></p>
 <div align="center">
   <a href="https://discord.gg/sc9jpqBAbs"><img src="https://img.shields.io/badge/chat-discord-blue?style=flat&logo=discord" alt="discord chat"></a>
   <a href="https://www.npmjs.com/package/@vnve/core"><img src="https://img.shields.io/npm/dm/%40vnve/core" alt="downloads"></a>
