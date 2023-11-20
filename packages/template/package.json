@@ -1,7 +1,7 @@
 {
   "name": "@vnve/template",
   "version": "1.0.2",
-  "description": "",
+  "description": "vnve's video templates in order to make creating visual novel videos quicker",
   "main": "./src/index.ts",
   "publishConfig": {
     "main": "./dist/template.umd.js",
@@ -24,7 +24,16 @@
     "prepublishOnly": "npm run build",
     "release": "release-it"
   },
-  "keywords": [],
+  "keywords": [
+    "visual novel",
+    "video editor",
+    "video synthesizer",
+    "video encoder",
+    "canvas to video",
+    "webcodecs",
+    "pixijs",
+    "typescript"
+  ],
   "author": "",
   "license": "MIT",
   "devDependencies": {

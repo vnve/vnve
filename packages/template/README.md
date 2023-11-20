@@ -1,35 +1,46 @@
-## 安装
+## Install
 ```bash
-npm install @vnve/template
+npm install @vnve/core @vnve/template
 ```
-## 使用
+
+## Usage
 ```typescript
 import { Creator } from "@vnve/core";
 import { TitleScene, DialogueScene } from "@vnve/template";
 
 const creator = new Creator();
-// 创建一个标题场景
+// Create a title scene
 const titleScene = new TitleScene({
-  title: "主标题",
-  subtitle: "副标题",
-  backgroundImgSource: "图片链接",
-  soundSources: [{ source: "音频链接" }],
-  duration: 4000,
+  title: "V N V E",
+  subtitle: "Make video programmatically",
+  backgroundImgSource: "img url",
+  soundSources: [{ source: "sound url" }],
+  duration: 3000,
 })
 
-// 创建一个对话场景
+// Create a dialog scene
 const dialogueScene = new DialogueScene({
   lines: [
-    { name: "角色A", content: "角色A的台词" },
-    { name: "角色B", content: "角色B的台词" },
+    {
+      name: "Character A",
+      content: "Charater A says..."
+    },
+    {
+      name: "Character B",
+      content: "Charater B says..."
+    }
   ],
-  backgroundImgSource: "图片链接",
-  soundSources: [{ source: "音频链接" }],
+  backgroundImgSource: "img url",
+  soundSources: [{ source: "sound url" }],
 });
 
+// Add scenes
 creator.add(titleScene)
 creator.add(dialogueScene)
+
+// Start creating videos
 creator.start().then(videoBlob => {
-  URL.createObjectURL(videoBlob) // 稍等片刻，你就可以获得一个mp4文件
+  URL.createObjectURL(videoBlob)  // Wait a few moments and you'll get an mp4 file
 })
 ```
+[![Open in CodeSandbox](https://img.shields.io/badge/Open%20in-CodeSandbox-blue?style=flat-square&logo=codesandbox)](https://codesandbox.io/s/make-video-programmatically-with-vnve-template-4j467p)

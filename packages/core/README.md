@@ -1,33 +1,52 @@
-## 安装
+## Purpose
+Use PixiJS + Webcodecs to create mp4 videos in browser.
+
+> You can view the browser's online editor at: [vnve](https://github.com/vnve/vnve)
+
+## Install
 ```bash
 npm install @vnve/core
 ```
 
-## 使用
+## Usage
 ```typescript
 import { Creator, Scene, Img, Text, Sound, PREST_ANIMATION } from "@vnve/core";
 
-const creator = new Creator(); // 创作者，负责视频合成
+// Init creator
+const creator = new Creator();
 
-// 场景，视频是由一个个场景组合而成
+// Scene, the video is made up of a combination of scenes
 const scene = new Scene({ duration: 3000 })
 
-// 场景中的元素，文字、图片等
-const img = new Img({ source: 'url' })
-const text = new Text('V N V E')
-const sound = new Sound({ source: 'url' })
+// Create some elements
+const img = new Img({ source: "img url" })
+const text = new Text("V N V E", {
+  fill: "#ffffff",
+  fontSize: 200
+})
+const sound = new Sound({ source: "sound url" })
 
-// 把元素加到场景中
+// Adding elements to the scene
 scene.addChild(img)
 scene.addChild(text)
 scene.addChild(sound)
 
-// 可以给元素加些动画
+// You can add some animation to the element
 text.addAnimation(PREST_ANIMATION.FADE_IN)
 
-// 把场景提供给创作者，然后开始生成视频
+// Provide the scene to the creator and start generating the video
 creator.add(scene)
 creator.start().then(videoBlob => {
-  URL.createObjectURL(videoBlob) // 稍等片刻，你就可以获得一个mp4文件
+  URL.createObjectURL(videoBlob) // Wait a few moments and you'll get an mp4 file
 })
 ```
+[![Open in CodeSandbox](https://img.shields.io/badge/Open%20in-CodeSandbox-blue?style=flat-square&logo=codesandbox)](https://codesandbox.io/s/make-video-programmatically-with-vnve-27z2cv)
+
+## Use with template
+[Template Usage](https://github.com/vnve/vnve/blob/main/packages/template/README.md)
+
+## API
+If you've used PixiJS, you can get started quickly. This package is a simple layer of encapsulation for PixiJS objects, providing some additional methods and properties. You can think of Text, Img, and Graphics as Text, Sprite, and Graphics in PixiJS to modify their properties.
+
+
+TODO: detail api

@@ -1,7 +1,7 @@
 {
   "name": "@vnve/core",
   "version": "1.0.3",
-  "description": "use pixijs + webcodecs to generate mp4 video, for create some video like visual novel",
+  "description": "Use PixiJS + Webcodecs to create mp4 videos in browser",
   "main": "./src/index.ts",
   "publishConfig": {
     "main": "./dist/core.umd.js",
@@ -28,8 +28,11 @@
     "visual novel",
     "video editor",
     "video synthesizer",
+    "video encoder",
+    "canvas to video",
     "webcodecs",
-    "pixijs"
+    "pixijs",
+    "typescript"
   ],
   "author": "ForeverSc",
   "license": "MIT",

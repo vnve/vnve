@@ -1,111 +1,132 @@
+<h4 align="right"><strong>English</strong> | <a href="https://github.com/vnve/vnve/blob/main/README_CN.md">简体中文</a></h4>
 <p align="center">
   <img src="https://vnve.github.io/vnve/logo.png" width=138/>
 </p>
 <h1 align="center">V N V E</h1>
-<p align="center"><strong>visual novel video editor</strong></p>
-<p align="center"><strong>视觉小说视频编辑器</strong></p>
-<p align="center"><strong>在网页上制作并生成视觉小说，互动电影，GalGame类型的视频，<a href="https://vnve.github.io/vnve/">访问地址 🔗 </a></strong></p>
+<p align="center"><strong>Visual Novel Video Editor</strong></p>
+<p align="center"><strong>Browser-based online creation of videos in the Visual Novel/Interactive Movie/GalGame genres <a href="https://vnve.github.io/vnve/">link: 🔗 </a></strong></p>
 <div align="center">
-  <img src="https://github.com/vnve/vnve/actions/workflows/static.yml/badge.svg">
+  <a href="https://discord.gg/sc9jpqBAbs"><img src="https://img.shields.io/badge/chat-discord-blue?style=flat&logo=discord" alt="discord chat"></a>
+  <a href="https://www.npmjs.com/package/@vnve/core"><img src="https://img.shields.io/npm/dm/%40vnve/core" alt="downloads"></a>
+  <img src="https://github.com/vnve/vnve/actions/workflows/eslint.yml/badge.svg" alt="eslint">
+  <img src="https://img.shields.io/github/commit-activity/m/vnve/vnve" alt="commit">
+  <img src="https://github.com/vnve/vnve/actions/workflows/static.yml/badge.svg" alt="static">
 </div>
 
 ## 特征
 
-- 🎬 仅需要打开网页，就可以立刻开始视觉小说类型的视频创作
-- 👋 零视频剪辑基础知识，告别烦人的视频剪辑、时间轴等操作
-- 📝 文字优先，让我们回到视觉小说创作的核心 —— 文字内容
-- 🚀 纯前端实现，核心通过 PixiJS + Webcodecs 驱动
-> 👻 定位只是一个为视觉小说量身定制的视频创作工具，假如你想制作分支逻辑、数值等更具游戏性的行为，可以去利用类似b站的[互动视频](https://member.bilibili.com/platform/upload/video/interactive)去实现
+- 🎬 An online video editor customized for creating visual novels, open your browser and start creating!
+- 👋 Say goodbye to complicated video editing software and create visual novel videos easily and quickly!
+- 📝 Prioritizing text brings us back to the heart of visual novel creation -- textual content
+- 🚀 Pure front-end Typescript implementation, the core is driven by PixiJS + Webcodecs.
+- 🖍️ You can also create videos programmatically by using the npm package
+> 👻 Positioning is just a video creation tool tailored for visual novels, if you want to create branching logic, numerical values and other more game-like behavior, you can go to use bilibili [interactive video](https://member.bilibili.com/platform/upload/video/interactive)
 
-## 网页用法
-只需要访问: [vnve.github.io/vnve](https://vnve.github.io/vnve/)，就可以开始创作
+## Online Usage
+visit: [vnve.github.io/vnve](https://vnve.github.io/vnve/), start creating video immediately.
 
-### 演示视频
+### Demo
 https://github.com/vnve/vnve/assets/14970577/b7b78ea4-9695-430c-b401-898065c31940
 
-## 代码用法
+## Code Usage
+You can also create videos directly by calling the npm package
 
-### 基础
-
-#### 安装
+### Install
 ```bash
 npm install @vnve/core
 ```
 
-#### 使用
+### Usage
 ```typescript
 import { Creator, Scene, Img, Text, Sound, PREST_ANIMATION } from "@vnve/core";
 
-const creator = new Creator(); // 创作者，负责视频合成
+// Init creator
+const creator = new Creator();
 
-// 场景，视频是由一个个场景组合而成
+// Scene, the video is made up of a combination of scenes
 const scene = new Scene({ duration: 3000 })
 
-// 场景中的元素，文字、图片等
-const img = new Img({ source: 'url' })
-const text = new Text('V N V E')
-const sound = new Sound({ source: 'url' })
+// Create some elements
+const img = new Img({ source: "img url" })
+const text = new Text("V N V E", {
+  fill: "#ffffff",
+  fontSize: 200
+})
+const sound = new Sound({ source: "sound url" })
 
-// 把元素加到场景中
+// Adding elements to the scene
 scene.addChild(img)
 scene.addChild(text)
 scene.addChild(sound)
 
-// 可以给元素加些动画
+// You can add some animation to the element
 text.addAnimation(PREST_ANIMATION.FADE_IN)
 
-// 把场景提供给创作者，然后开始生成视频
+// Provide the scene to the creator and start generating the video
 creator.add(scene)
 creator.start().then(videoBlob => {
-  URL.createObjectURL(videoBlob) // 稍等片刻，你就可以获得一个mp4文件
+  URL.createObjectURL(videoBlob) // Wait a few moments and you'll get an mp4 file
 })
 ```
+[![Open in CodeSandbox](https://img.shields.io/badge/Open%20in-CodeSandbox-blue?style=flat-square&logo=codesandbox)](https://codesandbox.io/s/make-video-programmatically-with-vnve-27z2cv)
 
-### 模版
-通过模版可以更快捷的把场景&元素封装到一起，实现快速使用，需要额外安装一个`@vnve/template`，
+### Template
+By using pre-packaged templates, we can achieve the desired video effects more efficiently.
 
-#### 安装
+It is necessary to install an additional package `@vnve/template`
+
 ```bash
 npm install @vnve/template
 ```
-#### 使用
+
+### Template Usage
 ```typescript
 import { Creator } from "@vnve/core";
 import { TitleScene, DialogueScene } from "@vnve/template";
 
 const creator = new Creator();
-// 创建一个标题场景
+// Create a title scene
 const titleScene = new TitleScene({
-  title: "主标题",
-  subtitle: "副标题",
-  backgroundImgSource: "图片链接",
-  soundSources: [{ source: "音频链接" }],
-  duration: 4000,
+  title: "V N V E",
+  subtitle: "Make video programmatically",
+  backgroundImgSource: "img url",
+  soundSources: [{ source: "sound url" }],
+  duration: 3000,
 })
 
-// 创建一个对话场景
+// Create a dialog scene
 const dialogueScene = new DialogueScene({
   lines: [
-    { name: "角色A", content: "角色A的台词" },
-    { name: "角色B", content: "角色B的台词" },
+    {
+      name: "Character A",
+      content: "Charater A says..."
+    },
+    {
+      name: "Character B",
+      content: "Charater B says..."
+    }
   ],
-  backgroundImgSource: "图片链接",
-  soundSources: [{ source: "音频链接" }],
+  backgroundImgSource: "img url",
+  soundSources: [{ source: "sound url" }],
 });
 
+// Add scenes
 creator.add(titleScene)
 creator.add(dialogueScene)
+
+// Start creating videos
 creator.start().then(videoBlob => {
-  URL.createObjectURL(videoBlob) // 稍等片刻，你就可以获得一个mp4文件
+  URL.createObjectURL(videoBlob)  // Wait a few moments and you'll get an mp4 file
 })
 ```
+[![Open in CodeSandbox](https://img.shields.io/badge/Open%20in-CodeSandbox-blue?style=flat-square&logo=codesandbox)](https://codesandbox.io/s/make-video-programmatically-with-vnve-template-4j467p)
 
-## 多仓库
+## Core Packages
 | 包名 | 简介 | 文档 |
 |  ----  | ----  | ---- |
-| @vnve/editor | 编辑器的web ui页面 | - |
-| @vnve/core | 核心模块，利用PixiJS + Webcodes实现场景动态化，并生成视频 | [📖](https://github.com/vnve/vnve/blob/main/packages/core/README.md) |
-| @vnve/template | 模版包，由场景和元素组成 | [📖](https://github.com/vnve/vnve/blob/main/packages/template/README.md) |
+| @vnve/editor | Web UI page for the online editor | - |
+| @vnve/core | Core module, using PixiJS + Webcodes to achieve scene dynamization and export Mp4 video | [📖](https://github.com/vnve/vnve/blob/main/packages/core/README.md) |
+| @vnve/template | Template package, consisting of scenarios and elements for scenario reuse | [📖](https://github.com/vnve/vnve/blob/main/packages/template/README.md) |
 
-## 证书
+## License
 MIT
