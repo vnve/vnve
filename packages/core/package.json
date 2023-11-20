@@ -3,6 +3,21 @@
   "version": "1.0.2",
   "description": "use pixijs + webcodecs to generate mp4 video, for create some video like visual novel",
   "main": "./src/index.ts",
+  "publishConfig": {
+    "main": "./dist/core.umd.js",
+    "files": [
+      "dist"
+    ],
+    "module": "./dist/core.js",
+    "types": "./dist/core.d.ts",
+    "exports": {
+      ".": {
+        "import": "./dist/core.js",
+        "require": "./dist/core.umd.js",
+        "types": "./dist/core.d.ts"
+      }
+    }
+  },
   "scripts": {
     "dev": "vite build --watch",
     "build": "rimraf dist && tsc && vite build",
