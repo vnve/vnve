@@ -13,7 +13,7 @@
   <img src="https://github.com/vnve/vnve/actions/workflows/static.yml/badge.svg" alt="static">
 </div>
 
-## 特征
+## Features
 
 - 🎬 An online video editor customized for creating visual novels, open your browser and start creating!
 - 👋 Say goodbye to complicated video editing software and create visual novel videos easily and quickly!
@@ -21,6 +21,19 @@
 - 🚀 Pure front-end Typescript implementation, the core is driven by PixiJS + Webcodecs.
 - 🖍️ You can also create videos programmatically by using the npm package
 > 👻 Positioning is just a video creation tool tailored for visual novels, if you want to create branching logic, numerical values and other more game-like behavior, you can go to use bilibili [interactive video](https://member.bilibili.com/platform/upload/video/interactive)
+
+## Created with VNVE
+<table>
+<tr>
+<td align="center">
+<img style="width: 360px" src="demo/titleScene.gif" />
+<p>Video title scene</p>
+<td align="center">
+<img style="width: 360px" src="demo/dialogueScene.gif" />
+<p>Character dialog scenes</p>
+</td>
+</tr>
+</table>
 
 ## Online Usage
 visit: [vnve.github.io/vnve](https://vnve.github.io/vnve/), start creating video immediately.

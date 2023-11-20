@@ -23,6 +23,19 @@
 - 🖍️ 也可以通过使用Npm包，去用编程的方式去创作视频
 > 👻 定位只是一个为视觉小说量身定制的视频创作工具，假如你想制作分支逻辑、数值等更具游戏性的行为，可以去利用类似b站的[互动视频](https://member.bilibili.com/platform/upload/video/interactive)去实现
 
+## 使用VNVE创作的视频
+<table>
+<tr>
+<td align="center">
+<img style="width: 360px" src="demo/titleScene.gif" />
+<p>视频标题场景</p>
+<td align="center">
+<img style="width: 360px" src="demo/dialogueScene.gif" />
+<p>人物对话场景</p>
+</td>
+</tr>
+</table>
+
 ## 在线用法
 访问: [vnve.github.io/vnve](https://vnve.github.io/vnve/)，立刻开始创作
 
