@@ -17,7 +17,6 @@ export default defineConfig({
         },
       },
     },
-    sourcemap: process.env.OPEN_SOURCEMAP ? true : false,
   },
   plugins: [dts({ rollupTypes: true })],
 });

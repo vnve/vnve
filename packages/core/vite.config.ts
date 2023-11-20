@@ -9,7 +9,6 @@ export default defineConfig({
       name: "VNVE",
       fileName: "core",
     },
-    sourcemap: process.env.OPEN_SOURCEMAP ? true : false,
   },
   plugins: [dts({ rollupTypes: true })],
 });

@@ -5,7 +5,6 @@
   "private": true,
   "scripts": {
     "dev": "pnpm -F editor run dev",
-    "dev:all": "OPEN_SOURCEMAP=true pnpm -r --filter=./packages/** --parallel run dev",
     "dev:editor": "pnpm -F editor run dev",
     "build:editor": "pnpm -F editor run build",
     "release:editor": "pnpm -F editor run release",
