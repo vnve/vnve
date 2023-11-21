@@ -57,17 +57,16 @@ export default function DialogueSceneDetail({
     "background" | "character" | "dialog"
   >();
 
-  function focusLine(targetIndex: number) {
+  function focusLine(line: { name: string; content: string }) {
     const editor = getEditor();
     const scene = editor.activeScene as DialogueScene;
-    const hit = scene.lines[targetIndex];
 
     scene.nameText._width = 0;
     scene.nameText._height = 0;
     scene.dialogText._width = 0;
     scene.dialogText._height = 0;
-    scene.nameText.text = hit.name;
-    scene.dialogText.text = hit.content;
+    scene.nameText.text = line.name;
+    scene.dialogText.text = line.content;
   }
 
   function changeLines(
@@ -81,7 +80,6 @@ export default function DialogueSceneDetail({
       if (lineIndex === targetIndex) {
         let newLine = { ...line };
 
-        focusLine(lineIndex);
         if (type === "name") {
           newLine = {
             ...line,
@@ -93,6 +91,8 @@ export default function DialogueSceneDetail({
             content: value,
           };
         }
+
+        focusLine(newLine);
 
         return newLine;
       }
@@ -386,7 +386,7 @@ export default function DialogueSceneDetail({
                 onChange={(event) =>
                   changeLines(index, event.target.value, "name")
                 }
-                onFocus={() => focusLine(index)}
+                onFocus={() => focusLine(line)}
                 placeholder="角色名"
                 rows={1}
               ></Textarea>
@@ -398,7 +398,7 @@ export default function DialogueSceneDetail({
                   onChange={(event) =>
                     changeLines(index, event.target.value, "content")
                   }
-                  onFocus={() => focusLine(index)}
+                  onFocus={() => focusLine(line)}
                 ></Textarea>
                 <Flex
                   flexDirection={"column"}
