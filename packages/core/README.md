@@ -1,5 +1,5 @@
 ## Purpose
-Use PixiJS + Webcodecs to create mp4 videos in browser.
+Use PixiJS + WebCodecs to create mp4 videos in browser.
 
 > You can view the browser's online editor at: [vnve](https://github.com/vnve/vnve)
 

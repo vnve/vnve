@@ -5,7 +5,7 @@
 <h1 align="center">V N V E</h1>
 <p align="center"><strong>Visual Novel Video Editor</strong></p>
 <p align="center"><strong>视觉小说视频编辑器</strong></p>
-<p align="center"><strong>在浏览器中制作视觉小说视频<a href="https://vnve.github.io/vnve/"> 🔗 </a></strong></p>
+<p align="center"><strong>在浏览器中制作视觉小说视频 <a href="https://vnve.github.io/vnve/"> 🔗 </a></strong></p>
 <div align="center">
   <a href="https://discord.gg/sc9jpqBAbs"><img src="https://img.shields.io/badge/chat-discord-blue?style=flat&logo=discord" alt="discord chat"></a>
   <a href="https://www.npmjs.com/package/@vnve/core"><img src="https://img.shields.io/npm/dm/%40vnve/core" alt="downloads"></a>
@@ -19,7 +19,7 @@
 - 🎬 为创作视觉小说量身定制的在线视频编辑器，打开浏览器即可开始创作
 - 👋 告别复杂的视频剪辑软件，创作视觉小说视频变得简单且快速
 - 📝 文字优先，让我们回到视觉小说创作的核心 —— 文字内容
-- 🚀 纯前端Typescript实现，核心通过 PixiJS + Webcodecs 驱动
+- 🚀 纯前端Typescript实现，核心通过 PixiJS + WebCodecs 驱动
 - 🖍️ 也可以通过使用Npm包，去用编程的方式去创作视频
 > 👻 定位只是一个为视觉小说量身定制的视频创作工具，假如你想制作分支逻辑、数值等更具游戏性的行为，可以去利用类似b站的[互动视频](https://member.bilibili.com/platform/upload/video/interactive)去实现
 

@@ -4,7 +4,7 @@
 </p>
 <h1 align="center">V N V E</h1>
 <p align="center"><strong>Visual Novel Video Editor</strong></p>
-<p align="center"><strong>Making Visual Novel Videos in Your Browser<a href="https://vnve.github.io/vnve/"> 🔗 </a></strong></p>
+<p align="center"><strong>Make Visual Novel Videos in Your Browser <a href="https://vnve.github.io/vnve/"> 🔗 </a></strong></p>
 <div align="center">
   <a href="https://discord.gg/sc9jpqBAbs"><img src="https://img.shields.io/badge/chat-discord-blue?style=flat&logo=discord" alt="discord chat"></a>
   <a href="https://www.npmjs.com/package/@vnve/core"><img src="https://img.shields.io/npm/dm/%40vnve/core" alt="downloads"></a>
@@ -17,8 +17,8 @@
 
 - 🎬 An online video editor customized for creating visual novels, open your browser and start creating!
 - 👋 Say goodbye to complicated video editing software and create visual novel videos easily and quickly!
-- 📝 Prioritizing text brings us back to the heart of visual novel creation -- textual content
-- 🚀 Pure front-end Typescript implementation, the core is driven by PixiJS + Webcodecs.
+- 📝 Text First, Let's Return to the Core of Visual Novel Creation — Text Content.
+- 🚀 Pure front-end Typescript implementation, Powered by PixiJS + WebCodecs.
 - 🖍️ You can also create videos programmatically by using the npm package
 > 👻 Positioning is just a video creation tool tailored for visual novels, if you want to create branching logic, numerical values and other more game-like behavior, you can go to use bilibili [interactive video](https://member.bilibili.com/platform/upload/video/interactive)
 
