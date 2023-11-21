@@ -30,6 +30,8 @@ import {
   Input,
   Icon,
   Spacer,
+  Toast,
+  useToast,
 } from "@chakra-ui/react";
 import SceneEditorToolbar from "./SceneEditorToolbar/SceneEditorToolbar";
 import IconAddScene from "~icons/material-symbols/add-ad-sharp";
@@ -64,6 +66,8 @@ export default function SceneEditor() {
     onOpen: onOpenFileName,
     onClose: onCloseFileName,
   } = useDisclosure();
+
+  const toast = useToast();
 
   useEffect(() => {
     // TODO: perf
@@ -165,7 +169,13 @@ export default function SceneEditor() {
       }
     }
 
-    const blob = await creator.start(scenes);
+    const blob = await creator.start(scenes).catch(() => {
+      toast({
+        description:
+          "导出失败：当前音频素材中可能存在不符合要求的文件，要求双声道音频",
+        status: "error",
+      });
+    });
 
     if (blob) {
       setExportVideoSrc(URL.createObjectURL(blob));

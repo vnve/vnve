@@ -9,9 +9,14 @@ import {
 import AssetLibrary from "./AssetLibrary/AssetLibrary";
 import logo from "../assets/image/logo.webp";
 import IconBox from "~icons/material-symbols/box-outline-sharp";
+import IconGithub from "~icons/carbon/logo-github";
 
 export default function PageHeader() {
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  function openGithubRepo() {
+    window.open("https://github.com/vnve/vnve", "_blank");
+  }
 
   return (
     <>
@@ -30,6 +35,9 @@ export default function PageHeader() {
         <Flex>
           <Button colorScheme="teal" variant="ghost" onClick={onOpen}>
             <Icon as={IconBox} w={6} h={6}></Icon>
+          </Button>
+          <Button colorScheme="teal" variant="ghost" onClick={openGithubRepo}>
+            <Icon as={IconGithub} w={6} h={6}></Icon>
           </Button>
         </Flex>
       </Flex>

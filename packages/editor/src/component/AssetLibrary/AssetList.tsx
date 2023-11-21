@@ -100,11 +100,31 @@ export default function AssetList({
   }
 
   function addAsset() {
+    if (!newAssetName) {
+      toast({
+        description: "请输入素材名称！",
+        status: "warning",
+        duration: 1000,
+      });
+      return;
+    }
+
+    const sourceFile = (newAssetFileRef.current as any)?.files?.[0];
+
+    if (!sourceFile) {
+      toast({
+        description: "请选择文件！",
+        status: "warning",
+        duration: 1000,
+      });
+      return;
+    }
+
     db.assets.add({
       name: newAssetName,
       type: newAssetType ? [type, newAssetType] : [type],
       tag: [],
-      source: (newAssetFileRef.current as any).files[0],
+      source: sourceFile,
     });
     toast({
       description: "已添加！",
@@ -113,6 +133,7 @@ export default function AssetList({
       isClosable: true,
     });
     onClosePopover();
+    resetAddAssetForm();
   }
 
   function deleteAsset(id?: number) {
@@ -198,6 +219,11 @@ export default function AssetList({
                     p={0.5}
                   ></Input>
                 </FormControl>
+                {type === "audio" && (
+                  <Text fontSize={"xs"} color={"orange"} as={"b"}>
+                    暂不支持单声道音频，请确保至少是双声道音频
+                  </Text>
+                )}
               </Flex>
             </PopoverBody>
             <PopoverFooter display={"flex"} justifyContent={"center"}>
@@ -236,6 +262,7 @@ export default function AssetList({
                   cursor={"pointer"}
                   as={IconDelete}
                   onClick={() => deleteAsset(asset.id)}
+                  mr={4}
                 >
                   删除
                 </Icon>

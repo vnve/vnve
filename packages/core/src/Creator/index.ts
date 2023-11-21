@@ -251,10 +251,7 @@ export class Creator {
       });
     }
 
-    const videoBlob = await this.synthesizer.start(duration).catch((e) => {
-      console.log("synthesizer error:", e);
-      return undefined;
-    });
+    const videoBlob = await this.synthesizer.start(duration);
 
     return videoBlob;
   }

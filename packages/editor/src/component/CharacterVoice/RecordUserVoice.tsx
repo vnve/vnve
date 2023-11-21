@@ -24,8 +24,7 @@ export default function RecordUserVoice({
           capabilities.sampleRate.max < 44100
         ) {
           toast({
-            description:
-              "设备录音规格不满足（最低要求双声道，采样率44100），请使用上传配音",
+            description: "设备录音规格不满足（最低要求双声道），请使用上传配音",
             status: "error",
           });
           return;
