@@ -28,7 +28,7 @@ import {
   NumberDecrementStepper,
   Tooltip,
 } from "@chakra-ui/react";
-import { Child, IEditorChildPosition } from "@vnve/core";
+import { Child, IEditorChildPosition, Img } from "@vnve/core";
 import { EditorContext, getEditor } from "../../lib/context";
 import { useContext } from "react";
 import { PRESET_ANIMATION_LIST } from "../../lib/const";
@@ -79,13 +79,17 @@ export default function CommonToolbar({
     editor.setChildPosition(position);
   }
 
-  function copyChild() {
+  async function copyChild() {
     const editor = getEditor();
     const clonedChild = editor.cloneChild();
 
     if (clonedChild) {
-      clonedChild.x += clonedChild.width / 2;
-      clonedChild.y += clonedChild.height / 2;
+      if (typeof (clonedChild as Img).load === "function") {
+        await (clonedChild as Img).load();
+      }
+      clonedChild.x += clonedChild.width * 0.1;
+      clonedChild.y += clonedChild.height * 0.1;
+
       editor.addChild(clonedChild);
     }
   }
