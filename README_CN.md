@@ -79,7 +79,7 @@ scene.addChild(text)
 scene.addChild(sound)
 
 // 可以给元素加些动画
-text.addAnimation(PREST_ANIMATION.FADE_IN)
+text.addAnimation(PREST_ANIMATION.FadeIn)
 
 // 把场景提供给创作者，然后开始生成视频
 creator.add(scene)

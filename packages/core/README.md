@@ -32,7 +32,7 @@ scene.addChild(text)
 scene.addChild(sound)
 
 // You can add some animation to the element
-text.addAnimation(PREST_ANIMATION.FADE_IN)
+text.addAnimation(PREST_ANIMATION.FadeIn)
 
 // Provide the scene to the creator and start generating the video
 creator.add(scene)
@@ -88,7 +88,7 @@ scene.removeSound(Sound) // remove sound from scene
 scene.addTransition(Transition) // add transition to scene
 scene.removeTransition(Transition) // remove transition from scene
 ```
- 
+
 ### Child
 Elements that can be added to the scene
 
@@ -104,7 +104,7 @@ const text = new Text('This is a PixiJS text', {
 ```
 
 #### Img
-Img is extends from `PIXI.Sprite`, you can use all the properties and call all the methods in [`PIXI.Sprite`](https://pixijs.download/dev/docs/PIXI.Sprite.html).   
+Img is extends from `PIXI.Sprite`, you can use all the properties and call all the methods in [`PIXI.Sprite`](https://pixijs.download/dev/docs/PIXI.Sprite.html).
 For convenience, we have modified the initialization parameters. Now, you only need to pass the image URL to the `source` parameter to complete the creation.
 
 ``` typescript
@@ -127,9 +127,33 @@ dialogRect.endFill();
 ```
 
 #### Sound
+``` typescript
+// options
+const sound = new Sound({
+  source: 'sound url'
+})
+
+sound.start = 1000 // set start time, default is 0
+sound.duration = 1000 // set duration, default is audio buffer duration
+sound.volume = 0.5 // set volume, default is 1
+sound.loop = true // set loop, default is false
+```
 ### Animation
+We use [GSAP](https://github.com/greensock/GSAP) to implement the animation effect
+
+`addAnimation` params is `[fromVars, toVars]`, same as [`GSAP.fromTo`](https://gsap.com/docs/v3/GSAP/gsap.fromTo())
+
+``` typescript
+const text = new Text('Animated Text') // Img | Graphics can also add animation
+
+text.addAnimation([fromVars, toVars]) // same as GSAP.fromTo
+
+// you can also use preset animation
+text.addAnimation(PREST_ANIMATION.FadeIn)
+
+```
 
 ## Browser Support
-
+Default browser support baseline is [WebCodecs](https://caniuse.com/webcodecs) and [OfflineAudioContext](https://caniuse.com/mdn-api_offlineaudiocontext), you can use `isEnvSupported` method to determine if the environment supports.
 
 

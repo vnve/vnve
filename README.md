@@ -79,7 +79,7 @@ scene.addChild(text)
 scene.addChild(sound)
 
 // You can add some animation to the element
-text.addAnimation(PREST_ANIMATION.FADE_IN)
+text.addAnimation(PREST_ANIMATION.FadeIn)
 
 // Provide the scene to the creator and start generating the video
 creator.add(scene)
