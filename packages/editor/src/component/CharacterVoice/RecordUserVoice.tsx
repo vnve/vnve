@@ -19,10 +19,7 @@ export default function RecordUserVoice({
       .then((stream) => {
         const track = stream.getAudioTracks()[0];
         const capabilities = track.getCapabilities();
-        if (
-          capabilities.channelCount.max < 2 ||
-          capabilities.sampleRate.max < 44100
-        ) {
+        if (capabilities.channelCount.max < 2) {
           toast({
             description: "设备录音规格不满足（最低要求双声道），请使用上传配音",
             status: "error",

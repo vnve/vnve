@@ -2,7 +2,7 @@ import { Child, Scene, isEnvSupported } from "@vnve/core";
 import { useEffect, useState } from "react";
 import { EditorContext, getEditor } from "../lib/context";
 import PageHeader from "../component/PageHeader";
-import { Flex } from "@chakra-ui/react";
+import { Flex, Link } from "@chakra-ui/react";
 import SceneEditor from "../component/SceneEditor";
 import SceneDetail from "../component/SceneDetail";
 import SceneList from "../component/SceneList";
@@ -47,7 +47,7 @@ export default function EditorPage() {
           </Flex>
         </Flex>
       </Flex>
-      {!supported && (
+      {supported && (
         <Flex
           position={"fixed"}
           top={0}
@@ -60,7 +60,23 @@ export default function EditorPage() {
           fontSize={"2xl"}
           as={"b"}
         >
-          请先升级至最新版本的Chrome或Edge浏览器！
+          请先升级至最新版本的
+          <Link
+            href="https://www.google.cn/intl/zh-CN/chrome/"
+            isExternal
+            color="teal"
+          >
+            Chrome
+          </Link>
+          或
+          <Link
+            href="https://www.microsoft.com/zh-cn/edge/download"
+            isExternal
+            color="teal"
+          >
+            Edge
+          </Link>
+          浏览器！
         </Flex>
       )}
     </EditorContext.Provider>
