@@ -47,7 +47,7 @@ export default function EditorPage() {
           </Flex>
         </Flex>
       </Flex>
-      {supported && (
+      {!supported && (
         <Flex
           position={"fixed"}
           top={0}
