@@ -46,7 +46,90 @@ creator.start().then(videoBlob => {
 [Template Usage](https://github.com/vnve/vnve/blob/main/packages/template/README.md)
 
 ## API
-If you've used PixiJS, you can get started quickly. This package is a simple layer of encapsulation for PixiJS objects, providing some additional methods and properties. You can think of Text, Img, and Graphics as Text, Sprite, and Graphics in PixiJS to modify their properties.
+If you've used PixiJS, you can get started quickly. This package is a simple layer of encapsulation for PixiJS objects, providing some additional methods and properties.
+
+### Creator
+``` typescript
+// options
+const creator = new Creator({
+  width: 1920, // video width, default is 1920
+  heigh: 1080, // video height, default is 1080
+  fps: 30, // video fps, default is 30
+  background: '"#000000"', // video background, default is "#000000"
+})
+
+// progress callback
+creator.onProgress = (percent: number) => {
+  console.log('video create progress:', percent)
+}
+
+// supported methods
+creator.add(scene) // add scene to creator
+creator.remove(scene) // remove scene from creator
+creator.load(scene[]) // load scenes, will replace creator current scenes
+creator.start() // start to create video
+creator.stop() // stop creating
+```
+
+### Scene
+Scene is extends from `PIXI.Container`, you can use all the properties and call all the methods in [`PIXI.Container`](https://pixijs.download/dev/docs/PIXI.Container.html)
+
+``` typescript
+// options
+const scene = new Scene({
+  duration: 3000 // scene duration, default is 0
+})
+
+// extends methods
+scene.addChild(Text | Img | Graphics) // add child element to scene canvas
+scene.removeChild() // remove child from scene canvas
+scene.addSound(Sound) // add sound to scene
+scene.removeSound(Sound) // remove sound from scene
+scene.addTransition(Transition) // add transition to scene
+scene.removeTransition(Transition) // remove transition from scene
+```
+ 
+### Child
+Elements that can be added to the scene
+
+#### Text
+Text is extends from `PIXI.Text`, you can use all the properties and call all the methods in [`PIXI.Text`](https://pixijs.download/dev/docs/PIXI.Text.html)
+``` typescript
+const text = new Text('This is a PixiJS text', {
+  fontFamily: 'Arial',
+  fontSize: 24,
+  fill: 0xff1010,
+  align: 'center',
+});
+```
+
+#### Img
+Img is extends from `PIXI.Sprite`, you can use all the properties and call all the methods in [`PIXI.Sprite`](https://pixijs.download/dev/docs/PIXI.Sprite.html).   
+For convenience, we have modified the initialization parameters. Now, you only need to pass the image URL to the `source` parameter to complete the creation.
+
+``` typescript
+const img = new Img({
+  source: 'img url'
+});
+```
+
+#### Graphics
+Img is extends from `PIXI.Graphics`, you can use all the properties and call all the methods in [`PIXI.Graphics`](https://pixijs.download/dev/docs/PIXI.Graphics.html).
+``` typescript
+const dialogRect = new Graphics()
+
+dialogRect.x = 100;
+dialogRect.y = 100;
+
+dialogRect.beginFill(0x000000);
+dialogRect.drawRect(0, 0, 100, 100);
+dialogRect.endFill();
+```
+
+#### Sound
+### Animation
+
+## Browser Support
 
 
-TODO: detail api
+
