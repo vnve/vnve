@@ -35,6 +35,12 @@
 </tr>
 </table>
 
+## Purpose
+- 🪄 Low-cost production of visual novel videos, quickly converting textual content into video.
+- 🧩 With [interactive videos](https://member.bilibili.com/platform/upload/video/interactive) on Bilibili, it is possible to achieve a gaming experience similar to that of a GalGame.
+- 🎬 Creating video teasers for novels, short video dramas.
+- ...
+
 ## Online Usage
 visit: [vnve.github.io/vnve](https://vnve.github.io/vnve/), start creating video immediately.
 
