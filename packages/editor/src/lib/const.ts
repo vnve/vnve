@@ -61,6 +61,26 @@ export const PRESET_ANIMATION_LIST = [
     label: "从下进入",
     value: PREST_ANIMATION.EnterFromBottom,
   },
+  {
+    name: "ExitFromLeft",
+    label: "从左离开",
+    value: PREST_ANIMATION.ExitFromLeft,
+  },
+  {
+    name: "ExitFromRight",
+    label: "从右离开",
+    value: PREST_ANIMATION.ExitFromRight,
+  },
+  {
+    name: "ExitFromTop",
+    label: "从上离开",
+    value: PREST_ANIMATION.ExitFromTop,
+  },
+  {
+    name: "ExitFromBottom",
+    label: "从下离开",
+    value: PREST_ANIMATION.ExitFromBottom,
+  },
 ];
 
 export const SCENE_TRANSITION_LIST = [

@@ -197,4 +197,80 @@ export const PREST_ANIMATION = {
       },
     ];
   },
+  get ExitFromLeft(): AnimationParamsValue {
+    return [
+      {
+        pixi: {
+          alpha: 1,
+        },
+      },
+      {
+        pixi: {
+          alpha: 0,
+        },
+        keyframes: {
+          "50%": { x: "-=50%" },
+          "100%": { x: "-=100%" },
+        },
+        duration: 500,
+      },
+    ];
+  },
+  get ExitFromRight(): AnimationParamsValue {
+    return [
+      {
+        pixi: {
+          alpha: 1,
+        },
+      },
+      {
+        pixi: {
+          alpha: 0,
+        },
+        keyframes: {
+          "50%": { x: "+=50%" },
+          "100%": { x: "+=100%" },
+        },
+        duration: 500,
+      },
+    ];
+  },
+  get ExitFromBottom(): AnimationParamsValue {
+    return [
+      {
+        pixi: {
+          alpha: 1,
+        },
+      },
+      {
+        pixi: {
+          alpha: 0,
+        },
+        keyframes: {
+          "50%": { y: "+=50%" },
+          "100%": { y: "+=100%" },
+        },
+        duration: 500,
+      },
+    ];
+  },
+  get ExitFromTop(): AnimationParamsValue {
+    return [
+      {
+        pixi: {
+          alpha: 1,
+        },
+      },
+      {
+        pixi: {
+          alpha: 0,
+        },
+        keyframes: {
+          "50%": { y: "-=50%" },
+          "100%": { y: "-=100%" },
+        },
+        duration: 500,
+      },
+    ];
+  },
 };
