@@ -16,6 +16,23 @@ export default defineConfig({
     legacy({
       targets: ["defaults", "not IE 11"],
     }),
-    VitePWA(),
+    VitePWA({
+      manifest: {
+        name: "VNVE",
+        short_name: "VNVE",
+        description: "Visual Novel Video Editor",
+        theme_color: "#ffffff",
+        icons: [
+          {
+            src: "/logo.png",
+            sizes: "512x512",
+            type: "image/png",
+          },
+        ],
+      },
+      workbox: {
+        globPatterns: ["**/*.{js,css,webp,jpg,png,mp3,wav}"],
+      },
+    }),
   ],
 });
