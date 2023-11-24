@@ -21,7 +21,8 @@ export default defineConfig({
         name: "VNVE",
         short_name: "VNVE",
         description: "Visual Novel Video Editor",
-        theme_color: "#ffffff",
+        theme_color: "#319795",
+        background_color: "#319795",
         icons: [
           {
             src: "/vnve/logo.png",
