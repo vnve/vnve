@@ -24,7 +24,7 @@ export default defineConfig({
         theme_color: "#ffffff",
         icons: [
           {
-            src: "/logo.png",
+            src: "/vnve/logo.png",
             sizes: "512x512",
             type: "image/png",
           },
