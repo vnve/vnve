@@ -30,7 +30,6 @@ import {
   Input,
   Icon,
   Spacer,
-  Toast,
   useToast,
 } from "@chakra-ui/react";
 import SceneEditorToolbar from "./SceneEditorToolbar/SceneEditorToolbar";
@@ -44,7 +43,8 @@ import { DialogueScene } from "@vnve/template";
 export default function SceneEditor() {
   const { activeScene, scenes, setScenes, setActiveChild, setActiveScene } =
     useContext(EditorContext);
-  let creator: Creator | null = null;
+  const creatorRef = useRef<Creator>();
+
   const editorRef = useRef(null);
   const previewRef = useRef(null);
   const [exportVideoSrc, setExportVideoSrc] = useState("");
@@ -70,6 +70,11 @@ export default function SceneEditor() {
   const toast = useToast();
 
   useEffect(() => {
+    creatorRef.current = new Creator({
+      onProgress(percent) {
+        setExportProgress(percent * 100);
+      },
+    });
     // TODO: perf
     setEditor(
       new Editor({
@@ -119,7 +124,6 @@ export default function SceneEditor() {
 
   async function openPreview(all = true) {
     onOpenPreview();
-    creator = new Creator();
     const editor = getEditor();
     let scenes: Scene[] = [];
 
@@ -133,13 +137,16 @@ export default function SceneEditor() {
     }
 
     setTimeout(() => {
-      creator?.preview(previewRef.current! as HTMLCanvasElement, scenes);
+      creatorRef.current?.preview(
+        previewRef.current! as HTMLCanvasElement,
+        scenes,
+      );
     }, 100);
   }
 
   function closePreview() {
     onClosePreview();
-    creator?.stopPreview();
+    creatorRef.current?.stopPreview();
   }
 
   function closePreviewAndExport() {
@@ -152,11 +159,6 @@ export default function SceneEditor() {
     setExportProgress(0);
     setExportVideoSrc("");
     onOpenExport();
-    creator = new Creator({
-      onProgress(percent) {
-        setExportProgress(percent * 100);
-      },
-    });
     const editor = getEditor();
     let scenes: Scene[] = [];
 
@@ -169,7 +171,7 @@ export default function SceneEditor() {
       }
     }
 
-    const blob = await creator.start(scenes).catch(() => {
+    const blob = await creatorRef.current.start(scenes).catch(() => {
       toast({
         description:
           "导出失败：当前音频素材中可能存在不符合要求的文件，要求双声道音频",
@@ -191,7 +193,7 @@ export default function SceneEditor() {
 
   function stopExport() {
     onCloseExport();
-    creator?.stop();
+    creatorRef.current?.stop();
   }
 
   function saveVideo() {
