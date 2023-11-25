@@ -7,6 +7,7 @@
     "dev": "pnpm -F editor run dev",
     "dev:editor": "pnpm -F editor run dev",
     "build:editor": "pnpm -F editor run build",
+    "build:editor:root": "pnpm -F editor run build:root",
     "release:editor": "pnpm -F editor run release",
     "dev:core": "pnpm -F core run dev",
     "build:core": "pnpm -F core run build",
