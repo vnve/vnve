@@ -1,6 +1,7 @@
 import * as Mp4Muxer from "mp4-muxer";
 import { FrameTicker } from "./FrameTicker";
 import { DEFAULT_AUDIO_CONFIG, DEFAULT_VIDEO_CONFIG } from "../Const";
+import log from "loglevel";
 
 export interface SynthesizerOptions {
   width: number;
@@ -32,8 +33,8 @@ interface AudioConfig {
   bitrate: number;
 }
 
-function noop(_e: Error) {
-  console.log("noop log:", _e);
+function noop(e: Error) {
+  log.error("noop error", e);
 }
 
 export class Synthesizer {
@@ -102,8 +103,7 @@ export class Synthesizer {
         this.onProgress(timestamp / this.duration);
       }
 
-      // TODO: more process log
-      // console.log("progress:", timestamp / this.duration);
+      log.debug("progress", timestamp / this.duration);
     });
   }
 
@@ -197,14 +197,20 @@ export class Synthesizer {
           meta as EncodedAudioChunkMetadata,
         );
       },
-      error: (e) => this.errorReject(e),
+      error: (e) => {
+        log.error("video encoder error", e);
+        this.errorReject(e);
+      },
     });
     this.videoEncoder.configure(this.videoConfig);
 
     // audio encoder
     this.audioEncoder = new AudioEncoder({
       output: (chunk, meta) => this.muxer?.addAudioChunk(chunk, meta),
-      error: (e) => this.errorReject(e),
+      error: (e) => {
+        log.error("audio encoder error", e);
+        this.errorReject(e);
+      },
     });
     this.audioEncoder.configure(this.audioConfig);
   }
@@ -247,6 +253,7 @@ export class Synthesizer {
         .run(this.duration, this.fps)
         .then(async () => {
           const videoBlob = await this.endEncoding().catch((e) => {
+            log.error("end encode error", e);
             reject(e);
             return undefined;
           });
@@ -254,13 +261,13 @@ export class Synthesizer {
           resolve(videoBlob);
         })
         .catch((e) => {
-          console.log(e);
+          log.error("ticker run error", e);
           reject(e);
         })
         .finally(() => {
           this.errorReject = noop;
           this.active = false;
-          console.log("synthesize time:", Date.now() - startTime);
+          log.debug("synthesize cost", Date.now() - startTime);
         });
     });
   }

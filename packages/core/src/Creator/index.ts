@@ -10,6 +10,7 @@ import {
   DEFAULT_HEIGHT,
   DEFAULT_WIDTH,
 } from "../Const";
+import log from "loglevel";
 
 interface ICreatorOptions {
   width?: number;
@@ -190,7 +191,7 @@ export class Creator {
 
   public async preview(container: HTMLCanvasElement, scenes?: Scene[]) {
     if (this.previewer?.active || this.synthesizer?.active) {
-      console.warn("ticker is running");
+      log.warn("ticker is running");
       return;
     }
 
@@ -227,7 +228,7 @@ export class Creator {
 
   public async start(scenes?: Scene[]) {
     if (this.previewer?.active || this.synthesizer?.active) {
-      console.warn("ticker is running");
+      log.warn("ticker is running");
       return;
     }
 
