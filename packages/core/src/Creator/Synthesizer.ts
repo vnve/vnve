@@ -2,19 +2,34 @@ import * as Mp4Muxer from "mp4-muxer";
 import { FrameTicker } from "./FrameTicker";
 import { DEFAULT_AUDIO_CONFIG, DEFAULT_VIDEO_CONFIG } from "../Const";
 
-export interface ISynthesizerOptions {
+export interface SynthesizerOptions {
   width: number;
   height: number;
   duration: number;
   fps: number;
-  ticker?: FrameTicker<ISynthesizerTickCtx>;
-  threads?: number; // TODO: use worker threads to perf
+  ticker?: FrameTicker<SynthesizerTickCtx>;
+  videoConfig?: VideoConfig;
+  audioConfig?: AudioConfig;
   onProgress?: (percent: number) => void;
 }
 
-interface ISynthesizerTickCtx {
+interface SynthesizerTickCtx {
   imageSource?: CanvasImageSource;
   audioBuffers?: AudioBuffer[];
+}
+
+interface VideoConfig {
+  width: number;
+  height: number;
+  codec: string;
+  bitrate: number;
+}
+
+interface AudioConfig {
+  codec: string;
+  numberOfChannels: number;
+  sampleRate: number;
+  bitrate: number;
 }
 
 function noop(_e: Error) {
@@ -26,25 +41,35 @@ export class Synthesizer {
   public height: number;
   public duration: number;
   public fps: number;
-  public threads: number;
   public active: boolean;
+  public ticker: FrameTicker<SynthesizerTickCtx>;
   public onProgress?: (percent: number) => void;
 
-  private ticker: FrameTicker<ISynthesizerTickCtx>;
+  private videoConfig: VideoConfig;
+  private audioConfig: AudioConfig;
   private muxer?: Mp4Muxer.Muxer<Mp4Muxer.ArrayBufferTarget>;
   private videoEncoder?: VideoEncoder;
   private audioEncoder?: AudioEncoder;
   private errorReject = noop;
 
-  constructor(options: ISynthesizerOptions) {
+  constructor(options: SynthesizerOptions) {
     this.width = options.width;
     this.height = options.height;
     this.duration = options.duration;
     this.fps = options.fps;
-    this.threads = options.threads ?? 1;
-    this.ticker = options.ticker ?? new FrameTicker<ISynthesizerTickCtx>({});
+    this.ticker = options.ticker ?? new FrameTicker<SynthesizerTickCtx>({});
     this.onProgress = options.onProgress;
     this.active = false;
+    this.videoConfig = {
+      ...DEFAULT_VIDEO_CONFIG,
+      ...(options.videoConfig || {}),
+      width: this.width,
+      height: this.height,
+    };
+    this.audioConfig = {
+      ...DEFAULT_AUDIO_CONFIG,
+      ...(options.audioConfig || {}),
+    };
 
     this.createEncodeTickInterceptor();
   }
@@ -58,7 +83,7 @@ export class Synthesizer {
       const { imageSource, audioBuffers } = tickCtx;
       // video encode
       if (imageSource) {
-        const videoFrame = new window.VideoFrame(imageSource, {
+        const videoFrame = new VideoFrame(imageSource, {
           timestamp: timestamp * 1000,
         });
         this.videoEncoder?.encode(videoFrame, {
@@ -68,29 +93,10 @@ export class Synthesizer {
       }
 
       // audio encode
-      if (audioBuffers && audioBuffers.length > 0) {
-        const audioData = await this.genAudioData(audioBuffers, timestamp);
+      const audioData = await this.genAudioData(timestamp, audioBuffers);
 
-        this.audioEncoder?.encode(audioData);
-        audioData.close();
-      } else {
-        // fill with blank audio data
-        const blankNumberOfFrames =
-          DEFAULT_AUDIO_CONFIG.sampleRate * (1 / this.fps);
-        const blankAudioData = new AudioData({
-          timestamp,
-          sampleRate: DEFAULT_AUDIO_CONFIG.sampleRate,
-          numberOfChannels: DEFAULT_AUDIO_CONFIG.numberOfChannels,
-          numberOfFrames: blankNumberOfFrames,
-          data: new Float32Array(
-            blankNumberOfFrames * DEFAULT_AUDIO_CONFIG.numberOfChannels,
-          ).fill(0),
-          format: "f32-planar",
-        });
-
-        this.audioEncoder?.encode(blankAudioData);
-        blankAudioData.close();
-      }
+      this.audioEncoder?.encode(audioData);
+      audioData.close();
 
       if (this.onProgress) {
         this.onProgress(timestamp / this.duration);
@@ -102,12 +108,12 @@ export class Synthesizer {
   }
 
   private async genAudioData(
-    audioBuffers: AudioBuffer[],
     timestamp: number,
+    audioBuffers?: AudioBuffer[],
   ): Promise<AudioData> {
-    const sampleRate = audioBuffers[0].sampleRate;
-    const numberOfChannels = audioBuffers[0].numberOfChannels;
-    const numberOfFrames = audioBuffers[0].length;
+    const sampleRate = this.audioConfig.sampleRate;
+    const numberOfChannels = this.audioConfig.numberOfChannels;
+    const numberOfFrames = this.audioConfig.sampleRate * (1 / this.fps);
     const offlineAudioContext = new OfflineAudioContext(
       numberOfChannels,
       numberOfFrames,
@@ -118,30 +124,42 @@ export class Synthesizer {
       numberOfFrames,
       sampleRate,
     );
+    let data: Float32Array;
 
-    // mixin multi audio channel data
-    audioBuffers.forEach((audioBuffer, bufferIndex) => {
-      for (let channel = 0; channel < numberOfChannels; channel++) {
-        const channelData = audioBuffer.getChannelData(channel);
-        const mixedChannelData = mixedAudioBuffer.getChannelData(channel);
+    if (audioBuffers) {
+      // mixin multi audio channel data
+      audioBuffers.forEach((audioBuffer, bufferIndex) => {
+        for (let channel = 0; channel < numberOfChannels; channel++) {
+          // when some audioBuffer is single channel, fill with blank data
+          const channelData =
+            channel < audioBuffer.numberOfChannels
+              ? audioBuffer.getChannelData(channel)
+              : new Float32Array(numberOfFrames).fill(0);
 
-        if (bufferIndex === 0) {
-          mixedChannelData.set(channelData);
-        } else {
-          for (let i = 0; i < mixedChannelData.length; i++) {
-            mixedChannelData[i] += channelData[i];
+          const mixedChannelData = mixedAudioBuffer.getChannelData(channel);
+
+          if (bufferIndex === 0) {
+            mixedChannelData.set(channelData);
+          } else {
+            for (let i = 0; i < mixedChannelData.length; i++) {
+              mixedChannelData[i] += channelData[i];
+            }
           }
         }
+      });
+
+      // copy data from audioBuffer to adapt audioData
+      data = new Float32Array(numberOfFrames * numberOfChannels);
+
+      for (let i = 0; i < mixedAudioBuffer.numberOfChannels; i++) {
+        data.set(
+          mixedAudioBuffer.getChannelData(i),
+          i * mixedAudioBuffer.length,
+        );
       }
-    });
-
-    // copy data from audioBuffer to adapt audioData
-    const data = new Float32Array(
-      mixedAudioBuffer.length * mixedAudioBuffer.numberOfChannels,
-    );
-
-    for (let i = 0; i < mixedAudioBuffer.numberOfChannels; i++) {
-      data.set(mixedAudioBuffer.getChannelData(i), i * mixedAudioBuffer.length);
+    } else {
+      // fill with blank placeholder data
+      data = new Float32Array(numberOfFrames * numberOfChannels).fill(0);
     }
 
     return new AudioData({
@@ -160,13 +178,13 @@ export class Synthesizer {
       target: new Mp4Muxer.ArrayBufferTarget(),
       video: {
         codec: "avc",
-        width: this.width,
-        height: this.height,
+        width: this.videoConfig.width,
+        height: this.videoConfig.height,
       },
       audio: {
         codec: "aac",
-        numberOfChannels: 2,
-        sampleRate: 44100,
+        numberOfChannels: this.audioConfig.numberOfChannels,
+        sampleRate: this.audioConfig.sampleRate,
       },
       firstTimestampBehavior: "offset",
     });
@@ -177,23 +195,18 @@ export class Synthesizer {
         return this.muxer?.addVideoChunk(
           chunk,
           meta as EncodedAudioChunkMetadata,
-          chunk.timestamp,
         );
       },
       error: (e) => this.errorReject(e),
     });
-    this.videoEncoder.configure({
-      ...DEFAULT_VIDEO_CONFIG,
-      width: this.width,
-      height: this.height,
-    });
+    this.videoEncoder.configure(this.videoConfig);
 
     // audio encoder
     this.audioEncoder = new AudioEncoder({
       output: (chunk, meta) => this.muxer?.addAudioChunk(chunk, meta),
       error: (e) => this.errorReject(e),
     });
-    this.audioEncoder.configure(DEFAULT_AUDIO_CONFIG);
+    this.audioEncoder.configure(this.audioConfig);
   }
 
   private async endEncoding() {
@@ -212,7 +225,7 @@ export class Synthesizer {
   }
 
   public add(
-    tick: (timestamp: number, tickCtx: ISynthesizerTickCtx) => Promise<void>,
+    tick: (timestamp: number, tickCtx: SynthesizerTickCtx) => Promise<void>,
   ) {
     this.ticker.add(tick);
   }
@@ -240,7 +253,10 @@ export class Synthesizer {
 
           resolve(videoBlob);
         })
-        .catch(reject)
+        .catch((e) => {
+          console.log(e);
+          reject(e);
+        })
         .finally(() => {
           this.errorReject = noop;
           this.active = false;
