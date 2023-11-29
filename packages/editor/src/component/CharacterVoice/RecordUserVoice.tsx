@@ -1,4 +1,4 @@
-import { Flex, Button, useToast } from "@chakra-ui/react";
+import { Flex, Button } from "@chakra-ui/react";
 import { useRef, useState } from "react";
 
 export default function RecordUserVoice({
@@ -11,22 +11,11 @@ export default function RecordUserVoice({
   >("inactive");
   const [audioUrl, setAudioUrl] = useState("");
   const mediaRecorder = useRef<MediaRecorder>(null);
-  const toast = useToast();
 
   function start() {
     navigator.mediaDevices
       .getUserMedia({ audio: { channelCount: 2, sampleRate: 44100 } })
       .then((stream) => {
-        const track = stream.getAudioTracks()[0];
-        const capabilities = track.getCapabilities();
-        if (capabilities.channelCount.max < 2) {
-          toast({
-            description: "设备录音规格不满足（最低要求双声道），请使用上传配音",
-            status: "error",
-          });
-          return;
-        }
-
         mediaRecorder.current = new MediaRecorder(stream, {
           audioBitsPerSecond: 128000,
         });

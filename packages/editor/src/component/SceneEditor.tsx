@@ -171,10 +171,9 @@ export default function SceneEditor() {
       }
     }
 
-    const blob = await creatorRef.current.start(scenes).catch(() => {
+    const blob = await creatorRef.current.start(scenes).catch((e) => {
       toast({
-        description:
-          "导出失败：当前音频素材中可能存在不符合要求的文件，要求双声道音频",
+        description: `导出失败：${e?.message}`,
         status: "error",
       });
     });

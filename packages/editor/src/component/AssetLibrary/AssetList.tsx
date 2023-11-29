@@ -219,11 +219,6 @@ export default function AssetList({
                     p={0.5}
                   ></Input>
                 </FormControl>
-                {type === "audio" && (
-                  <Text fontSize={"xs"} color={"orange"} as={"b"}>
-                    暂不支持单声道音频，请确保至少是双声道音频
-                  </Text>
-                )}
               </Flex>
             </PopoverBody>
             <PopoverFooter display={"flex"} justifyContent={"center"}>
