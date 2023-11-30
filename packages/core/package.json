@@ -2,15 +2,16 @@
   "name": "@vnve/core",
   "version": "1.0.6",
   "description": "Use PixiJS + Webcodecs to create mp4 videos in browser",
+  "type": "module",
   "main": "./src/index.ts",
   "publishConfig": {
-    "main": "./dist/core.umd.js",
+    "main": "./dist/core.umd.cjs",
     "module": "./dist/core.js",
     "types": "./dist/core.d.ts",
     "exports": {
       ".": {
         "import": "./dist/core.js",
-        "require": "./dist/core.umd.js",
+        "require": "./dist/core.umd.cjs",
         "types": "./dist/core.d.ts"
       }
     }
