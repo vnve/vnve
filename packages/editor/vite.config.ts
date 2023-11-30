@@ -7,17 +7,17 @@ import { VitePWA } from "vite-plugin-pwa";
 // https://vitejs.dev/config/
 export default defineConfig({
   base: "/vnve/",
-  // build: {
-  //   rollupOptions: {
-  //     external: ["@vnve/core"],
-  //     output: {
-  //       paths: {
-  //         "@vnve/core":
-  //           "https://registry.npmmirror.com/@vnve/core/latest/files/dist/core.js",
-  //       },
-  //     },
-  //   },
-  // },
+  build: {
+    rollupOptions: {
+      external: ["@vnve/core"],
+      output: {
+        paths: {
+          "@vnve/core":
+            "https://registry.npmmirror.com/@vnve/core/latest/files/dist/core.js",
+        },
+      },
+    },
+  },
   plugins: [
     react(),
     Icons({
