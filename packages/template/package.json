@@ -2,15 +2,16 @@
   "name": "@vnve/template",
   "version": "1.0.3",
   "description": "vnve's video templates in order to make creating visual novel videos quicker",
+  "type": "module",
   "main": "./src/index.ts",
   "publishConfig": {
-    "main": "./dist/template.umd.js",
+    "main": "./dist/template.umd.cjs",
     "module": "./dist/template.js",
     "types": "./dist/template.d.ts",
     "exports": {
       ".": {
         "import": "./dist/template.js",
-        "require": "./dist/template.umd.js",
+        "require": "./dist/template.umd.cjs",
         "types": "./dist/template.d.ts"
       }
     }
