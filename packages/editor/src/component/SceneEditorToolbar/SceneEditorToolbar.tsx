@@ -22,7 +22,13 @@ export default function SceneEditorToolbar() {
   }
 
   return (
-    <Flex mb={1} h={9} alignItems={"center"}>
+    <Flex
+      mb={1}
+      h={9}
+      alignItems={"center"}
+      maxWidth={{ base: "368px", md: "initial" }}
+      overflowX={"scroll"}
+    >
       {activeChild && (
         <>
           {activeChild.type === "Text" && (

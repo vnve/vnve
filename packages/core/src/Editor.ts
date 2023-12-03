@@ -79,7 +79,7 @@ export class Editor {
 
   public addChildTransformListener(child: Child) {
     child.interactive = true;
-    child.on("click", () => {
+    child.on("pointerdown", () => {
       this.activeChild = child;
       if (!this.activeTransformer) {
         this.addTransformer();

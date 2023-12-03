@@ -106,7 +106,7 @@ export default function SceneList() {
           <Icon as={IconSceneList} w={6} h={6} ml={1}></Icon>
         </Heading>
       </CardHeader>
-      <CardBody>
+      <CardBody p={{ base: 1, md: 3 }}>
         <List spacing={1} maxH={"calc(100vh - 600px)"} overflow={"scroll"}>
           {scenes.map((scene, sceneIndex) => {
             return (

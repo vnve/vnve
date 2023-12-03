@@ -3,6 +3,7 @@ import { SCENE_TEMPLATE_LIST, SCENE_CHILD_TEMPLATE_LIST } from "../lib/const";
 import { useContext, useEffect, useRef, useState } from "react";
 import { EditorContext, getEditor, setEditor } from "../lib/context";
 import {
+  Box,
   Progress,
   List,
   ListItem,
@@ -231,14 +232,19 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
   return (
     <>
       <Card>
-        <CardBody flexDirection={"column"}>
+        <CardBody flexDirection={"column"} p={{ base: 1, md: 3 }}>
           <SceneEditorToolbar></SceneEditorToolbar>
-          <canvas
-            ref={editorRef}
-            style={{ width: "640px", height: "360px" }}
-          ></canvas>
+          <Box
+            width={{ base: "368px", md: "640px" }}
+            height={{ base: "207px", md: "360px" }}
+          >
+            <canvas
+              ref={editorRef}
+              style={{ width: "100%", height: "100%" }}
+            ></canvas>
+          </Box>
           <Flex h={"36px"} mt={2} justifyContent={"space-between"}>
-            <ButtonGroup>
+            <ButtonGroup mr={2}>
               <Popover trigger="hover" placement="bottom-start">
                 <PopoverTrigger>
                   <Button colorScheme="teal">
@@ -407,10 +413,15 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
           <ModalHeader>预览</ModalHeader>
           <ModalCloseButton />
           <ModalBody display={"flex"} justifyContent={"center"}>
-            <canvas
-              ref={previewRef}
-              style={{ width: "768px", height: "432px" }}
-            ></canvas>
+            <Box
+              width={{ base: "368px", md: "768px" }}
+              height={{ base: "207px", md: "432px" }}
+            >
+              <canvas
+                ref={previewRef}
+                style={{ width: "100%", height: "100%" }}
+              ></canvas>
+            </Box>
           </ModalBody>
 
           <ModalFooter>
@@ -436,14 +447,19 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
             alignItems={"center"}
           >
             {exportVideoSrc ? (
-              <video
-                src={exportVideoSrc}
-                style={{ width: "768px", height: "432px" }}
-                controls
-              ></video>
+              <Box
+                width={{ base: "368px", md: "768px" }}
+                height={{ base: "207px", md: "432px" }}
+              >
+                <video
+                  src={exportVideoSrc}
+                  style={{ width: "100%", height: "100%" }}
+                  controls
+                ></video>
+              </Box>
             ) : (
               <Progress
-                w={"768px"}
+                w={"100%"}
                 colorScheme="teal"
                 size="lg"
                 value={exportProgress}
