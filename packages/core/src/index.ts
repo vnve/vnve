@@ -9,4 +9,4 @@ export * from "./Assets";
 // editor
 export * from "./Editor";
 // Utils
-export { Converter, isEnvSupported } from "./Utils";
+export { Converter, isEnvSupported, canIUse } from "./Utils";

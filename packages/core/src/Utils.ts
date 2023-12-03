@@ -123,3 +123,29 @@ export async function isEnvSupported() {
 
   return true;
 }
+
+export async function canIUse() {
+  let video = true;
+  let audio = true;
+
+  if (
+    typeof VideoEncoder === "undefined" ||
+    typeof VideoFrame === "undefined" ||
+    !(await VideoEncoder.isConfigSupported(DEFAULT_VIDEO_CONFIG)).supported
+  ) {
+    video = false;
+  }
+
+  if (
+    typeof AudioEncoder === "undefined" ||
+    typeof AudioData === "undefined" ||
+    !(await AudioEncoder.isConfigSupported(DEFAULT_AUDIO_CONFIG)).supported
+  ) {
+    audio = false;
+  }
+
+  return {
+    video,
+    audio,
+  };
+}

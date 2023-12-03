@@ -1,8 +1,8 @@
-import { Child, Scene, isEnvSupported } from "@vnve/core";
+import { Child, Scene, canIUse } from "@vnve/core";
 import { useEffect, useState } from "react";
-import { EditorContext, getEditor } from "../lib/context";
+import { EditorContext } from "../lib/context";
 import PageHeader from "../component/PageHeader";
-import { Flex, Link } from "@chakra-ui/react";
+import { Flex, Link, useToast } from "@chakra-ui/react";
 import SceneEditor from "../component/SceneEditor";
 import SceneDetail from "../component/SceneDetail";
 import SceneList from "../component/SceneList";
@@ -11,20 +11,29 @@ export default function EditorPage() {
   const [activeChild, setActiveChild] = useState<Child>();
   const [activeScene, setActiveScene] = useState<Scene>();
   const [scenes, setScenes] = useState<Scene[]>([]);
-  const [supported, setSupported] = useState(true);
+  const [supportStatus, setSupportStatus] = useState<
+    "fullSupport" | "onlyVideoSupport" | "notSupport" | "checkingEnv"
+  >("checkingEnv");
+  const toast = useToast();
 
-  isEnvSupported().then((result) => {
-    setSupported(result);
-  });
-
-  // use effect to sync editor activeChild status
   useEffect(() => {
-    const editor = getEditor();
-
-    if (editor.activeChild) {
-      // Object.assign(editor.activeChild, activeChild);
-    }
-  }, [activeChild]);
+    canIUse().then((result) => {
+      if (result.video && result.audio) {
+        setSupportStatus("fullSupport");
+      } else if (result.video && !result.audio) {
+        setSupportStatus("onlyVideoSupport");
+        toast({
+          description:
+            "当前浏览器仅支持视频合成，不支持音频～推荐使用最新Chrome或Edge浏览器",
+          status: "warning",
+          duration: null,
+          isClosable: true,
+        });
+      } else {
+        setSupportStatus("notSupport");
+      }
+    });
+  }, [toast]);
 
   return (
     <EditorContext.Provider
@@ -37,17 +46,20 @@ export default function EditorPage() {
         setScenes,
       }}
     >
-      <Flex direction={"column"} p={1} h={"100vh"}>
-        <PageHeader></PageHeader>
-        <Flex flex={1}>
-          <SceneDetail></SceneDetail>
-          <Flex direction={"column"} gap={1}>
-            <SceneEditor></SceneEditor>
-            <SceneList></SceneList>
+      {["fullSupport", "onlyVideoSupport"].includes(supportStatus) ? (
+        <Flex direction={"column"} p={1} h={"100vh"}>
+          <PageHeader></PageHeader>
+          <Flex flex={1}>
+            <SceneDetail></SceneDetail>
+            <Flex direction={"column"} gap={1}>
+              <SceneEditor
+                onlyVideo={supportStatus === "onlyVideoSupport"}
+              ></SceneEditor>
+              <SceneList></SceneList>
+            </Flex>
           </Flex>
         </Flex>
-      </Flex>
-      {!supported && (
+      ) : (
         <Flex
           position={"fixed"}
           top={0}
@@ -60,23 +72,29 @@ export default function EditorPage() {
           fontSize={"2xl"}
           as={"b"}
         >
-          请先升级至最新版本的
-          <Link
-            href="https://www.google.cn/intl/zh-CN/chrome/"
-            isExternal
-            color="teal"
-          >
-            Chrome
-          </Link>
-          或
-          <Link
-            href="https://www.microsoft.com/zh-cn/edge/download"
-            isExternal
-            color="teal"
-          >
-            Edge
-          </Link>
-          浏览器！
+          {supportStatus === "checkingEnv" ? (
+            <>浏览器环境检测中...</>
+          ) : (
+            <>
+              请先升级至最新版本的
+              <Link
+                href="https://www.google.cn/intl/zh-CN/chrome/"
+                isExternal
+                color="teal"
+              >
+                Chrome
+              </Link>
+              或
+              <Link
+                href="https://www.microsoft.com/zh-cn/edge/download"
+                isExternal
+                color="teal"
+              >
+                Edge
+              </Link>
+              浏览器！
+            </>
+          )}
         </Flex>
       )}
     </EditorContext.Provider>

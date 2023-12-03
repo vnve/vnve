@@ -40,7 +40,7 @@ import IconPreview from "~icons/material-symbols/preview-sharp";
 import IconVideo from "~icons/material-symbols/video-settings-sharp";
 import { DialogueScene } from "@vnve/template";
 
-export default function SceneEditor() {
+export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
   const { activeScene, scenes, setScenes, setActiveChild, setActiveScene } =
     useContext(EditorContext);
   const creatorRef = useRef<Creator>();
@@ -74,6 +74,7 @@ export default function SceneEditor() {
       onProgress(percent) {
         setExportProgress(percent * 100);
       },
+      onlyVideo,
     });
     // TODO: perf
     setEditor(
@@ -196,8 +197,16 @@ export default function SceneEditor() {
   }
 
   function saveVideo() {
+    if (!exportFileName) {
+      toast({
+        description: "请输入保存文件名",
+        status: "info",
+      });
+      return;
+    }
+
     const a = document.createElement("a");
-    a.setAttribute("download", `${exportFileName || "vnve"}.mp4`);
+    a.setAttribute("download", `${exportFileName}.mp4`);
     a.setAttribute("href", exportVideoSrc);
     document.body.appendChild(a);
     a.click();

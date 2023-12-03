@@ -17,6 +17,7 @@ interface ICreatorOptions {
   height?: number;
   background?: string;
   fps?: number;
+  onlyVideo?: boolean;
   onProgress?: (percent: number) => void;
 }
 
@@ -43,6 +44,7 @@ export class Creator {
   public height: number;
   public background: string;
   public fps: number;
+  public onlyVideo: boolean;
 
   private scenes: Scene[];
   private renderer: PIXI.IRenderer;
@@ -57,6 +59,7 @@ export class Creator {
     this.height = this.options.height ?? DEFAULT_HEIGHT;
     this.background = this.options.background ?? DEFAULT_BACKGROUND;
     this.fps = this.options.fps ?? DEFAULT_FPS;
+    this.onlyVideo = this.options.onlyVideo ?? false;
     this.onProgress = this.options.onProgress;
 
     this.scenes = [];
@@ -76,11 +79,10 @@ export class Creator {
   private addCreatorTickerInterceptor() {
     this.ticker.interceptor.beforeAll(async () => {
       this.ticker.tickCtx = {
-        sliceAudioBuffer: (
-          audioBuffer: AudioBuffer,
-          timestamp: number,
-          volume?: number,
-        ) => sliceAudioBuffer(audioBuffer, timestamp, this.fps, volume),
+        sliceAudioBuffer: this.onlyVideo
+          ? undefined
+          : (audioBuffer: AudioBuffer, timestamp: number, volume?: number) =>
+              sliceAudioBuffer(audioBuffer, timestamp, this.fps, volume),
       };
     });
 
@@ -248,6 +250,7 @@ export class Creator {
         duration,
         fps: this.fps,
         ticker: this.ticker,
+        onlyVideo: this.onlyVideo,
         onProgress: this.onProgress,
       });
     }

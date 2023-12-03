@@ -8,6 +8,7 @@ export interface SynthesizerOptions {
   height: number;
   duration: number;
   fps: number;
+  onlyVideo?: boolean;
   ticker?: FrameTicker<SynthesizerTickCtx>;
   videoConfig?: VideoConfig;
   audioConfig?: AudioConfig;
@@ -42,6 +43,7 @@ export class Synthesizer {
   public height: number;
   public duration: number;
   public fps: number;
+  public onlyVideo: boolean;
   public active: boolean;
   public ticker: FrameTicker<SynthesizerTickCtx>;
   public onProgress?: (percent: number) => void;
@@ -58,6 +60,7 @@ export class Synthesizer {
     this.height = options.height;
     this.duration = options.duration;
     this.fps = options.fps;
+    this.onlyVideo = options.onlyVideo ?? false;
     this.ticker = options.ticker ?? new FrameTicker<SynthesizerTickCtx>({});
     this.onProgress = options.onProgress;
     this.active = false;
@@ -93,11 +96,13 @@ export class Synthesizer {
         videoFrame.close();
       }
 
-      // audio encode
-      const audioData = await this.genAudioData(timestamp, audioBuffers);
+      if (!this.onlyVideo) {
+        // audio encode
+        const audioData = await this.genAudioData(timestamp, audioBuffers);
 
-      this.audioEncoder?.encode(audioData);
-      audioData.close();
+        this.audioEncoder?.encode(audioData);
+        audioData.close();
+      }
 
       if (this.onProgress) {
         this.onProgress(timestamp / this.duration);
@@ -186,7 +191,6 @@ export class Synthesizer {
         numberOfChannels: this.audioConfig.numberOfChannels,
         sampleRate: this.audioConfig.sampleRate,
       },
-      firstTimestampBehavior: "offset",
     });
 
     // video encoder
@@ -204,15 +208,17 @@ export class Synthesizer {
     });
     this.videoEncoder.configure(this.videoConfig);
 
-    // audio encoder
-    this.audioEncoder = new AudioEncoder({
-      output: (chunk, meta) => this.muxer?.addAudioChunk(chunk, meta),
-      error: (e) => {
-        log.error("audio encoder error", e);
-        this.errorReject(e);
-      },
-    });
-    this.audioEncoder.configure(this.audioConfig);
+    if (!this.onlyVideo) {
+      // audio encoder
+      this.audioEncoder = new AudioEncoder({
+        output: (chunk, meta) => this.muxer?.addAudioChunk(chunk, meta),
+        error: (e) => {
+          log.error("audio encoder error", e);
+          this.errorReject(e);
+        },
+      });
+      this.audioEncoder.configure(this.audioConfig);
+    }
   }
 
   private async endEncoding() {
@@ -226,7 +232,7 @@ export class Synthesizer {
     const buffer = this.muxer?.target?.buffer;
 
     if (buffer) {
-      return new Blob([buffer]);
+      return new Blob([buffer], { type: "video/mp4" });
     }
   }
 
