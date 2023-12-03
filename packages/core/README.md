@@ -56,6 +56,7 @@ const creator = new Creator({
   heigh: 1080, // video height, default is 1080
   fps: 30, // video fps, default is 30
   background: '"#000000"', // video background, default is "#000000"
+  onlyVideo: false, // only encode video, without audio default is false
 })
 
 // progress callback
