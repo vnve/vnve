@@ -125,23 +125,24 @@ export async function isEnvSupported() {
 }
 
 export async function canIUse() {
-  let video = true;
-  let audio = true;
+  let video = false;
+  let audio = false;
 
   if (
-    typeof VideoEncoder === "undefined" ||
-    typeof VideoFrame === "undefined" ||
-    !(await VideoEncoder.isConfigSupported(DEFAULT_VIDEO_CONFIG)).supported
+    typeof VideoEncoder !== "undefined" &&
+    typeof VideoFrame !== "undefined" &&
+    (await VideoEncoder.isConfigSupported(DEFAULT_VIDEO_CONFIG)).supported
   ) {
-    video = false;
+    video = true;
   }
 
   if (
-    typeof AudioEncoder === "undefined" ||
-    typeof AudioData === "undefined" ||
-    !(await AudioEncoder.isConfigSupported(DEFAULT_AUDIO_CONFIG)).supported
+    typeof OfflineAudioContext !== "undefined" &&
+    typeof AudioEncoder !== "undefined" &&
+    typeof AudioData !== "undefined" &&
+    (await AudioEncoder.isConfigSupported(DEFAULT_AUDIO_CONFIG)).supported
   ) {
-    audio = false;
+    audio = true;
   }
 
   return {

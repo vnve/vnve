@@ -69,6 +69,7 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
   } = useDisclosure();
 
   const toast = useToast();
+  const [currentPreviewIsAll, setCurrentPreviewIsAll] = useState(false);
 
   useEffect(() => {
     creatorRef.current = new Creator({
@@ -125,6 +126,7 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
   }
 
   async function openPreview(all = true) {
+    setCurrentPreviewIsAll(all);
     onOpenPreview();
     const editor = getEditor();
     let scenes: Scene[] = [];
@@ -152,8 +154,12 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
   }
 
   function closePreviewAndExport() {
-    onClosePreview();
-    openExport();
+    closePreview();
+    // stop preview will not stop immediately
+    // TODO: perf stop action
+    setTimeout(() => {
+      openExport(currentPreviewIsAll);
+    }, 100);
   }
 
   async function openExport(all = true) {
@@ -177,6 +183,7 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
       toast({
         description: `导出失败：${e?.message}`,
         status: "error",
+        duration: 1500,
       });
     });
 
