@@ -24,9 +24,8 @@ export default function EditorPage() {
         setSupportStatus("onlyVideoSupport");
         toast({
           description:
-            "当前浏览器仅支持视频合成，不支持音频～推荐使用最新Chrome或Edge浏览器",
+            "当前浏览器仅支持视频合成，不支持音频～推荐使用电脑端最新的Chrome或Edge浏览器",
           status: "warning",
-          duration: null,
           isClosable: true,
         });
       } else {
