@@ -2,7 +2,18 @@ import { Child, Scene, canIUse } from "@vnve/core";
 import { useEffect, useState } from "react";
 import { EditorContext } from "../lib/context";
 import PageHeader from "../component/PageHeader";
-import { Flex, Link, useToast } from "@chakra-ui/react";
+import {
+  Flex,
+  Link,
+  useToast,
+  Drawer,
+  DrawerBody,
+  DrawerOverlay,
+  DrawerContent,
+  useDisclosure,
+  DrawerFooter,
+  Button,
+} from "@chakra-ui/react";
 import SceneEditor from "../component/SceneEditor";
 import SceneDetail from "../component/SceneDetail";
 import SceneList from "../component/SceneList";
@@ -15,6 +26,7 @@ export default function EditorPage() {
     "fullSupport" | "onlyVideoSupport" | "notSupport" | "checkingEnv"
   >("checkingEnv");
   const toast = useToast();
+  const { isOpen, onOpen: onOpenSceneDetailDrawer, onClose } = useDisclosure();
 
   useEffect(() => {
     canIUse().then((result) => {
@@ -49,12 +61,32 @@ export default function EditorPage() {
         <Flex direction={"column"} p={1} h={"100vh"}>
           <PageHeader></PageHeader>
           <Flex flex={1}>
-            <SceneDetail></SceneDetail>
+            {window.screen.width < 768 ? (
+              <Drawer placement={"left"} onClose={onClose} isOpen={isOpen}>
+                <DrawerOverlay />
+                <DrawerContent maxWidth={"95vw"}>
+                  <DrawerBody p={1}>
+                    <SceneDetail></SceneDetail>
+                  </DrawerBody>
+                  <DrawerFooter>
+                    <Button variant="outline" mb={2} onClick={onClose}>
+                      关闭
+                    </Button>
+                  </DrawerFooter>
+                </DrawerContent>
+              </Drawer>
+            ) : (
+              <SceneDetail></SceneDetail>
+            )}
             <Flex direction={"column"} gap={1}>
               <SceneEditor
                 onlyVideo={supportStatus === "onlyVideoSupport"}
               ></SceneEditor>
-              <SceneList></SceneList>
+              <SceneList
+                onOpenSceneDetailDrawer={
+                  window.screen.width < 768 && onOpenSceneDetailDrawer
+                }
+              ></SceneList>
             </Flex>
           </Flex>
         </Flex>

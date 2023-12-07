@@ -30,7 +30,7 @@ export default function AssetLibrary({
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
-      <ModalContent minW={"820px"} minH={"600px"} maxW={"820px"} maxH={"640px"}>
+      <ModalContent minW={"90vw"} minH={"80vh"} maxW={"90vw"} maxH={"90vh"}>
         <ModalHeader>素材库</ModalHeader>
         <ModalCloseButton />
         <ModalBody overflow={"scroll"}>

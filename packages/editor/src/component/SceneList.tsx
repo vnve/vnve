@@ -23,7 +23,11 @@ import IconDelete from "~icons/material-symbols/delete-outline-sharp";
 import { SCENE_TYPE_NAME_MAP } from "../lib/const";
 import { DialogueScene } from "@vnve/template";
 
-export default function SceneList() {
+export default function SceneList({
+  onOpenSceneDetailDrawer,
+}: {
+  onOpenSceneDetailDrawer?: () => void;
+}) {
   const { activeScene, scenes, setScenes, setActiveScene, setActiveChild } =
     useContext(EditorContext);
 
@@ -38,6 +42,10 @@ export default function SceneList() {
       sounds: [...scene.sounds],
       characterImgs: [...((scene as DialogueScene).characterImgs || [])],
     } as any);
+
+    if (onOpenSceneDetailDrawer) {
+      onOpenSceneDetailDrawer();
+    }
   }
 
   function removeScene(scene: Scene, e: React.MouseEvent) {

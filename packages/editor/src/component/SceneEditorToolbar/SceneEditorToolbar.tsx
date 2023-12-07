@@ -26,7 +26,7 @@ export default function SceneEditorToolbar() {
       mb={1}
       h={9}
       alignItems={"center"}
-      maxWidth={{ base: "368px", md: "initial" }}
+      maxWidth={{ base: "352px", md: "initial" }}
       overflowX={"scroll"}
     >
       {activeChild && (

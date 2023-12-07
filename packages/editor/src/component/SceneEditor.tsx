@@ -239,11 +239,11 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
   return (
     <>
       <Card>
-        <CardBody flexDirection={"column"} p={{ base: 1, md: 3 }}>
+        <CardBody p={{ base: 1, md: 3 }}>
           <SceneEditorToolbar></SceneEditorToolbar>
           <Box
-            width={{ base: "368px", md: "640px" }}
-            height={{ base: "207px", md: "360px" }}
+            width={{ base: "352px", md: "480px", lg: "640px" }}
+            height={{ base: "198px", md: "270px", lg: "360px" }}
           >
             <canvas
               ref={editorRef}
@@ -421,8 +421,8 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
           <ModalCloseButton />
           <ModalBody display={"flex"} justifyContent={"center"}>
             <Box
-              width={{ base: "368px", md: "768px" }}
-              height={{ base: "207px", md: "432px" }}
+              width={{ base: "352px", md: "768px" }}
+              height={{ base: "198px", md: "432px" }}
             >
               <canvas
                 ref={previewRef}
@@ -455,8 +455,8 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
           >
             {exportVideoSrc ? (
               <Box
-                width={{ base: "368px", md: "768px" }}
-                height={{ base: "207px", md: "432px" }}
+                width={{ base: "352px", md: "768px" }}
+                height={{ base: "198px", md: "432px" }}
               >
                 <video
                   src={exportVideoSrc}
