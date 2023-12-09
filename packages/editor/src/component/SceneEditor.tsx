@@ -239,11 +239,17 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
   return (
     <>
       <Card>
-        <CardBody p={{ base: 1, md: 3 }}>
+        <CardBody
+          p={{ base: 1, md: 3 }}
+          display={"flex"}
+          flexDirection={"column"}
+          alignItems={"center"}
+        >
           <SceneEditorToolbar></SceneEditorToolbar>
           <Box
-            width={{ base: "352px", md: "480px", lg: "640px" }}
-            height={{ base: "198px", md: "270px", lg: "360px" }}
+            width={{ base: "320px", md: "480px", lg: "640px" }}
+            height={{ base: "180px", md: "270px", lg: "360px" }}
+            userSelect={"none"}
           >
             <canvas
               ref={editorRef}
@@ -251,7 +257,7 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
             ></canvas>
           </Box>
           <Flex h={"36px"} mt={2} justifyContent={"space-between"}>
-            <ButtonGroup mr={2}>
+            <ButtonGroup mr={2} size={{ base: "xs", md: "sm" }}>
               <Popover trigger="hover" placement="bottom-start">
                 <PopoverTrigger>
                   <Button colorScheme="teal">
@@ -319,7 +325,7 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
               </Popover>
             </ButtonGroup>
 
-            <ButtonGroup>
+            <ButtonGroup size={{ base: "xs", md: "sm" }}>
               <Popover trigger="hover" placement="bottom-start">
                 <PopoverTrigger>
                   <Button
@@ -416,7 +422,7 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
         closeOnOverlayClick={false}
       >
         <ModalOverlay />
-        <ModalContent maxW={"820px"}>
+        <ModalContent maxW={{ base: "360px", md: "820px" }}>
           <ModalHeader>预览</ModalHeader>
           <ModalCloseButton />
           <ModalBody display={"flex"} justifyContent={"center"}>
@@ -445,7 +451,7 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
         closeOnOverlayClick={false}
       >
         <ModalOverlay />
-        <ModalContent maxW={"820px"}>
+        <ModalContent maxW={{ base: "360px", md: "820px" }}>
           <ModalHeader>导出视频</ModalHeader>
           <ModalCloseButton />
           <ModalBody

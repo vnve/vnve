@@ -35,11 +35,14 @@ import { TitleScene, MonologueScene, DialogueScene } from "@vnve/template";
 import MonologueSceneDetail from "./TemplateSceneDetail/MonologueSceneDetail";
 import DialogueSceneDetail from "./TemplateSceneDetail/DialogueSceneDetail";
 import AssetLibrary from "./AssetLibrary/AssetLibrary";
-import { AssetItem } from "../lib/assets";
 import IconDetail from "~icons/material-symbols/movie-edit-outline-sharp";
 import IconDelete from "~icons/material-symbols/delete-outline-sharp";
 
-export default function SceneDetail() {
+export default function SceneDetail({
+  disabledAudio,
+}: {
+  disabledAudio: boolean;
+}) {
   const { activeScene, setActiveScene } = useContext(EditorContext);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -264,6 +267,7 @@ export default function SceneDetail() {
                   activeScene={activeScene as MonologueScene}
                   setActiveScene={setActiveScene}
                   addSound={addSound}
+                  disabledAudio={disabledAudio}
                 ></MonologueSceneDetail>
               )}
               {activeScene.type === "DialogueScene" && (
@@ -271,119 +275,130 @@ export default function SceneDetail() {
                   activeScene={activeScene as DialogueScene}
                   setActiveScene={setActiveScene}
                   addSound={addSound}
+                  disabledAudio={disabledAudio}
                 ></DialogueSceneDetail>
               )}
               <Divider></Divider>
               <Flex gap={4}>
-                <FormControl>
-                  <FormLabel fontSize={"sm"}>场景音乐</FormLabel>
-                  <List spacing={2}>
-                    {activeScene.sounds.map((sound, index) => {
-                      return (
-                        <ListItem
-                          key={index}
-                          display={"flex"}
-                          flexDirection={"column"}
-                          gap={2}
-                        >
-                          <Flex justifyContent={"space-between"}>
-                            <Text fontSize={"sm"}>
-                              {index + 1}. {sound.name}
-                            </Text>
+                {!disabledAudio && (
+                  <FormControl>
+                    <FormLabel fontSize={"sm"}>场景音乐</FormLabel>
+                    <List spacing={2}>
+                      {activeScene.sounds.map((sound, index) => {
+                        return (
+                          <ListItem
+                            key={index}
+                            display={"flex"}
+                            flexDirection={"column"}
+                            gap={2}
+                          >
+                            <Flex justifyContent={"space-between"}>
+                              <Text fontSize={"sm"}>
+                                {index + 1}. {sound.name}
+                              </Text>
 
-                            <Icon
-                              cursor={"pointer"}
-                              w={5}
-                              h={5}
-                              as={IconDelete}
-                              onClick={() => removeSound(index)}
-                            ></Icon>
-                          </Flex>
-                          <Flex gap={4}>
-                            <FormControl>
-                              <FormLabel fontSize={"sm"}>开始时间(s)</FormLabel>
-                              <NumberInput
-                                precision={1}
-                                min={0}
-                                step={1}
-                                value={sound.start / 1000}
-                                onChange={(value) =>
-                                  changeSoundProperty(index, "start", value)
-                                }
-                              >
-                                <NumberInputField type="number" />
-                                <NumberInputStepper>
-                                  <NumberIncrementStepper />
-                                  <NumberDecrementStepper />
-                                </NumberInputStepper>
-                              </NumberInput>
-                            </FormControl>
-                            <FormControl>
-                              <FormLabel fontSize={"sm"}>持续时间(s)</FormLabel>
-                              <NumberInput
-                                precision={1}
-                                min={0}
-                                max={(sound.bufferDuration || 0) / 1000}
-                                step={1}
-                                value={sound.duration / 1000 || 0}
-                                onChange={(value) =>
-                                  changeSoundProperty(index, "duration", value)
-                                }
-                              >
-                                <NumberInputField type="number" />
-                                <NumberInputStepper>
-                                  <NumberIncrementStepper />
-                                  <NumberDecrementStepper />
-                                </NumberInputStepper>
-                              </NumberInput>
-                            </FormControl>
-                          </Flex>
-                          <Flex gap={4}>
-                            <FormControl>
-                              <FormLabel fontSize={"sm"}>音量</FormLabel>
-                              <Slider
-                                value={sound.volume}
-                                min={0}
-                                max={1}
-                                step={0.1}
-                                onChange={(num) =>
-                                  changeSoundProperty(index, "volume", num)
-                                }
-                              >
-                                <SliderTrack>
-                                  <SliderFilledTrack />
-                                </SliderTrack>
-                                <SliderThumb />
-                              </Slider>
-                            </FormControl>
-                            <FormControl>
-                              <FormLabel fontSize={"sm"}>是否循环</FormLabel>
-                              <Switch
-                                isChecked={sound.loop}
-                                onChange={(event) =>
-                                  changeSoundProperty(
-                                    index,
-                                    "loop",
-                                    event.target.checked,
-                                  )
-                                }
-                              ></Switch>
-                            </FormControl>
-                          </Flex>
-                        </ListItem>
-                      );
-                    })}
-                  </List>
-                  <Button colorScheme="teal" size="xs" onClick={onOpen}>
-                    新增
-                  </Button>
-                  <AssetLibrary
-                    type="audio"
-                    isOpen={isOpen}
-                    onClose={onClose}
-                    onSelect={addSound}
-                  ></AssetLibrary>
-                </FormControl>
+                              <Icon
+                                cursor={"pointer"}
+                                w={5}
+                                h={5}
+                                as={IconDelete}
+                                onClick={() => removeSound(index)}
+                              ></Icon>
+                            </Flex>
+                            <Flex gap={4}>
+                              <FormControl>
+                                <FormLabel fontSize={"sm"}>
+                                  开始时间(s)
+                                </FormLabel>
+                                <NumberInput
+                                  precision={1}
+                                  min={0}
+                                  step={1}
+                                  value={sound.start / 1000}
+                                  onChange={(value) =>
+                                    changeSoundProperty(index, "start", value)
+                                  }
+                                >
+                                  <NumberInputField type="number" />
+                                  <NumberInputStepper>
+                                    <NumberIncrementStepper />
+                                    <NumberDecrementStepper />
+                                  </NumberInputStepper>
+                                </NumberInput>
+                              </FormControl>
+                              <FormControl>
+                                <FormLabel fontSize={"sm"}>
+                                  持续时间(s)
+                                </FormLabel>
+                                <NumberInput
+                                  precision={1}
+                                  min={0}
+                                  max={(sound.bufferDuration || 0) / 1000}
+                                  step={1}
+                                  value={sound.duration / 1000 || 0}
+                                  onChange={(value) =>
+                                    changeSoundProperty(
+                                      index,
+                                      "duration",
+                                      value,
+                                    )
+                                  }
+                                >
+                                  <NumberInputField type="number" />
+                                  <NumberInputStepper>
+                                    <NumberIncrementStepper />
+                                    <NumberDecrementStepper />
+                                  </NumberInputStepper>
+                                </NumberInput>
+                              </FormControl>
+                            </Flex>
+                            <Flex gap={4}>
+                              <FormControl>
+                                <FormLabel fontSize={"sm"}>音量</FormLabel>
+                                <Slider
+                                  value={sound.volume}
+                                  min={0}
+                                  max={1}
+                                  step={0.1}
+                                  onChange={(num) =>
+                                    changeSoundProperty(index, "volume", num)
+                                  }
+                                >
+                                  <SliderTrack>
+                                    <SliderFilledTrack />
+                                  </SliderTrack>
+                                  <SliderThumb />
+                                </Slider>
+                              </FormControl>
+                              <FormControl>
+                                <FormLabel fontSize={"sm"}>是否循环</FormLabel>
+                                <Switch
+                                  isChecked={sound.loop}
+                                  onChange={(event) =>
+                                    changeSoundProperty(
+                                      index,
+                                      "loop",
+                                      event.target.checked,
+                                    )
+                                  }
+                                ></Switch>
+                              </FormControl>
+                            </Flex>
+                          </ListItem>
+                        );
+                      })}
+                    </List>
+                    <Button colorScheme="teal" size="xs" onClick={onOpen}>
+                      新增
+                    </Button>
+                    <AssetLibrary
+                      type="audio"
+                      isOpen={isOpen}
+                      onClose={onClose}
+                      onSelect={addSound}
+                    ></AssetLibrary>
+                  </FormControl>
+                )}
                 <FormControl>
                   <FormLabel fontSize={"sm"}>转场效果</FormLabel>
                   {activeScene.transitions.map((transition, index) => {

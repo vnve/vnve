@@ -17,19 +17,20 @@ import {
 import SceneEditor from "../component/SceneEditor";
 import SceneDetail from "../component/SceneDetail";
 import SceneList from "../component/SceneList";
+import { BrowserEnvSupportType } from "../lib/const";
 
 export default function EditorPage() {
   const [activeChild, setActiveChild] = useState<Child>();
   const [activeScene, setActiveScene] = useState<Scene>();
   const [scenes, setScenes] = useState<Scene[]>([]);
-  const [supportStatus, setSupportStatus] = useState<
-    "fullSupport" | "onlyVideoSupport" | "notSupport" | "checkingEnv"
-  >("checkingEnv");
+  const [supportStatus, setSupportStatus] =
+    useState<BrowserEnvSupportType>("checkingEnv");
   const toast = useToast();
   const { isOpen, onOpen: onOpenSceneDetailDrawer, onClose } = useDisclosure();
 
   useEffect(() => {
     canIUse().then((result) => {
+      // setSupportStatus("fullSupport");
       if (result.video && result.audio) {
         setSupportStatus("fullSupport");
       } else if (result.video && !result.audio) {
@@ -60,15 +61,17 @@ export default function EditorPage() {
       {["fullSupport", "onlyVideoSupport"].includes(supportStatus) ? (
         <Flex direction={"column"} p={1} h={"100vh"}>
           <PageHeader></PageHeader>
-          <Flex flex={1}>
+          <Flex flex={1} justifyContent={"center"}>
             {window.screen.width < 768 ? (
               <Drawer placement={"left"} onClose={onClose} isOpen={isOpen}>
                 <DrawerOverlay />
-                <DrawerContent maxWidth={"95vw"}>
+                <DrawerContent maxWidth={"90vw"}>
                   <DrawerBody p={1}>
-                    <SceneDetail></SceneDetail>
+                    <SceneDetail
+                      disabledAudio={supportStatus !== "fullSupport"}
+                    ></SceneDetail>
                   </DrawerBody>
-                  <DrawerFooter>
+                  <DrawerFooter p={1}>
                     <Button variant="outline" mb={2} onClick={onClose}>
                       关闭
                     </Button>
@@ -76,9 +79,11 @@ export default function EditorPage() {
                 </DrawerContent>
               </Drawer>
             ) : (
-              <SceneDetail></SceneDetail>
+              <SceneDetail
+                disabledAudio={supportStatus !== "fullSupport"}
+              ></SceneDetail>
             )}
-            <Flex direction={"column"} gap={1}>
+            <Flex direction={"column"} flex={1} gap={1}>
               <SceneEditor
                 onlyVideo={supportStatus === "onlyVideoSupport"}
               ></SceneEditor>

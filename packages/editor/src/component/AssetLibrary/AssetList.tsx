@@ -65,13 +65,12 @@ export default function AssetList({
     [type],
   );
   const dbAssets = useLiveQuery(() =>
-    db.assets.where("type").anyOf(type).toArray(),
+    db.assets.where("type").anyOf(type).reverse().toArray(),
   );
   const [assetTypeFilter, setAssetTypeFilter] = useState<string>(type);
   const assets: AssetItem[] = useMemo(
     () =>
       [
-        ...presetAssets,
         ...(dbAssets || []).map((item) => {
           return {
             ...item,
@@ -79,6 +78,7 @@ export default function AssetList({
             source: URL.createObjectURL(item.source),
           };
         }),
+        ...presetAssets,
       ].filter((item) => item.type.includes(assetTypeFilter)),
     [presetAssets, dbAssets, assetTypeFilter],
   );
@@ -175,10 +175,18 @@ export default function AssetList({
           </Stack>
         </RadioGroup>
 
-        <Popover isOpen={isOpen} onClose={resetAddAssetForm}>
+        <Popover
+          isOpen={isOpen}
+          onClose={resetAddAssetForm}
+          closeOnBlur={false}
+        >
           <PopoverTrigger>
-            <Button colorScheme="teal" size="sm" onClick={onToggle}>
-              新增本地素材
+            <Button
+              colorScheme="teal"
+              size={{ base: "xs", md: "sm" }}
+              onClick={onToggle}
+            >
+              新增素材
             </Button>
           </PopoverTrigger>
           <PopoverContent>

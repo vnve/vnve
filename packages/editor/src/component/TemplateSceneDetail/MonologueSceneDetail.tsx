@@ -35,10 +35,12 @@ export default function MonologueSceneDetail({
   activeScene,
   setActiveScene,
   addSound,
+  disabledAudio,
 }: {
   activeScene: MonologueScene;
   setActiveScene: React.Dispatch<React.SetStateAction<Scene | undefined>>;
   addSound: (asset: any) => void;
+  disabledAudio: boolean;
 }) {
   const [currentTargetIndex, setCurrentTargetIndex] = useState<number>();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -247,16 +249,18 @@ export default function MonologueSceneDetail({
                 gap={1}
                 justifyContent={"flex-start"}
               >
-                <Tooltip label="配音">
-                  <Box
-                    cursor={"pointer"}
-                    w={4}
-                    h={4}
-                    onClick={() => openLineCV(index)}
-                  >
-                    <Icon w={4} h={4} as={IconMic}></Icon>
-                  </Box>
-                </Tooltip>
+                {!disabledAudio && (
+                  <Tooltip label="配音">
+                    <Box
+                      cursor={"pointer"}
+                      w={4}
+                      h={4}
+                      onClick={() => openLineCV(index)}
+                    >
+                      <Icon w={4} h={4} as={IconMic}></Icon>
+                    </Box>
+                  </Tooltip>
+                )}
                 {index !== 0 && (
                   <Tooltip label="上移">
                     <Box

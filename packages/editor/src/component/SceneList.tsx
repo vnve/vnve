@@ -42,10 +42,6 @@ export default function SceneList({
       sounds: [...scene.sounds],
       characterImgs: [...((scene as DialogueScene).characterImgs || [])],
     } as any);
-
-    if (onOpenSceneDetailDrawer) {
-      onOpenSceneDetailDrawer();
-    }
   }
 
   function removeScene(scene: Scene, e: React.MouseEvent) {
@@ -106,6 +102,12 @@ export default function SceneList({
     return text.length > 30 ? text.slice(0, 30) + "..." : text;
   }
 
+  function openSceneDetailDrawer() {
+    if (onOpenSceneDetailDrawer) {
+      onOpenSceneDetailDrawer();
+    }
+  }
+
   return (
     <Card flex={1}>
       <CardHeader>
@@ -115,7 +117,15 @@ export default function SceneList({
         </Heading>
       </CardHeader>
       <CardBody p={{ base: 1, md: 3 }}>
-        <List spacing={1} maxH={"calc(100vh - 600px)"} overflow={"scroll"}>
+        <List
+          spacing={1}
+          maxH={{
+            base: "calc(100vh - 400px)",
+            md: "calc(100vh - 500px)",
+            lg: "calc(100vh - 600px)",
+          }}
+          overflow={"scroll"}
+        >
           {scenes.map((scene, sceneIndex) => {
             return (
               <ListItem
@@ -130,7 +140,7 @@ export default function SceneList({
                 px={2}
                 bgColor={activeScene?.uuid === scene.uuid ? "teal.50" : ""}
               >
-                <Flex>
+                <Flex onClick={openSceneDetailDrawer}>
                   <Text display={"inline-block"} width={"24px"} fontSize={"sm"}>
                     {sceneIndex + 1}.
                   </Text>

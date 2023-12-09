@@ -30,10 +30,10 @@ export default function AssetLibrary({
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
-      <ModalContent minW={"90vw"} minH={"80vh"} maxW={"90vw"} maxH={"90vh"}>
+      <ModalContent minW={"90vw"} minH={"75vh"} maxW={"90vw"} maxH={"75vh"}>
         <ModalHeader>素材库</ModalHeader>
         <ModalCloseButton />
-        <ModalBody overflow={"scroll"}>
+        <ModalBody overflow={"scroll"} p={{ base: 2, md: 4 }}>
           <Tabs size={"sm"} defaultIndex={type === "audio" ? 1 : 0}>
             <TabList>
               <Tab isDisabled={type === "audio"}>图片</Tab>

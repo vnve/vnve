@@ -95,15 +95,16 @@ export const SCENE_TRANSITION_LIST = [
 
 export const SCENE_TEMPLATE_LIST = [
   {
-    name: "标题场景",
+    name: "对话场景",
     factory: () => {
-      const titleScene = new TitleScene({
-        duration: 3000,
-        title: "主标题",
-        subtitle: "副标题",
+      const dialogue = new DialogueScene({
+        lines: [
+          { name: "角色A", content: "角色A台词" },
+          { name: "角色B", content: "角色B台词" },
+        ],
       });
 
-      return titleScene;
+      return dialogue;
     },
   },
   {
@@ -117,16 +118,15 @@ export const SCENE_TEMPLATE_LIST = [
     },
   },
   {
-    name: "对话场景",
+    name: "标题场景",
     factory: () => {
-      const dialogue = new DialogueScene({
-        lines: [
-          { name: "角色A", content: "角色A台词" },
-          { name: "角色B", content: "角色B台词" },
-        ],
+      const titleScene = new TitleScene({
+        duration: 3000,
+        title: "主标题",
+        subtitle: "副标题",
       });
 
-      return dialogue;
+      return titleScene;
     },
   },
   {
@@ -230,3 +230,9 @@ export const LINE_DISPLAY_EFFECT_OPTIONS = [
     value: "none",
   },
 ];
+
+export type BrowserEnvSupportType =
+  | "fullSupport"
+  | "onlyVideoSupport"
+  | "notSupport"
+  | "checkingEnv";
