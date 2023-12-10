@@ -9,6 +9,7 @@
     <style>
       #loader {
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
         width: 100%;
@@ -23,9 +24,10 @@
         display: inline-block;
         box-sizing: border-box;
         animation: rotation 1s linear infinite;
-        }
+        margin-bottom: 16px;
+      }
 
-        @keyframes rotation {
+      @keyframes rotation {
         0% {
             transform: rotate(0deg);
         }
@@ -38,6 +40,8 @@
   <body>
     <div id="loader">
       <span class="loader"></span>
+      <span style="font-size: 16px;">首次访问速度较慢，请耐心等待...</span>
+      <span style="font-size: 14px;">（建议使用科学上网，获得最佳体验）</span>
     </div>
     <div id="root"></div>
     <script>

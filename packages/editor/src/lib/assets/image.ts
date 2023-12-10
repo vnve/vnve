@@ -36,7 +36,7 @@ const backgroundAssets = assetFactory(
       source: school,
     },
     {
-      name: "library",
+      name: "图书馆",
       source: library,
     },
   ],

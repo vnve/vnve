@@ -1,6 +1,3 @@
-import slow from "../../assets/audio/music/slow.mp3";
-import spring from "../../assets/audio/music/spring.mp3";
-import shoot from "../../assets/audio/effect/shoot.wav";
 import { PRESET_IMAGE_ASSETS } from "./image";
 import { PRESET_AUDIO_ASSETS } from "./audio";
 
