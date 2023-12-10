@@ -512,7 +512,7 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
         closeOnOverlayClick={false}
       >
         <ModalOverlay />
-        <ModalContent>
+        <ModalContent maxW={{ base: "350px", md: "820px" }}>
           <ModalHeader>保存视频</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
