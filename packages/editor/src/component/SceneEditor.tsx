@@ -472,6 +472,7 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
                   src={exportVideoSrc}
                   style={{ width: "100%", height: "100%" }}
                   controls
+                  playsInline
                 ></video>
               </Box>
             ) : (

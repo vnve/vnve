@@ -351,10 +351,13 @@ export default function CommonToolbar({
             </Box>
           </PopoverTrigger>
           <Portal>
-            <PopoverContent w={"480px"}>
+            <PopoverContent
+              w={{ base: "280px", md: "500px" }}
+              overflow={"scroll"}
+            >
               <PopoverArrow />
               <PopoverHeader as={"b"}>动画效果</PopoverHeader>
-              <PopoverBody>
+              <PopoverBody w={"480px"}>
                 <List>
                   {activeChild.animationParams?.map((item, index) => {
                     return (
