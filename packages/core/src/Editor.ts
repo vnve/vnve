@@ -19,7 +19,7 @@ interface IEditorOption {
   width?: number;
   height?: number;
   background?: string;
-  onChangeActiveChild?: (child: Child) => void;
+  onChangeActiveChild?: (child?: Child) => void;
   onChangeActiveScene?: (scene: Scene) => void;
 }
 
@@ -33,7 +33,7 @@ export class Editor {
   public activeScene?: Scene;
   public activeChild?: Child;
   public activeTransformer?: Transformer;
-  public onChangeActiveChild?: (child: Child) => void;
+  public onChangeActiveChild?: (child?: Child) => void;
   public onChangeActiveScene?: (scene: Scene) => void;
 
   constructor(options: IEditorOption) {
@@ -58,12 +58,25 @@ export class Editor {
         thickness: 4,
         color: 0x33cccc,
       },
-    }).addListener("pointerupcapture", () => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      if (this.activeTransformer && !this.activeTransformer._pointerDragging) {
-        this.activeChild = undefined;
-        this.activeTransformer.group = [];
+    }).on("pointertap", () => {
+      if (this.activeTransformer) {
+        // hack code for double click to unselect active child
+        if ((this.activeTransformer as any).__isTapped) {
+          this.activeChild = undefined;
+          this.activeTransformer.group = [];
+          if (this.onChangeActiveChild) {
+            this.onChangeActiveChild(undefined);
+          }
+          if ((this.activeTransformer as any).__doubleTapTimer) {
+            clearTimeout((this.activeTransformer as any).__doubleTapTimer);
+          }
+          (this.activeTransformer as any).__isTapped = false;
+        } else {
+          (this.activeTransformer as any).__isTapped = true;
+          (this.activeTransformer as any).__doubleTapTimer = setTimeout(() => {
+            (this.activeTransformer as any).__isTapped = false;
+          }, 600);
+        }
       }
     });
     this.activeScene?.addChild(this.activeTransformer as any);
@@ -79,7 +92,6 @@ export class Editor {
 
   public addChildTransformListener(child: Child) {
     child.interactive = true;
-    child.eventMode = "static";
     child.on("pointerdown", () => {
       this.activeChild = child;
       if (!this.activeTransformer) {

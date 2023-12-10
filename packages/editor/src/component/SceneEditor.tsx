@@ -83,16 +83,20 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
       new Editor({
         container: editorRef.current! as HTMLCanvasElement,
         onChangeActiveChild(child) {
-          setActiveChild({
-            ...child,
-            width: child.width,
-            height: child.height,
-            text: (child as TextChild).text,
-            style: (child as TextChild).style && {
-              ...(child as TextChild).style,
-              fontSize: (child as TextChild).style.fontSize,
-            },
-          } as Child); // create active child for view
+          if (child) {
+            setActiveChild({
+              ...child,
+              width: child.width,
+              height: child.height,
+              text: (child as TextChild).text,
+              style: (child as TextChild).style && {
+                ...(child as TextChild).style,
+                fontSize: (child as TextChild).style.fontSize,
+              },
+            } as Child); // create active child for view
+          } else {
+            setActiveChild(undefined);
+          }
         },
         onChangeActiveScene(scene) {
           setActiveScene({
