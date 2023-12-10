@@ -422,13 +422,13 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
         closeOnOverlayClick={false}
       >
         <ModalOverlay />
-        <ModalContent maxW={{ base: "360px", md: "820px" }}>
+        <ModalContent maxW={{ base: "350px", md: "820px" }}>
           <ModalHeader>预览</ModalHeader>
           <ModalCloseButton />
           <ModalBody display={"flex"} justifyContent={"center"}>
             <Box
-              width={{ base: "352px", md: "768px" }}
-              height={{ base: "198px", md: "432px" }}
+              width={{ base: "320px", md: "768px" }}
+              height={{ base: "180px", md: "432px" }}
             >
               <canvas
                 ref={previewRef}
@@ -451,7 +451,7 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
         closeOnOverlayClick={false}
       >
         <ModalOverlay />
-        <ModalContent maxW={{ base: "360px", md: "820px" }}>
+        <ModalContent maxW={{ base: "350px", md: "820px" }}>
           <ModalHeader>导出视频</ModalHeader>
           <ModalCloseButton />
           <ModalBody
@@ -461,8 +461,8 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
           >
             {exportVideoSrc ? (
               <Box
-                width={{ base: "352px", md: "768px" }}
-                height={{ base: "198px", md: "432px" }}
+                width={{ base: "320px", md: "768px" }}
+                height={{ base: "180px", md: "432px" }}
               >
                 <video
                   src={exportVideoSrc}
