@@ -180,7 +180,7 @@ export default function DialogueSceneDetail({
     const newLines = [...(editor!.activeScene as DialogueScene).lines];
 
     newLines.splice(targetIndex + 1, 0, {
-      name: "",
+      name: newLines[targetIndex].name,
       content: "",
     });
 
