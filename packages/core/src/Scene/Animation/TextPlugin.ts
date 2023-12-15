@@ -1,3 +1,6 @@
+/**
+ * modify from https://github.com/greensock/GSAP/blob/master/src/TextPlugin.js
+ */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 export const TextPlugin = {

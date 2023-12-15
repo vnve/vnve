@@ -235,8 +235,8 @@ export class DialogueScene extends Scene {
             },
             {
               alpha: 1,
-              duration: lineReadingTime < 500 ? lineReadingTime : 500,
-              delay: line.start,
+              duration: LINE_GAP_TIME,
+              delay: index === 0 ? 0 : line.start - LINE_GAP_TIME,
             },
           ],
         });
@@ -248,8 +248,8 @@ export class DialogueScene extends Scene {
             },
             {
               alpha: 1,
-              duration: lineReadingTime < 500 ? lineReadingTime : 500,
-              delay: line.start,
+              duration: LINE_GAP_TIME,
+              delay: index === 0 ? 0 : line.start - LINE_GAP_TIME,
             },
           ],
         });
@@ -275,6 +275,7 @@ export class DialogueScene extends Scene {
             {
               text: line.content,
               delay: line.start,
+              ease: Power0.easeNone,
             },
           ],
         });

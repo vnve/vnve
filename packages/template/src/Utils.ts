@@ -1,6 +1,6 @@
 import { Child } from "@vnve/core";
 
-export const LINE_GAP_TIME = 300;
+export const LINE_GAP_TIME = 500;
 
 export const DEFAULT_WORDS_PER_MINUTE = 500;
 
