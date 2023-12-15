@@ -2,9 +2,9 @@ import { Child } from "@vnve/core";
 
 export const LINE_GAP_TIME = 500;
 
-export const DEFAULT_WORDS_PER_MINUTE = 500;
+export const DEFAULT_WORDS_PER_MINUTE = 600;
 
-export function readingTime(text: string, wordsPerMinute = 500) {
+export function readingTime(text: string, wordsPerMinute = 600) {
   text = text.trim();
   // step 1: count the number of Chinese characters
   const charArray = text.match(/[\u4e00-\u9fa5]/g);

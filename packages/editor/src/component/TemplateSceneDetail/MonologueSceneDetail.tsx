@@ -29,7 +29,10 @@ import IconInsert from "~icons/material-symbols/arrow-insert";
 import IconMic from "~icons/material-symbols/mic-outline";
 import CharacterVoice from "../CharacterVoice/CharacterVoice";
 import { useState } from "react";
-import { LINE_DISPLAY_EFFECT_OPTIONS } from "../../lib/const";
+import {
+  LINE_DISPLAY_EFFECT_OPTIONS,
+  setDefaultWordsPerMinute,
+} from "../../lib/const";
 
 export default function MonologueSceneDetail({
   activeScene,
@@ -160,6 +163,8 @@ export default function MonologueSceneDetail({
   function changeWordsPerMinute(value: string) {
     const editor = getEditor();
     const wordsPerMinute = Number(value);
+
+    setDefaultWordsPerMinute(wordsPerMinute);
 
     (editor.activeScene as MonologueScene).wordsPerMinute = wordsPerMinute;
     (editor.activeScene as MonologueScene).setLines(

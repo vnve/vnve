@@ -10,6 +10,16 @@ import {
 import { DialogueScene, MonologueScene, TitleScene } from "@vnve/template";
 import placeholder from "../assets/image/placeholder.webp";
 
+let defaultWordsPerMinute;
+
+export function setDefaultWordsPerMinute(wordsPerMinute: number) {
+  defaultWordsPerMinute = wordsPerMinute;
+}
+
+export function getDefaultWordsPerMinute(wordsPerMinute: number) {
+  return defaultWordsPerMinute;
+}
+
 export const PRESET_ANIMATION_LIST = [
   {
     name: "FadeIn",
@@ -102,6 +112,7 @@ export const SCENE_TEMPLATE_LIST = [
           { name: "角色A", content: "角色A台词" },
           { name: "角色B", content: "角色B台词" },
         ],
+        wordsPerMinute: defaultWordsPerMinute,
       });
 
       return dialogue;
@@ -112,6 +123,7 @@ export const SCENE_TEMPLATE_LIST = [
     factory: () => {
       const monologueScene = new MonologueScene({
         lines: [{ content: "独白第一句" }, { content: "独白第二句" }],
+        wordsPerMinute: defaultWordsPerMinute,
       });
 
       return monologueScene;

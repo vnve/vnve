@@ -28,7 +28,10 @@ import IconEdit from "~icons/material-symbols/edit-square-outline-sharp";
 import IconInsert from "~icons/material-symbols/arrow-insert";
 import IconMic from "~icons/material-symbols/mic-outline";
 import CharacterVoice from "../CharacterVoice/CharacterVoice";
-import { LINE_DISPLAY_EFFECT_OPTIONS } from "../../lib/const";
+import {
+  LINE_DISPLAY_EFFECT_OPTIONS,
+  setDefaultWordsPerMinute,
+} from "../../lib/const";
 
 type OpenFromType =
   | "addCharacter"
@@ -194,6 +197,8 @@ export default function DialogueSceneDetail({
   function changeWordsPerMinute(value: string) {
     const editor = getEditor();
     const wordsPerMinute = Number(value);
+
+    setDefaultWordsPerMinute(wordsPerMinute);
 
     (editor.activeScene as DialogueScene).wordsPerMinute = wordsPerMinute;
     (editor.activeScene as DialogueScene).setLines(
