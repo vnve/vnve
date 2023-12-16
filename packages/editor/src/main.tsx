@@ -2,6 +2,10 @@ import ReactDOM from "react-dom/client";
 import { ChakraProvider, extendTheme, withDefaultSize } from "@chakra-ui/react";
 import App from "./App.tsx";
 
+window.onbeforeunload = function () {
+  return "确认离开？";
+};
+
 const theme = extendTheme(
   withDefaultSize({
     size: "sm",
