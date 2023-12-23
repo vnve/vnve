@@ -31,6 +31,7 @@ import CharacterVoice from "../CharacterVoice/CharacterVoice";
 import { useState } from "react";
 import {
   LINE_DISPLAY_EFFECT_OPTIONS,
+  setDefaultLineDisplayEffect,
   setDefaultWordsPerMinute,
 } from "../../lib/const";
 
@@ -223,6 +224,8 @@ export default function MonologueSceneDetail({
 
   function changeLineDisplayEffect(lineDisplayEffect: string) {
     const editor = getEditor();
+
+    setDefaultLineDisplayEffect(lineDisplayEffect);
 
     (editor.activeScene as MonologueScene).lineDisplayEffect =
       lineDisplayEffect as any;

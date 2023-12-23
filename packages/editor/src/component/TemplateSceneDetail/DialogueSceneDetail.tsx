@@ -30,6 +30,7 @@ import IconMic from "~icons/material-symbols/mic-outline";
 import CharacterVoice from "../CharacterVoice/CharacterVoice";
 import {
   LINE_DISPLAY_EFFECT_OPTIONS,
+  setDefaultLineDisplayEffect,
   setDefaultWordsPerMinute,
 } from "../../lib/const";
 
@@ -368,6 +369,8 @@ export default function DialogueSceneDetail({
 
   function changeLineDisplayEffect(lineDisplayEffect: string) {
     const editor = getEditor();
+
+    setDefaultLineDisplayEffect(lineDisplayEffect);
 
     (editor.activeScene as DialogueScene).lineDisplayEffect =
       lineDisplayEffect as any;
