@@ -39,6 +39,7 @@
   "license": "MIT",
   "dependencies": {
     "@pixi-essentials/transformer": "^3.0.4",
+    "@pixi/filter-old-film": "^5.1.1",
     "@types/lodash-es": "^4.17.10",
     "@types/uuid": "^9.0.6",
     "gsap": "^3.12.2",

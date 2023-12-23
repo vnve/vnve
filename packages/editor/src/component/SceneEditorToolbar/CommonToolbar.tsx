@@ -31,7 +31,7 @@ import {
 import { Child, IEditorChildPosition, Img } from "@vnve/core";
 import { EditorContext, getEditor } from "../../lib/context";
 import { useContext } from "react";
-import { PRESET_ANIMATION_LIST } from "../../lib/const";
+import { PRESET_ANIMATION_LIST, PRESET_FILTER_LIST } from "../../lib/const";
 import IconOpacity from "~icons/material-symbols/opacity";
 import IconStack from "~icons/material-symbols/stack-sharp";
 import IconPosition from "~icons/material-symbols/position-bottom-left-outline-sharp";
@@ -39,6 +39,7 @@ import IconCopy from "~icons/material-symbols/content-copy-outline-sharp";
 import IconDelete from "~icons/material-symbols/delete-outline-sharp";
 import IconAnimation from "~icons/material-symbols/animation";
 import IconWidthAndHeight from "~icons/material-symbols/width-full-outline-sharp";
+import IconFilterEffect from "~icons/material-symbols/filter-b-and-w-sharp";
 
 export default function CommonToolbar({
   activeChild,
@@ -219,6 +220,35 @@ export default function CommonToolbar({
     changeActiveChild(property, Number(value));
   }
 
+  function addChildFilter() {
+    changeActiveChild("filters", [
+      ...(activeChild.filters || []),
+      PRESET_FILTER_LIST[0].factory(),
+    ]);
+  }
+
+  function changeChildFilterEffect(name: string, targetIndex: number) {
+    changeActiveChild(
+      "filters",
+      activeChild.filters?.map((item, index) => {
+        if (targetIndex === index) {
+          const hit = PRESET_FILTER_LIST.find((preset) => preset.name === name);
+
+          return hit.factory();
+        } else {
+          return item;
+        }
+      }),
+    );
+  }
+
+  function deleteChildFilter(targetIndx: number) {
+    changeActiveChild(
+      "filters",
+      activeChild.filters?.filter((_item, index) => index !== targetIndx),
+    );
+  }
+
   return (
     activeChild && (
       <Flex alignItems={"center"} gap={2}>
@@ -367,7 +397,7 @@ export default function CommonToolbar({
                         flexDirection={"column"}
                         mb={2}
                       >
-                        <Flex gap={2} alignItems={"center"}>
+                        <Flex gap={2} alignItems={"flex-start"}>
                           <FormControl>
                             <FormLabel fontSize={"sm"}>效果</FormLabel>
                             <Select
@@ -379,7 +409,6 @@ export default function CommonToolbar({
                                   index,
                                 )
                               }
-                              placeholder="无"
                             >
                               {PRESET_ANIMATION_LIST.map((option) => {
                                 return (
@@ -459,9 +488,75 @@ export default function CommonToolbar({
                 <Button
                   colorScheme="teal"
                   mt={2}
+                  size={"xs"}
                   onClick={addChildAnimationItem}
                 >
                   新增动画
+                </Button>
+              </PopoverBody>
+            </PopoverContent>
+          </Portal>
+        </Popover>
+        <Popover trigger="hover">
+          <PopoverTrigger>
+            <Box cursor={"pointer"} w={6} h={6}>
+              <Icon as={IconFilterEffect} w={6} h={6}></Icon>
+            </Box>
+          </PopoverTrigger>
+          <Portal>
+            <PopoverContent>
+              <PopoverArrow />
+              <PopoverHeader as={"b"}>滤镜效果</PopoverHeader>
+              <PopoverBody>
+                <List>
+                  {activeChild.filters?.map((item, index) => {
+                    return (
+                      <ListItem
+                        key={index}
+                        display={"flex"}
+                        flexDirection={"column"}
+                        mb={2}
+                      >
+                        <Flex gap={2} alignItems={"flex-start"}>
+                          <FormControl>
+                            <FormLabel fontSize={"sm"}>效果</FormLabel>
+                            <Select
+                              value={(item as any).name}
+                              onChange={(event) =>
+                                changeChildFilterEffect(
+                                  event.target.value,
+                                  index,
+                                )
+                              }
+                            >
+                              {PRESET_FILTER_LIST.map((option) => {
+                                return (
+                                  <option key={option.name} value={option.name}>
+                                    {option.label}
+                                  </option>
+                                );
+                              })}
+                            </Select>
+                          </FormControl>
+                          <Icon
+                            cursor={"pointer"}
+                            as={IconDelete}
+                            w={6}
+                            h={6}
+                            onClick={() => deleteChildFilter(index)}
+                          ></Icon>
+                        </Flex>
+                      </ListItem>
+                    );
+                  })}
+                </List>
+                <Button
+                  colorScheme="teal"
+                  mt={2}
+                  size={"xs"}
+                  onClick={addChildFilter}
+                >
+                  新增滤镜
                 </Button>
               </PopoverBody>
             </PopoverContent>

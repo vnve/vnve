@@ -548,7 +548,7 @@ export default function DialogueSceneDetail({
       </Flex>
       <Flex gap={2}>
         <FormControl>
-          <FormLabel fontSize={"sm"}>对话框素材图</FormLabel>
+          <FormLabel fontSize={"sm"}>对话框</FormLabel>
           {activeScene.dialogImg ? (
             <Flex alignItems={"center"} fontSize={"sm"} gap={2}>
               {activeScene.dialogImg.name}

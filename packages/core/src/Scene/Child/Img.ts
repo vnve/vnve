@@ -4,6 +4,7 @@ import { applyMixins } from "./Mixin";
 import { v4 as uuid } from "uuid";
 import { Assets } from "../../Assets";
 import { cloneDeep } from "lodash-es";
+import { Filter } from "..";
 
 export type ImgSource = string | PIXI.ImageSource;
 
@@ -46,6 +47,8 @@ export class Img extends PIXI.Sprite {
     cloned.scale.copyFrom(this.scale);
     cloned.rotation = this.rotation;
     cloned.animationParams = cloneDeep(this.animationParams);
+    cloned.filters =
+      this.filters?.map((item) => (item as Filter).cloneSelf()) || null;
 
     return cloned;
   }

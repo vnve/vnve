@@ -1,11 +1,16 @@
 import {
+  BlackMaskFilter,
+  BlurFilter,
   Converter,
   FadeInTransition,
   Graphics,
   Img,
+  NoiseFilter,
+  OldFilmFilter,
   PREST_ANIMATION,
   Scene,
   Text,
+  VignetteFilter,
 } from "@vnve/core";
 import { DialogueScene, MonologueScene, TitleScene } from "@vnve/template";
 import placeholder from "../assets/image/placeholder.webp";
@@ -19,6 +24,44 @@ export function setDefaultWordsPerMinute(wordsPerMinute: number) {
 export function getDefaultWordsPerMinute(wordsPerMinute: number) {
   return defaultWordsPerMinute;
 }
+
+export const PRESET_FILTER_LIST = [
+  {
+    name: "BlurFilter",
+    label: "模糊",
+    factory: () => {
+      return new BlurFilter();
+    },
+  },
+  {
+    name: "BlackMaskFilter",
+    label: "纯黑",
+    factory: () => {
+      return new BlackMaskFilter();
+    },
+  },
+  {
+    name: "VignetteFilter",
+    label: "暗角效果",
+    factory: () => {
+      return new VignetteFilter();
+    },
+  },
+  {
+    name: "OldFilmFilter",
+    label: "老电影",
+    factory: () => {
+      return new OldFilmFilter();
+    },
+  },
+  {
+    name: "NoiseFilter",
+    label: "噪点",
+    factory: () => {
+      return new NoiseFilter();
+    },
+  },
+];
 
 export const PRESET_ANIMATION_LIST = [
   {

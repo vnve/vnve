@@ -3,6 +3,7 @@ import { Child } from "./Child";
 import { applyMixins } from "./Mixin";
 import { v4 as uuid } from "uuid";
 import { cloneDeep } from "lodash-es";
+import { Filter } from "..";
 
 export class Text extends PIXI.Text {
   public uuid = uuid();
@@ -20,6 +21,8 @@ export class Text extends PIXI.Text {
     cloned.scale.copyFrom(this.scale);
     cloned.rotation = this.rotation;
     cloned.animationParams = cloneDeep(this.animationParams);
+    cloned.filters =
+      this.filters?.map((item) => (item as Filter).cloneSelf()) || null;
 
     return cloned;
   }

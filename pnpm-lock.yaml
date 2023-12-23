@@ -74,6 +74,9 @@ importers:
       '@pixi-essentials/transformer':
         specifier: ^3.0.4
         version: 3.0.4(@pixi/core@7.3.2)(@pixi/display@7.3.2)(@pixi/events@7.3.2)(@pixi/graphics@7.3.2)(@pixi/math@7.3.2)(@pixi/settings@7.3.2)(@pixi/ticker@7.3.2)
+      '@pixi/filter-old-film':
+        specifier: ^5.1.1
+        version: 5.1.1(@pixi/core@7.3.2)
       '@types/lodash-es':
         specifier: ^4.17.10
         version: 4.17.10
@@ -3326,6 +3329,14 @@ packages:
     resolution: {integrity: sha512-F8GQQ20n7tCjThX6GCXckiXz2YffOCxicTJ0oat9aVDZh+sVsAxYX0aKSdHh0hhv18F0yuc6tPsSL5DYb63xFg==}
     peerDependencies:
       '@pixi/core': 7.3.2
+    dependencies:
+      '@pixi/core': 7.3.2
+    dev: false
+
+  /@pixi/filter-old-film@5.1.1(@pixi/core@7.3.2):
+    resolution: {integrity: sha512-Jgq3eLbcQW48o+YxLe8+T4vsQrvBnKrZAHS3cu3yc2aBLaiVIj8EfYP3vpOPjkQlZ7JVRZNdELpYA6KCR+abXw==}
+    peerDependencies:
+      '@pixi/core': ^7.0.0-X
     dependencies:
       '@pixi/core': 7.3.2
     dev: false
