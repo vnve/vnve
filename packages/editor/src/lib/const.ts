@@ -51,7 +51,7 @@ export const PRESET_FILTER_LIST = [
   },
   {
     name: "VignetteFilter",
-    label: "暗角效果",
+    label: "暗角",
     factory: () => {
       return new VignetteFilter();
     },

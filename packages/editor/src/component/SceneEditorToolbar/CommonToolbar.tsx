@@ -476,8 +476,8 @@ export default function CommonToolbar({
                           <Icon
                             cursor={"pointer"}
                             as={IconDelete}
-                            w={6}
-                            h={6}
+                            w={5}
+                            h={5}
                             onClick={() => deleteChildAnimationItem(index)}
                           ></Icon>
                         </Flex>
@@ -541,8 +541,8 @@ export default function CommonToolbar({
                           <Icon
                             cursor={"pointer"}
                             as={IconDelete}
-                            w={6}
-                            h={6}
+                            w={5}
+                            h={5}
                             onClick={() => deleteChildFilter(index)}
                           ></Icon>
                         </Flex>

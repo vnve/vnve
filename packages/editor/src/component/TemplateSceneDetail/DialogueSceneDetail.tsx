@@ -1,4 +1,6 @@
 import {
+  Divider,
+  Text,
   Select,
   Flex,
   Box,
@@ -401,15 +403,28 @@ export default function DialogueSceneDetail({
                 rows={1}
               ></Textarea>
               <Flex gap={2}>
-                <Textarea
-                  placeholder="角色台词"
-                  rows={4}
-                  value={line.content}
-                  onChange={(event) =>
-                    changeLines(index, event.target.value, "content")
-                  }
-                  onFocus={() => focusLine(line)}
-                ></Textarea>
+                <Flex w={"full"} flexDirection={"column"}>
+                  <Textarea
+                    placeholder="角色台词"
+                    rows={4}
+                    value={line.content}
+                    onChange={(event) =>
+                      changeLines(index, event.target.value, "content")
+                    }
+                    onFocus={() => focusLine(line)}
+                  ></Textarea>
+                  <Flex gap={1} alignItems={"center"} alignSelf={"flex-end"}>
+                    <Text fontSize={"xs"} color={"GrayText"}>
+                      出现时间: {line.start / 1000}s
+                    </Text>
+                    <Text fontSize={"xs"} color={"GrayText"}>
+                      |
+                    </Text>
+                    <Text fontSize={"xs"} color={"GrayText"}>
+                      持续时间: {line.duration / 1000}s
+                    </Text>
+                  </Flex>
+                </Flex>
                 <Flex
                   flexDirection={"column"}
                   gap={1}
