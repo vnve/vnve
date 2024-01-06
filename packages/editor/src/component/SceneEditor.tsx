@@ -40,6 +40,9 @@ import IconAdd from "~icons/material-symbols/add-box-outline-sharp";
 import IconPreview from "~icons/material-symbols/preview-sharp";
 import IconVideo from "~icons/material-symbols/video-settings-sharp";
 import { DialogueScene } from "@vnve/template";
+import { downloadFile } from "../lib/utils";
+
+let splitExportStopped = false;
 
 export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
   const { activeScene, scenes, setScenes, setActiveChild, setActiveScene } =
@@ -51,6 +54,7 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
   const [exportVideoSrc, setExportVideoSrc] = useState("");
   const [exportProgress, setExportProgress] = useState(0);
   const [exportFileName, setExportFileName] = useState("");
+  const [splitExportProgressTip, setSplitExportProgressTip] = useState("");
   const {
     isOpen: isOpenPreview,
     onOpen: onOpenPreview,
@@ -60,6 +64,11 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
     isOpen: isOpenExport,
     onOpen: onOpenExport,
     onClose: onCloseExport,
+  } = useDisclosure();
+  const {
+    isOpen: isOpenSplitExport,
+    onOpen: onOpenSplitExport,
+    onClose: onCloseSplitExport,
   } = useDisclosure();
 
   const {
@@ -166,6 +175,57 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
     }, 100);
   }
 
+  async function splitExportAll() {
+    const editor = getEditor();
+    let scenes: Scene[] = [];
+
+    scenes = editor.exportScenes();
+
+    onOpenSplitExport();
+    setSplitExportProgressTip("");
+    splitExportStopped = false;
+
+    for (let index = 0; index < scenes.length; index++) {
+      if (splitExportStopped) {
+        break;
+      }
+
+      setSplitExportProgressTip(
+        `正在导出第${index + 1} / ${scenes.length}个场景`,
+      );
+
+      const scene = scenes[index];
+      const blob = await creatorRef.current.start([scene]).catch((e) => {
+        toast({
+          description: `导出失败：${e?.message}`,
+          status: "error",
+          duration: 1500,
+        });
+      });
+
+      if (blob) {
+        const exportVideoName = scene.name || `场景${index + 1}`;
+        const exportVideoSrc = URL.createObjectURL(blob);
+
+        downloadFile(exportVideoName, exportVideoSrc);
+        URL.revokeObjectURL(exportVideoSrc);
+      }
+      creatorRef.current?.stop();
+    }
+    toast({
+      description: splitExportStopped ? "导出中止" : "全部导出完成",
+      status: splitExportStopped ? "warning" : "success",
+      duration: 1500,
+    });
+    closeSplitExport();
+  }
+
+  function closeSplitExport() {
+    splitExportStopped = true;
+    onCloseSplitExport();
+    creatorRef.current?.stop();
+  }
+
   async function openExport(all = true) {
     setExportFileName("");
     setExportProgress(0);
@@ -180,6 +240,7 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
       const cloned = editor.cloneScene();
       if (cloned) {
         scenes = [cloned];
+        setExportFileName(cloned.name ?? "");
       }
     }
 
@@ -217,12 +278,7 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
       return;
     }
 
-    const a = document.createElement("a");
-    a.setAttribute("download", `${exportFileName}.mp4`);
-    a.setAttribute("href", exportVideoSrc);
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    downloadFile(exportFileName, exportVideoSrc);
     onCloseFileName();
   }
 
@@ -399,6 +455,19 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
                         </Text>
                       </ListItem>
                       <ListItem
+                        onClick={splitExportAll}
+                        cursor={"pointer"}
+                        userSelect={"none"}
+                        _hover={{ bgColor: "teal.50" }}
+                        display={"flex"}
+                        alignItems={"center"}
+                        p={1}
+                      >
+                        <Text fontSize={"14px"} as={"b"}>
+                          分开导出所有场景
+                        </Text>
+                      </ListItem>
+                      <ListItem
                         onClick={() => openExport()}
                         cursor={"pointer"}
                         userSelect={"none"}
@@ -408,7 +477,7 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
                         p={1}
                       >
                         <Text fontSize={"14px"} as={"b"}>
-                          导出全部场景
+                          合并导出所有场景
                         </Text>
                       </ListItem>
                     </List>
@@ -419,6 +488,26 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
           </Flex>
         </CardBody>
       </Card>
+      <Modal
+        isOpen={isOpenSplitExport}
+        onClose={closeSplitExport}
+        closeOnEsc={false}
+        closeOnOverlayClick={false}
+      >
+        <ModalOverlay />
+        <ModalContent maxW={{ base: "350px", md: "820px" }}>
+          <ModalHeader>分开导出视频</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody display={"flex"} justifyContent={"center"}>
+            {splitExportProgressTip}
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="red" onClick={closeSplitExport}>
+              停止导出
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
       <Modal
         isOpen={isOpenPreview}
         onClose={closePreview}
