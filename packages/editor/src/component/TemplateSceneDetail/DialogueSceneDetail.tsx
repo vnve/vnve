@@ -415,13 +415,13 @@ export default function DialogueSceneDetail({
                   ></Textarea>
                   <Flex gap={1} alignItems={"center"} alignSelf={"flex-end"}>
                     <Text fontSize={"xs"} color={"GrayText"}>
-                      出现时间: {line.start / 1000}s
+                      出现时间: {(line.start / 1000).toFixed(1)}s
                     </Text>
                     <Text fontSize={"xs"} color={"GrayText"}>
                       |
                     </Text>
                     <Text fontSize={"xs"} color={"GrayText"}>
-                      持续时间: {line.duration / 1000}s
+                      持续时间: {(line.duration / 1000).toFixed(1)}s
                     </Text>
                   </Flex>
                 </Flex>

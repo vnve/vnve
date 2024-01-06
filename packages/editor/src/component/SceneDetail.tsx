@@ -420,13 +420,14 @@ export default function SceneDetail({
                         </Select>
                         <NumberInput
                           value={transition.duration / 1000 || 0}
+                          precision={1}
                           min={0}
-                          step={1}
+                          step={0.1}
                           onChange={(value) =>
                             changeSceneTransitionDuration(index, value)
                           }
                         >
-                          <NumberInputField />
+                          <NumberInputField type="number" />
                           <NumberInputStepper>
                             <NumberIncrementStepper />
                             <NumberDecrementStepper />
