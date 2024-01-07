@@ -39,7 +39,7 @@ export default function ImageEditor({
           annotationsCommon={{
             fill: "#ff0000",
           }}
-          Text={{ text: "input..." }}
+          Text={{ text: "请输入..." }}
           Rotate={{ angle: 90, componentType: "slider" }}
           tabsIds={[
             TABS.ADJUST,
