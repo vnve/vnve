@@ -1,6 +1,6 @@
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../../lib/db";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
 import {
   Stack,
   Box,
@@ -33,6 +33,10 @@ import {
   AssetItem,
 } from "../../lib/assets";
 import IconDelete from "~icons/material-symbols/delete-outline-sharp";
+import IconEdit from "~icons/material-symbols/edit-square-outline-sharp";
+import GlobalLoading from "../GlobalLoading";
+
+const ImageEditor = lazy(() => import("./ImageEditor"));
 
 export default function AssetList({
   type,
@@ -84,13 +88,35 @@ export default function AssetList({
   );
   const [newAssetName, setNewAssetName] = useState("");
   const [newAssetType, setNewAssetType] = useState("");
+  const [editAssetItem, setEditAssetItem] = useState<AssetItem>();
   const newAssetFileRef = useRef(null);
+
+  const [isImgEditorShown, setIsImgEditorShown] = useState(false);
 
   useEffect(() => {
     if (typeFilter) {
       setAssetTypeFilter(typeFilter);
     }
   }, [typeFilter]);
+
+  function openImgEditor(e: React.MouseEvent, asset: AssetItem) {
+    e.stopPropagation();
+    setEditAssetItem(asset);
+    setIsImgEditorShown(true);
+  }
+
+  function saveEditAssetItem(editedImageObject) {
+    editedImageObject.imageCanvas.toBlob((blob) => {
+      db.assets.where("id").equals(editAssetItem.id).modify({
+        source: blob,
+      });
+      closeImgEditor();
+    });
+  }
+
+  function closeImgEditor() {
+    setIsImgEditorShown(false);
+  }
 
   function resetAddAssetForm() {
     onClosePopover();
@@ -136,7 +162,8 @@ export default function AssetList({
     resetAddAssetForm();
   }
 
-  function deleteAsset(id?: number) {
+  function deleteAsset(e: React.MouseEvent, id?: number) {
+    e.stopPropagation();
     db.assets.where("id").equals(id!).delete();
   }
 
@@ -238,7 +265,7 @@ export default function AssetList({
         </Popover>
       </Flex>
 
-      <Flex gap={2} flexWrap={"wrap"}>
+      <Flex gap={4} flexWrap={"wrap"}>
         {assets?.map((asset) => (
           <Flex
             key={asset.id}
@@ -259,21 +286,46 @@ export default function AssetList({
             <Flex mt={2} w={"100%"} justifyContent={"space-between"}>
               <Text fontSize={"sm"}>{asset.name}</Text>
               {asset.id < 100000 && (
-                <Icon
-                  w={5}
-                  h={5}
-                  cursor={"pointer"}
-                  as={IconDelete}
-                  onClick={() => deleteAsset(asset.id)}
-                  mr={4}
-                >
-                  删除
-                </Icon>
+                <Box>
+                  {type === "image" && (
+                    <Icon
+                      w={5}
+                      h={5}
+                      cursor={"pointer"}
+                      as={IconEdit}
+                      onClick={(e) => openImgEditor(e, asset)}
+                    >
+                      编辑
+                    </Icon>
+                  )}
+
+                  <Icon
+                    w={5}
+                    h={5}
+                    cursor={"pointer"}
+                    as={IconDelete}
+                    onClick={(e) => deleteAsset(e, asset.id)}
+                    ml={2}
+                  >
+                    删除
+                  </Icon>
+                </Box>
               )}
             </Flex>
           </Flex>
         ))}
       </Flex>
+      {isImgEditorShown && (
+        <Suspense
+          fallback={<GlobalLoading text="图片编辑器加载中..."></GlobalLoading>}
+        >
+          <ImageEditor
+            editAssetItem={editAssetItem}
+            onSaveEditAssetItem={saveEditAssetItem}
+            onCloseImgEditor={closeImgEditor}
+          />
+        </Suspense>
+      )}
     </Box>
   );
 }

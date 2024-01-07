@@ -1,0 +1,6 @@
+.SfxModal-Wrapper {
+    z-index: 99999 !important;
+}
+.SfxPopper-wrapper {
+    z-index: 99999 !important;
+}
