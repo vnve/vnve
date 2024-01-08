@@ -204,7 +204,7 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
       });
 
       if (blob) {
-        const exportVideoName = scene.name || `场景${index + 1}`;
+        const exportVideoName = `场景${index + 1}${scene.name}`;
         const exportVideoSrc = URL.createObjectURL(blob);
 
         downloadFile(exportVideoName, exportVideoSrc);
