@@ -301,9 +301,11 @@ export class DialogueScene extends Scene {
       cloned.children,
       this.backgroundImg,
     );
-    cloned.characterImgs = this.characterImgs.map((item) => {
-      return getChildFromChildren(cloned.children, item);
-    });
+    cloned.characterImgs = this.characterImgs
+      .map((item) => {
+        return getChildFromChildren(cloned.children, item);
+      })
+      .filter((item) => !!item);
 
     return cloned;
   }
