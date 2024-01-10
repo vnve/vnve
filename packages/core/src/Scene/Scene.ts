@@ -185,7 +185,8 @@ export class Scene extends PIXI.Container {
       if (child.animationParams) {
         const childTimeLine = gsap.timeline();
 
-        for (const animationParam of child.animationParams) {
+        for (let index = 0; index < child.animationParams.length; index++) {
+          const animationParam = child.animationParams[index];
           const [fromVars, toVars] = animationParam.value;
 
           childTimeLine.fromTo(
@@ -195,6 +196,7 @@ export class Scene extends PIXI.Container {
             },
             {
               ...(toVars || {}),
+              immediateRender: index === 0, // first animation should immediate render
             },
             0,
           );

@@ -15,6 +15,36 @@ export {
  * preset animations
  */
 export const PREST_ANIMATION = {
+  get In(): AnimationParamsValue {
+    return [
+      {
+        pixi: {
+          alpha: 0,
+        },
+      },
+      {
+        pixi: {
+          alpha: 1,
+        },
+        duration: 0,
+      },
+    ];
+  },
+  get Out(): AnimationParamsValue {
+    return [
+      {
+        pixi: {
+          alpha: 1,
+        },
+      },
+      {
+        pixi: {
+          alpha: 0,
+        },
+        duration: 0,
+      },
+    ];
+  },
   get FadeOut(): AnimationParamsValue {
     return [
       {

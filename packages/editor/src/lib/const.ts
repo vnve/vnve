@@ -74,6 +74,16 @@ export const PRESET_FILTER_LIST = [
 
 export const PRESET_ANIMATION_LIST = [
   {
+    name: "In",
+    label: "显示",
+    value: PREST_ANIMATION.In,
+  },
+  {
+    name: "Out",
+    label: "隐藏",
+    value: PREST_ANIMATION.Out,
+  },
+  {
     name: "FadeIn",
     label: "渐显",
     value: PREST_ANIMATION.FadeIn,
