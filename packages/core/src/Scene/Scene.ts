@@ -196,6 +196,7 @@ export class Scene extends PIXI.Container {
             {
               ...(toVars || {}),
             },
+            0,
           );
         }
 

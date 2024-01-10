@@ -114,13 +114,13 @@ export class MonologueScene extends Scene {
   }
 
   public getLinesDuration() {
-    let duration = 0;
+    if (this.lines.length === 0) {
+      return 0;
+    }
 
-    this.lines.forEach((line) => {
-      duration += line.duration || 0;
-    });
+    const lastLine = this.lines[this.lines.length - 1];
 
-    return duration;
+    return lastLine.start! + lastLine.duration!;
   }
 
   public clearLinesAnimation() {
@@ -131,8 +131,13 @@ export class MonologueScene extends Scene {
     lines.forEach((line, index) => {
       const lineReadingTime = readingTime(line.content, this.wordsPerMinute);
 
-      line.duration = lineReadingTime + LINE_GAP_TIME;
-      line.start = index === 0 ? 0 : lines[index - 1].duration || 0;
+      line.duration = lineReadingTime;
+      line.start =
+        index === 0
+          ? 0
+          : lines[index - 1].start! +
+              lines[index - 1].duration! +
+              LINE_GAP_TIME || 0;
 
       if (this.lineDisplayEffect === "typewriter") {
         this.lineText.addAnimation({
@@ -142,8 +147,8 @@ export class MonologueScene extends Scene {
             },
             {
               text: line.content,
-              duration: lineReadingTime,
-              delay: index === 0 ? 0 : LINE_GAP_TIME,
+              duration: line.duration,
+              delay: line.start,
               ease: Power0.easeNone,
             },
           ],
@@ -157,8 +162,9 @@ export class MonologueScene extends Scene {
             },
             {
               alpha: 1,
-              duration: LINE_GAP_TIME,
-              delay: index === 0 ? 0 : line.start - LINE_GAP_TIME,
+              duration:
+                line.duration < LINE_GAP_TIME ? line.duration : LINE_GAP_TIME,
+              delay: line.start,
             },
           ],
         });
