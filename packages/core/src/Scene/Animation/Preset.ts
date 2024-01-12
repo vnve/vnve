@@ -26,7 +26,7 @@ export const PREST_ANIMATION = {
         pixi: {
           alpha: 1,
         },
-        duration: 0,
+        duration: 1,
       },
     ];
   },
@@ -41,7 +41,7 @@ export const PREST_ANIMATION = {
         pixi: {
           alpha: 0,
         },
-        duration: 0,
+        duration: 1,
       },
     ];
   },

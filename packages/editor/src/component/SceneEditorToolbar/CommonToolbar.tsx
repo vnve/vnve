@@ -427,7 +427,7 @@ export default function CommonToolbar({
                               value={
                                 (item.value[1].duration as number) / 1000 || 0
                               }
-                              min={0}
+                              min={0.001}
                               step={0.1}
                               onChange={(value) =>
                                 changeChildAnimationDuration(value, index)
