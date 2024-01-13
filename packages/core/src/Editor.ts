@@ -115,8 +115,12 @@ export class Editor {
     child.removeAllListeners("click");
   }
 
-  public addScene(scene: Scene) {
-    this.scenes.push(scene);
+  public addScene(scene: Scene, sceneIndex?: number) {
+    if (typeof sceneIndex === "undefined") {
+      this.scenes.push(scene);
+    } else {
+      this.scenes.splice(sceneIndex, 0, scene);
+    }
     const traverseChild = (child: any) => {
       if (child.children && child.children.length > 0) {
         for (const grandchild of child.children) {

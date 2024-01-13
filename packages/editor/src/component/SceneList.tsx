@@ -65,8 +65,10 @@ export default function SceneList({
     const cloned = editor.cloneScene(scene);
 
     if (cloned) {
-      editor.addScene(cloned);
-      setScenes([...scenes, cloned]);
+      editor.addScene(cloned, sceneIndex + 1);
+      const newScenes = [...scenes];
+      newScenes.splice(sceneIndex + 1, 0, cloned);
+      setScenes(newScenes);
       changeActiveScene(cloned);
     }
   }
