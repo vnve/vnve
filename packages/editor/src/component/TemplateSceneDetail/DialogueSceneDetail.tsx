@@ -69,12 +69,17 @@ export default function DialogueSceneDetail({
     const editor = getEditor();
     const scene = editor.activeScene as DialogueScene;
 
-    scene.nameText._width = 0;
-    scene.nameText._height = 0;
-    scene.dialogText._width = 0;
-    scene.dialogText._height = 0;
-    scene.nameText.text = line.name;
-    scene.dialogText.text = line.content;
+    if (scene.nameText) {
+      scene.nameText._width = 0;
+      scene.nameText._height = 0;
+      scene.nameText.text = line.name;
+    }
+
+    if (scene.dialogText) {
+      scene.dialogText._width = 0;
+      scene.dialogText._height = 0;
+      scene.dialogText.text = line.content;
+    }
   }
 
   function changeLines(
@@ -107,11 +112,19 @@ export default function DialogueSceneDetail({
       return line;
     });
 
-    (editor.activeScene as DialogueScene).nameText._width = 0;
-    (editor.activeScene as DialogueScene).nameText._height = 0;
-    (editor.activeScene as DialogueScene).dialogText._width = 0;
-    (editor.activeScene as DialogueScene).dialogText._height = 0;
-    (editor.activeScene as DialogueScene).setLines(newLines);
+    const scene = editor.activeScene as DialogueScene;
+
+    if (scene.nameText) {
+      scene.nameText._width = 0;
+      scene.nameText._height = 0;
+    }
+
+    if (scene.dialogText) {
+      scene.dialogText._width = 0;
+      scene.dialogText._height = 0;
+    }
+
+    scene.setLines(newLines);
     setActiveScene({
       ...activeScene,
       lines: newLines,

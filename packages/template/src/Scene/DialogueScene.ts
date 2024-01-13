@@ -35,9 +35,9 @@ interface IDialogueSceneOptions {
 }
 
 export class DialogueScene extends Scene {
-  public nameText: Text;
-  public dialogText: Text;
-  public dialogRect: Graphics;
+  public nameText?: Text;
+  public dialogText?: Text;
+  public dialogRect?: Graphics;
   public lines: ICharacterLine[];
   public characterImgs: Img[];
   public backgroundImg?: Img;
@@ -132,7 +132,7 @@ export class DialogueScene extends Scene {
     this.removeDialogImg();
     this.dialogImg = dialogImg;
     this.addChild(dialogImg);
-    this.setChildIndex(dialogImg, this.getChildIndex(this.dialogRect));
+    this.setChildIndex(dialogImg, this.getChildIndex(this.dialogRect!));
     if (this.dialogRect) {
       this.removeChild(this.dialogRect);
     }
@@ -188,8 +188,8 @@ export class DialogueScene extends Scene {
   }
 
   private clearLinesAnimation() {
-    this.nameText.removeAllAnimation();
-    this.dialogText.removeAllAnimation();
+    this.nameText?.removeAllAnimation();
+    this.dialogText?.removeAllAnimation();
   }
 
   private setLinesAnimation(lines: ICharacterLine[]) {
@@ -205,7 +205,7 @@ export class DialogueScene extends Scene {
               LINE_GAP_TIME || 0;
 
       if (this.lineDisplayEffect === "typewriter") {
-        this.nameText.addAnimation({
+        this.nameText?.addAnimation({
           value: [
             {
               text: "",
@@ -218,7 +218,7 @@ export class DialogueScene extends Scene {
           ],
         });
 
-        this.dialogText.addAnimation({
+        this.dialogText?.addAnimation({
           value: [
             {
               text: "",
@@ -232,7 +232,7 @@ export class DialogueScene extends Scene {
           ],
         });
       } else if (this.lineDisplayEffect === "fadeIn") {
-        this.nameText.addAnimation({
+        this.nameText?.addAnimation({
           value: [
             {
               text: line.name,
@@ -246,7 +246,7 @@ export class DialogueScene extends Scene {
             },
           ],
         });
-        this.dialogText.addAnimation({
+        this.dialogText?.addAnimation({
           value: [
             {
               text: line.content,
@@ -261,7 +261,7 @@ export class DialogueScene extends Scene {
           ],
         });
       } else if (this.lineDisplayEffect === "none") {
-        this.nameText.addAnimation({
+        this.nameText?.addAnimation({
           value: [
             {
               text: "",
@@ -274,7 +274,7 @@ export class DialogueScene extends Scene {
           ],
         });
 
-        this.dialogText.addAnimation({
+        this.dialogText?.addAnimation({
           value: [
             {
               text: "",

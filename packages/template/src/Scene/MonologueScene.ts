@@ -34,7 +34,7 @@ interface IMonologueSceneOptions {
 
 export class MonologueScene extends Scene {
   public backgroundImg?: Img;
-  public lineText: Text;
+  public lineText?: Text;
   public lines: ILine[];
   public wordsPerMinute?: number;
   public lineDisplayEffect: LineDisplayEffectType;
@@ -124,7 +124,7 @@ export class MonologueScene extends Scene {
   }
 
   public clearLinesAnimation() {
-    this.lineText.removeAllAnimation();
+    this.lineText?.removeAllAnimation();
   }
 
   public setLinesAnimation(lines: ILine[]) {
@@ -140,7 +140,7 @@ export class MonologueScene extends Scene {
               LINE_GAP_TIME || 0;
 
       if (this.lineDisplayEffect === "typewriter") {
-        this.lineText.addAnimation({
+        this.lineText?.addAnimation({
           value: [
             {
               text: "",
@@ -154,7 +154,7 @@ export class MonologueScene extends Scene {
           ],
         });
       } else if (this.lineDisplayEffect === "fadeIn") {
-        this.lineText.addAnimation({
+        this.lineText?.addAnimation({
           value: [
             {
               text: line.content,
@@ -169,7 +169,7 @@ export class MonologueScene extends Scene {
           ],
         });
       } else if (this.lineDisplayEffect === "none") {
-        this.lineText.addAnimation({
+        this.lineText?.addAnimation({
           value: [
             {
               text: "",

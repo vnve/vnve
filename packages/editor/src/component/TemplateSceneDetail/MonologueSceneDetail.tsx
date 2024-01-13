@@ -56,10 +56,13 @@ export default function MonologueSceneDetail({
 
   function focusLine(value: string) {
     const editor = getEditor();
+    const scene = editor.activeScene as MonologueScene;
 
-    (editor.activeScene as MonologueScene).lineText._width = 0;
-    (editor.activeScene as MonologueScene).lineText._height = 0;
-    (editor.activeScene as MonologueScene).lineText.text = value;
+    if (scene.lineText) {
+      scene.lineText._width = 0;
+      scene.lineText._height = 0;
+      scene.lineText.text = value;
+    }
   }
 
   function changeLines(targetIndex: number, value: string) {
@@ -75,9 +78,14 @@ export default function MonologueSceneDetail({
       return line;
     });
 
-    (editor.activeScene as MonologueScene).lineText._width = 0;
-    (editor.activeScene as MonologueScene).lineText._height = 0;
-    (editor.activeScene as MonologueScene).setLines(newLines);
+    const scene = editor.activeScene as MonologueScene;
+
+    if (scene.lineText) {
+      scene.lineText._width = 0;
+      scene.lineText._height = 0;
+    }
+
+    scene.setLines(newLines);
     setActiveScene({
       ...activeScene,
       lines: newLines,
