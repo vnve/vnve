@@ -26,32 +26,39 @@ export default function TitleSceneDetail({
 
   function changeTitleText(value: string) {
     const editor = getEditor();
+    const titleText = (editor.activeScene as TitleScene).titleText;
 
-    (editor.activeScene as TitleScene).titleText._width = 0;
-    (editor.activeScene as TitleScene).titleText._height = 0;
-    (editor.activeScene as TitleScene).titleText.text = value;
-    setActiveScene({
-      ...activeScene,
-      titleText: {
-        ...activeScene.titleText,
-        text: value,
-      },
-    } as TitleScene);
+    if (titleText) {
+      titleText._width = 0;
+      titleText._height = 0;
+      titleText.text = value;
+
+      setActiveScene({
+        ...activeScene,
+        titleText: {
+          ...activeScene.titleText,
+          text: value,
+        },
+      } as TitleScene);
+    }
   }
 
   function changeSubTitleText(value: string) {
     const editor = getEditor();
+    const subtitleText = (editor.activeScene as TitleScene)!.subtitleText;
 
-    (editor.activeScene as TitleScene)!.subtitleText._width = 0;
-    (editor.activeScene as TitleScene)!.subtitleText._height = 0;
-    (editor.activeScene as TitleScene)!.subtitleText!.text = value;
-    setActiveScene({
-      ...activeScene,
-      subtitleText: {
-        ...activeScene.subtitleText,
-        text: value,
-      },
-    } as TitleScene);
+    if (subtitleText) {
+      subtitleText._width = 0;
+      subtitleText._height = 0;
+      subtitleText!.text = value;
+      setActiveScene({
+        ...activeScene,
+        subtitleText: {
+          ...activeScene.subtitleText,
+          text: value,
+        },
+      } as TitleScene);
+    }
   }
 
   async function selectBackground(asset: AssetItem) {
@@ -89,7 +96,7 @@ export default function TitleSceneDetail({
         <FormLabel fontSize={"sm"}>主标题</FormLabel>
         <Textarea
           rows={2}
-          value={activeScene.titleText.text}
+          value={activeScene.titleText?.text}
           onChange={(event) => changeTitleText(event.target.value)}
         ></Textarea>
       </FormControl>
