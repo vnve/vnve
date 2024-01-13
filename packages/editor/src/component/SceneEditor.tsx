@@ -138,20 +138,29 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
     editor.addChild(newChild);
   }
 
-  async function openPreview(all = true) {
-    setCurrentPreviewIsAll(all);
+  async function openPreview(type: "current" | "fromCurrent" | "all") {
     onOpenPreview();
     const editor = getEditor();
     let scenes: Scene[] = [];
 
-    if (all) {
+    if (type === "all") {
       scenes = editor.exportScenes();
-    } else {
+    } else if (type === "current") {
       const cloned = editor.cloneScene();
       if (cloned) {
         scenes = [cloned];
       }
+    } else {
+      scenes = editor.exportScenes();
+      const activeIndex = editor.scenes.findIndex(
+        (scene) => scene.uuid === editor.activeScene.uuid,
+      );
+
+      scenes = scenes.slice(activeIndex);
     }
+
+    // TODO: preview and export use same scenes
+    setCurrentPreviewIsAll(["fromCurrent", "all"].includes(type));
 
     setTimeout(() => {
       creatorRef.current?.preview(
@@ -404,7 +413,7 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
                   <PopoverBody>
                     <List>
                       <ListItem
-                        onClick={() => openPreview(false)}
+                        onClick={() => openPreview("current")}
                         cursor={"pointer"}
                         userSelect={"none"}
                         _hover={{ bgColor: "teal.50" }}
@@ -417,7 +426,20 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
                         </Text>
                       </ListItem>
                       <ListItem
-                        onClick={() => openPreview()}
+                        onClick={() => openPreview("fromCurrent")}
+                        cursor={"pointer"}
+                        userSelect={"none"}
+                        _hover={{ bgColor: "teal.50" }}
+                        display={"flex"}
+                        alignItems={"center"}
+                        p={1}
+                      >
+                        <Text fontSize={"14px"} as={"b"}>
+                          从当前场景开始预览
+                        </Text>
+                      </ListItem>
+                      <ListItem
+                        onClick={() => openPreview("all")}
                         cursor={"pointer"}
                         userSelect={"none"}
                         _hover={{ bgColor: "teal.50" }}
