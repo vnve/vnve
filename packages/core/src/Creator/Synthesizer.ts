@@ -232,7 +232,13 @@ export class Synthesizer {
     const buffer = this.muxer?.target?.buffer;
 
     if (buffer) {
-      return new Blob([buffer], { type: "video/mp4" });
+      const blob = new Blob([buffer], { type: "video/mp4" });
+
+      if (this.muxer) {
+        this.muxer = undefined;
+      }
+
+      return blob;
     }
   }
 
