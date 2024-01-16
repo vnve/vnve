@@ -14,7 +14,7 @@ import {
   NumberDecrementStepper,
   useDisclosure,
   Select,
-  Spacer,
+  Text,
 } from "@chakra-ui/react";
 import { MonologueScene } from "@vnve/template";
 import { getEditor } from "../../lib/context";
@@ -252,14 +252,27 @@ export default function MonologueSceneDetail({
         <FormLabel fontSize={"sm"}>独白内容</FormLabel>
         {activeScene.lines.map((line, index) => {
           return (
-            <Flex key={index} gap={2} mb={2}>
-              <Textarea
-                placeholder="独白台词"
-                rows={5}
-                value={line.content}
-                onChange={(event) => changeLines(index, event.target.value)}
-                onFocus={(event) => focusLine(event.target.value)}
-              ></Textarea>
+            <Flex key={index} gap={1} mb={2}>
+              <Flex flexDirection={"column"} w={"full"}>
+                <Textarea
+                  placeholder="独白台词"
+                  rows={5}
+                  value={line.content}
+                  onChange={(event) => changeLines(index, event.target.value)}
+                  onFocus={(event) => focusLine(event.target.value)}
+                ></Textarea>
+                <Flex gap={1} alignItems={"center"} alignSelf={"flex-end"}>
+                  <Text fontSize={"xs"} color={"GrayText"}>
+                    开始时间: {(line.start / 1000).toFixed(1)}s
+                  </Text>
+                  <Text fontSize={"xs"} color={"GrayText"}>
+                    |
+                  </Text>
+                  <Text fontSize={"xs"} color={"GrayText"}>
+                    持续时间: {(line.duration / 1000).toFixed(1)}s
+                  </Text>
+                </Flex>
+              </Flex>
               <Flex
                 flexDirection={"column"}
                 gap={1}

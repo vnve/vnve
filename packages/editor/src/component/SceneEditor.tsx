@@ -409,7 +409,7 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
                     预览
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent w={"160px"}>
+                <PopoverContent w={"170px"}>
                   <PopoverBody>
                     <List>
                       <ListItem
