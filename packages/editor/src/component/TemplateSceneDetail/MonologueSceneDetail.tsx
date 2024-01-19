@@ -17,7 +17,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { MonologueScene } from "@vnve/template";
-import { getEditor } from "../../lib/context";
+import { EditorContext, getEditor } from "../../lib/context";
 import { Img, Scene } from "@vnve/core";
 import AssetLibrary from "../AssetLibrary/AssetLibrary";
 import { AssetItem } from "../../lib/assets";
@@ -28,7 +28,7 @@ import IconEdit from "~icons/material-symbols/edit-square-outline-sharp";
 import IconInsert from "~icons/material-symbols/arrow-insert";
 import IconMic from "~icons/material-symbols/mic-outline";
 import CharacterVoice from "../CharacterVoice/CharacterVoice";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {
   LINE_DISPLAY_EFFECT_OPTIONS,
   setDefaultLineDisplayEffect,
@@ -46,6 +46,7 @@ export default function MonologueSceneDetail({
   addSound: (asset: any) => void;
   disabledAudio: boolean;
 }) {
+  const { setActiveChild } = useContext(EditorContext);
   const [currentTargetIndex, setCurrentTargetIndex] = useState<number>();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
@@ -201,11 +202,15 @@ export default function MonologueSceneDetail({
 
   async function removeBackground() {
     const editor = getEditor();
+    const activeMonologueScene = editor.activeScene as MonologueScene;
 
-    editor.removeChildTransformListener(
-      (editor.activeScene as MonologueScene).backgroundImg!,
-    );
-    (editor.activeScene as MonologueScene).removeBackgroundImg();
+    if (editor.activeChild?.uuid === activeMonologueScene.backgroundImg!.uuid) {
+      editor.removeTransformer();
+      setActiveChild(undefined);
+    }
+
+    editor.removeChildTransformListener(activeMonologueScene.backgroundImg!);
+    activeMonologueScene.removeBackgroundImg();
     setActiveScene({
       ...activeScene,
       backgroundImg: undefined,

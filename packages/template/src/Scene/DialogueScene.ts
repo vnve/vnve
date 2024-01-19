@@ -132,15 +132,17 @@ export class DialogueScene extends Scene {
     this.removeDialogImg();
     this.dialogImg = dialogImg;
     this.addChild(dialogImg);
-    this.setChildIndex(dialogImg, this.getChildIndex(this.dialogRect!));
     if (this.dialogRect) {
+      this.setChildIndex(dialogImg, this.getChildIndex(this.dialogRect));
       this.removeChild(this.dialogRect);
+      this.dialogRect = undefined;
     }
   }
 
   public removeDialogImg() {
     if (this.dialogImg) {
       this.removeChild(this.dialogImg);
+      this.dialogImg = undefined;
     }
   }
 

@@ -40,6 +40,7 @@ import IconDelete from "~icons/material-symbols/delete-outline-sharp";
 import IconAnimation from "~icons/material-symbols/animation";
 import IconWidthAndHeight from "~icons/material-symbols/width-full-outline-sharp";
 import IconFilterEffect from "~icons/material-symbols/filter-b-and-w-sharp";
+import { DialogueScene } from "@vnve/template";
 
 export default function CommonToolbar({
   activeChild,
@@ -48,7 +49,8 @@ export default function CommonToolbar({
   activeChild: Child;
   changeActiveChild: (props: string, value: any) => void;
 }) {
-  const { setActiveChild } = useContext(EditorContext);
+  const { activeScene, setActiveChild, setActiveScene } =
+    useContext(EditorContext);
 
   function moveChildToTop() {
     const editor = getEditor();
@@ -97,6 +99,49 @@ export default function CommonToolbar({
 
   function deleteChild() {
     const editor = getEditor();
+
+    // characterImgs compatible logic
+    if ((editor.activeScene as DialogueScene).characterImgs?.length > 0) {
+      const currentScene = editor.activeScene as DialogueScene;
+      currentScene.characterImgs = currentScene.characterImgs.filter(
+        (item) => item.uuid !== editor.activeChild!.uuid,
+      );
+
+      setActiveScene({
+        ...activeScene,
+        characterImgs: (activeScene as DialogueScene).characterImgs.filter(
+          (item) => item.uuid !== editor.activeChild!.uuid,
+        ),
+      } as DialogueScene);
+    }
+
+    // backgroundImg compatible logic
+    if ((editor.activeScene as DialogueScene).backgroundImg) {
+      const currentScene = editor.activeScene as DialogueScene;
+
+      if (currentScene.backgroundImg.uuid === editor.activeChild!.uuid) {
+        currentScene.backgroundImg = undefined;
+
+        setActiveScene({
+          ...activeScene,
+          backgroundImg: undefined,
+        } as DialogueScene);
+      }
+    }
+
+    // dialogImg compatible logic
+    if ((editor.activeScene as DialogueScene).dialogImg) {
+      const currentScene = editor.activeScene as DialogueScene;
+
+      if (currentScene.dialogImg.uuid === editor.activeChild!.uuid) {
+        currentScene.dialogImg = undefined;
+
+        setActiveScene({
+          ...activeScene,
+          dialogImg: undefined,
+        } as DialogueScene);
+      }
+    }
 
     editor.removeChild(editor.activeChild!);
     editor.removeTransformer();

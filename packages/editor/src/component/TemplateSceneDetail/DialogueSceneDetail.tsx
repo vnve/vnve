@@ -18,11 +18,11 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 import { DialogueScene } from "@vnve/template";
-import { getEditor } from "../../lib/context";
+import { EditorContext, getEditor } from "../../lib/context";
 import { Img, Scene } from "@vnve/core";
 import AssetLibrary from "../AssetLibrary/AssetLibrary";
 import { AssetItem } from "../../lib/assets";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import IconMoveUp from "~icons/material-symbols/arrow-upward";
 import IconMoveDown from "~icons/material-symbols/arrow-downward";
 import IconDelete from "~icons/material-symbols/delete-outline-sharp";
@@ -53,6 +53,7 @@ export default function DialogueSceneDetail({
   addSound: (asset: any) => void;
   disabledAudio: boolean;
 }) {
+  const { setActiveChild } = useContext(EditorContext);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [openAssetFrom, setOpenAssetFrom] = useState<OpenFromType>();
   const [currentTargetIndex, setCurrentTargetIndex] = useState<number>();
@@ -259,10 +260,16 @@ export default function DialogueSceneDetail({
   async function removeBackground() {
     const editor = getEditor();
 
-    editor.removeChildTransformListener(
-      (editor.activeScene as DialogueScene).backgroundImg!,
-    );
-    (editor.activeScene as DialogueScene).removeBackgroundImg();
+    const activeDialogueScene = editor.activeScene as DialogueScene;
+
+    // if select should remove transformer
+    if (editor.activeChild?.uuid === activeDialogueScene.backgroundImg!.uuid) {
+      editor.removeTransformer();
+      setActiveChild(undefined);
+    }
+
+    editor.removeChildTransformListener(activeDialogueScene.backgroundImg!);
+    activeDialogueScene.removeBackgroundImg();
     setActiveScene({
       ...activeScene,
       backgroundImg: undefined,
@@ -315,6 +322,12 @@ export default function DialogueSceneDetail({
       targetIndex
     ];
 
+    // if select should remove transformer
+    if (editor.activeChild?.uuid === removedChild.uuid) {
+      editor.removeTransformer();
+      setActiveChild(undefined);
+    }
+
     editor.removeChildTransformListener(removedChild);
     (editor.activeScene as DialogueScene).removeCharacterImg(removedChild);
     setActiveScene({
@@ -340,11 +353,16 @@ export default function DialogueSceneDetail({
 
   function removeDialogImg() {
     const editor = getEditor();
+    const activeDialogueScene = editor.activeScene as DialogueScene;
 
-    editor.removeChildTransformListener(
-      (editor.activeScene as DialogueScene).dialogImg!,
-    );
-    (editor.activeScene as DialogueScene).removeDialogImg();
+    // if select should remove transformer
+    if (editor.activeChild?.uuid === activeDialogueScene.dialogImg!.uuid) {
+      editor.removeTransformer();
+      setActiveChild(undefined);
+    }
+
+    editor.removeChildTransformListener(activeDialogueScene.dialogImg!);
+    activeDialogueScene.removeDialogImg();
     setActiveScene({
       ...activeScene,
       dialogImg: undefined,
