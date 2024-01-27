@@ -1,5 +1,8 @@
 import {
-  Divider,
+  Card,
+  CardHeader,
+  CardBody,
+  Heading,
   Text,
   Select,
   Flex,
@@ -451,119 +454,126 @@ export default function DialogueSceneDetail({
         <FormLabel fontSize={"sm"}>对白内容</FormLabel>
         {activeScene.lines.map((line, index) => {
           return (
-            <Flex key={index} flexDirection={"column"} gap={1} mb={2}>
-              <Textarea
-                w={"200px"}
-                value={line.name}
-                onChange={(event) =>
-                  changeLines(index, event.target.value, "name")
-                }
-                onFocus={() => focusLine(line)}
-                placeholder="角色名"
-                rows={1}
-              ></Textarea>
-              <Flex gap={2}>
-                <Flex w={"full"} flexDirection={"column"}>
-                  <Textarea
-                    placeholder="角色台词"
-                    rows={4}
-                    value={line.content}
-                    onChange={(event) =>
-                      changeLines(index, event.target.value, "content")
-                    }
-                    onFocus={() => focusLine(line)}
-                    onSelect={(e) => selectLine(index, e)}
-                  ></Textarea>
-                  <Flex gap={1} alignItems={"center"} alignSelf={"flex-end"}>
-                    {currentLinePosition.lineIndex === index && (
-                      <>
-                        <Text fontSize={"xs"} color={"GrayText"}>
-                          选中位置开始时间:
-                          {(
-                            currentLinePosition.positionStartTime / 1000
-                          ).toFixed(1)}
-                          s
-                        </Text>
-                        <Text fontSize={"xs"} color={"GrayText"}>
-                          |
-                        </Text>
-                      </>
+            <Card key={index} mb={1} variant={"outline"}>
+              <CardHeader pb={0}>
+                <Heading size="xs" fontWeight="medium">
+                  对白{index + 1}
+                </Heading>
+              </CardHeader>
+              <CardBody display={"flex"} flexDirection={"column"} gap={1}>
+                <Textarea
+                  w={"200px"}
+                  value={line.name}
+                  onChange={(event) =>
+                    changeLines(index, event.target.value, "name")
+                  }
+                  onFocus={() => focusLine(line)}
+                  placeholder="角色名"
+                  rows={1}
+                ></Textarea>
+                <Flex gap={2}>
+                  <Flex w={"full"} flexDirection={"column"}>
+                    <Textarea
+                      placeholder="角色台词"
+                      rows={4}
+                      value={line.content}
+                      onChange={(event) =>
+                        changeLines(index, event.target.value, "content")
+                      }
+                      onFocus={() => focusLine(line)}
+                      onSelect={(e) => selectLine(index, e)}
+                    ></Textarea>
+                    <Flex gap={1} alignItems={"center"} alignSelf={"flex-end"}>
+                      {currentLinePosition.lineIndex === index && (
+                        <>
+                          <Text fontSize={"xs"} color={"GrayText"}>
+                            焦点时间:
+                            {(
+                              currentLinePosition.positionStartTime / 1000
+                            ).toFixed(1)}
+                            s
+                          </Text>
+                          <Text fontSize={"xs"} color={"GrayText"}>
+                            |
+                          </Text>
+                        </>
+                      )}
+                      <Text fontSize={"xs"} color={"GrayText"}>
+                        开始时间: {(line.start / 1000).toFixed(1)}s
+                      </Text>
+                      <Text fontSize={"xs"} color={"GrayText"}>
+                        |
+                      </Text>
+                      <Text fontSize={"xs"} color={"GrayText"}>
+                        持续时间: {(line.duration / 1000).toFixed(1)}s
+                      </Text>
+                    </Flex>
+                  </Flex>
+                  <Flex
+                    flexDirection={"column"}
+                    gap={1}
+                    justifyContent={"flex-start"}
+                  >
+                    {!disabledAudio && (
+                      <Tooltip label="配音">
+                        <Box
+                          cursor={"pointer"}
+                          w={4}
+                          h={4}
+                          onClick={() => openLineCV(index)}
+                        >
+                          <Icon w={4} h={4} as={IconMic}></Icon>
+                        </Box>
+                      </Tooltip>
                     )}
-                    <Text fontSize={"xs"} color={"GrayText"}>
-                      开始时间: {(line.start / 1000).toFixed(1)}s
-                    </Text>
-                    <Text fontSize={"xs"} color={"GrayText"}>
-                      |
-                    </Text>
-                    <Text fontSize={"xs"} color={"GrayText"}>
-                      持续时间: {(line.duration / 1000).toFixed(1)}s
-                    </Text>
+                    {index !== 0 && (
+                      <Tooltip label="上移">
+                        <Box
+                          cursor={"pointer"}
+                          w={4}
+                          h={4}
+                          onClick={() => moveLineUp(index)}
+                        >
+                          <Icon w={4} h={4} as={IconMoveUp}></Icon>
+                        </Box>
+                      </Tooltip>
+                    )}
+                    {index !== activeScene.lines.length - 1 && (
+                      <Tooltip label="下移">
+                        <Box
+                          cursor={"pointer"}
+                          w={4}
+                          h={4}
+                          onClick={() => moveLineDown(index)}
+                        >
+                          <Icon w={4} h={4} as={IconMoveDown}></Icon>
+                        </Box>
+                      </Tooltip>
+                    )}
+                    <Tooltip label="插入">
+                      <Box
+                        cursor={"pointer"}
+                        w={4}
+                        h={4}
+                        onClick={() => insertLine(index)}
+                      >
+                        <Icon w={4} h={4} as={IconInsert}></Icon>
+                      </Box>
+                    </Tooltip>
+                    <Tooltip label="删除">
+                      <Box
+                        cursor={"pointer"}
+                        w={4}
+                        h={4}
+                        onClick={() => deleteLine(index)}
+                      >
+                        <Icon w={4} h={4} as={IconDelete}></Icon>
+                      </Box>
+                    </Tooltip>
                   </Flex>
                 </Flex>
-                <Flex
-                  flexDirection={"column"}
-                  gap={1}
-                  justifyContent={"flex-start"}
-                >
-                  {!disabledAudio && (
-                    <Tooltip label="配音">
-                      <Box
-                        cursor={"pointer"}
-                        w={4}
-                        h={4}
-                        onClick={() => openLineCV(index)}
-                      >
-                        <Icon w={4} h={4} as={IconMic}></Icon>
-                      </Box>
-                    </Tooltip>
-                  )}
-                  {index !== 0 && (
-                    <Tooltip label="上移">
-                      <Box
-                        cursor={"pointer"}
-                        w={4}
-                        h={4}
-                        onClick={() => moveLineUp(index)}
-                      >
-                        <Icon w={4} h={4} as={IconMoveUp}></Icon>
-                      </Box>
-                    </Tooltip>
-                  )}
-                  {index !== activeScene.lines.length - 1 && (
-                    <Tooltip label="下移">
-                      <Box
-                        cursor={"pointer"}
-                        w={4}
-                        h={4}
-                        onClick={() => moveLineDown(index)}
-                      >
-                        <Icon w={4} h={4} as={IconMoveDown}></Icon>
-                      </Box>
-                    </Tooltip>
-                  )}
-                  <Tooltip label="插入">
-                    <Box
-                      cursor={"pointer"}
-                      w={4}
-                      h={4}
-                      onClick={() => insertLine(index)}
-                    >
-                      <Icon w={4} h={4} as={IconInsert}></Icon>
-                    </Box>
-                  </Tooltip>
-                  <Tooltip label="删除">
-                    <Box
-                      cursor={"pointer"}
-                      w={4}
-                      h={4}
-                      onClick={() => deleteLine(index)}
-                    >
-                      <Icon w={4} h={4} as={IconDelete}></Icon>
-                    </Box>
-                  </Tooltip>
-                </Flex>
-              </Flex>
-            </Flex>
+              </CardBody>
+            </Card>
           );
         })}
         <Button colorScheme="teal" size="xs" onClick={addLine}>
