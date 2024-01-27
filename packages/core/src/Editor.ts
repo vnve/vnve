@@ -93,19 +93,23 @@ export class Editor {
   public addChildTransformListener(child: Child) {
     child.interactive = true;
     child.on("pointerdown", () => {
-      this.activeChild = child;
-      if (!this.activeTransformer) {
-        this.addTransformer();
-      }
-      if (this.activeTransformer) {
-        this.activeTransformer.group = [child];
-        // move transformer to top for it can be interactive move
-        this.moveChildToTop(this.activeTransformer as any);
-      }
-      if (this.onChangeActiveChild) {
-        this.onChangeActiveChild(child);
-      }
+      this.setActiveChild(child);
     });
+  }
+
+  public setActiveChild(child: Child) {
+    this.activeChild = child;
+    if (!this.activeTransformer) {
+      this.addTransformer();
+    }
+    if (this.activeTransformer) {
+      this.activeTransformer.group = [child];
+      // move transformer to top for it can be interactive move
+      this.moveChildToTop(this.activeTransformer as any);
+    }
+    if (this.onChangeActiveChild) {
+      this.onChangeActiveChild(child);
+    }
   }
 
   public removeChildTransformListener(child: Child) {

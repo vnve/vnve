@@ -27,10 +27,12 @@ import {
   PopoverBody,
   PopoverArrow,
   Portal,
+  UnorderedList,
+  ListItem,
 } from "@chakra-ui/react";
 import { MonologueScene } from "@vnve/template";
 import { EditorContext, getEditor } from "../../lib/context";
-import { Img, Scene } from "@vnve/core";
+import { Img, Scene, Child } from "@vnve/core";
 import AssetLibrary from "../AssetLibrary/AssetLibrary";
 import { AssetItem } from "../../lib/assets";
 import IconMoveUp from "~icons/material-symbols/arrow-upward";
@@ -79,6 +81,7 @@ export default function MonologueSceneDetail({
       scene.lineText._width = 0;
       scene.lineText._height = 0;
       scene.lineText.text = value;
+      editor.setActiveChild(scene.lineText);
     }
 
     // reset line position
@@ -317,6 +320,12 @@ export default function MonologueSceneDetail({
     } as MonologueScene);
   }
 
+  function focusChild(child: Child) {
+    const editor = getEditor();
+
+    editor.setActiveChild(child);
+  }
+
   return (
     <Flex flexDirection={"column"} gap={6}>
       <FormControl>
@@ -518,23 +527,32 @@ export default function MonologueSceneDetail({
         <FormControl>
           <FormLabel fontSize={"sm"}>背景图</FormLabel>
           {activeScene.backgroundImg ? (
-            <Flex gap={2} alignItems={"center"} fontSize={"sm"} mb={2}>
-              {activeScene.backgroundImg.name}
-              <Icon
-                cursor={"pointer"}
-                w={4}
-                h={4}
-                as={IconEdit}
-                onClick={onOpen}
-              ></Icon>
-              <Icon
-                cursor={"pointer"}
-                w={4}
-                h={4}
-                as={IconDelete}
-                onClick={removeBackground}
-              ></Icon>
-            </Flex>
+            <UnorderedList>
+              <ListItem>
+                <Flex gap={2} alignItems={"center"} fontSize={"sm"} mb={2}>
+                  <Text
+                    cursor={"pointer"}
+                    onClick={() => focusChild(activeScene.backgroundImg)}
+                  >
+                    {activeScene.backgroundImg.name}
+                  </Text>
+                  <Icon
+                    cursor={"pointer"}
+                    w={4}
+                    h={4}
+                    as={IconEdit}
+                    onClick={onOpen}
+                  ></Icon>
+                  <Icon
+                    cursor={"pointer"}
+                    w={4}
+                    h={4}
+                    as={IconDelete}
+                    onClick={removeBackground}
+                  ></Icon>
+                </Flex>
+              </ListItem>
+            </UnorderedList>
           ) : (
             <Button colorScheme="teal" size="xs" onClick={onOpen}>
               新增

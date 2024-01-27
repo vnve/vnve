@@ -27,10 +27,12 @@ import {
   PopoverBody,
   PopoverArrow,
   Portal,
+  UnorderedList,
+  ListItem,
 } from "@chakra-ui/react";
 import { DialogueScene } from "@vnve/template";
 import { EditorContext, getEditor } from "../../lib/context";
-import { Img, Scene } from "@vnve/core";
+import { Child, Img, Scene } from "@vnve/core";
 import AssetLibrary from "../AssetLibrary/AssetLibrary";
 import { AssetItem } from "../../lib/assets";
 import { useContext, useState } from "react";
@@ -81,7 +83,10 @@ export default function DialogueSceneDetail({
     positionStartTime: 0,
   });
 
-  function focusLine(line: { name: string; content: string }) {
+  function focusLine(
+    line: { name: string; content: string },
+    type?: "name" | "content",
+  ) {
     const editor = getEditor();
     const scene = editor.activeScene as DialogueScene;
 
@@ -89,12 +94,18 @@ export default function DialogueSceneDetail({
       scene.nameText._width = 0;
       scene.nameText._height = 0;
       scene.nameText.text = line.name;
+      if (type === "name") {
+        editor.setActiveChild(scene.nameText);
+      }
     }
 
     if (scene.dialogText) {
       scene.dialogText._width = 0;
       scene.dialogText._height = 0;
       scene.dialogText.text = line.content;
+      if (type === "content") {
+        editor.setActiveChild(scene.dialogText);
+      }
     }
 
     // reset line position
@@ -481,6 +492,12 @@ export default function DialogueSceneDetail({
     } as DialogueScene);
   }
 
+  function focusChild(child: Child) {
+    const editor = getEditor();
+
+    editor.setActiveChild(child);
+  }
+
   return (
     <Flex flexDirection={"column"} gap={6}>
       <FormControl>
@@ -579,7 +596,7 @@ export default function DialogueSceneDetail({
                   onChange={(event) =>
                     changeLines(index, event.target.value, "name")
                   }
-                  onFocus={() => focusLine(line)}
+                  onFocus={() => focusLine(line, "name")}
                   placeholder="角色名"
                   rows={1}
                 ></Textarea>
@@ -592,7 +609,7 @@ export default function DialogueSceneDetail({
                       onChange={(event) =>
                         changeLines(index, event.target.value, "content")
                       }
-                      onFocus={() => focusLine(line)}
+                      onFocus={() => focusLine(line, "content")}
                       onSelect={(e) => selectLine(index, e)}
                     ></Textarea>
                     <Flex gap={1} alignItems={"center"} alignSelf={"flex-end"}>
@@ -696,23 +713,32 @@ export default function DialogueSceneDetail({
         <FormControl>
           <FormLabel fontSize={"sm"}>背景图</FormLabel>
           {activeScene.backgroundImg ? (
-            <Flex gap={2} alignItems={"center"} fontSize={"sm"} mb={2}>
-              {activeScene.backgroundImg.name}
-              <Icon
-                cursor={"pointer"}
-                w={4}
-                h={4}
-                as={IconEdit}
-                onClick={() => openAssetLibrary("selectBackground")}
-              ></Icon>
-              <Icon
-                cursor={"pointer"}
-                w={4}
-                h={4}
-                as={IconDelete}
-                onClick={removeBackground}
-              ></Icon>
-            </Flex>
+            <UnorderedList>
+              <ListItem>
+                <Flex gap={2} alignItems={"center"} fontSize={"sm"} mb={2}>
+                  <Text
+                    cursor={"pointer"}
+                    onClick={() => focusChild(activeScene.backgroundImg)}
+                  >
+                    {activeScene.backgroundImg.name}
+                  </Text>
+                  <Icon
+                    cursor={"pointer"}
+                    w={4}
+                    h={4}
+                    as={IconEdit}
+                    onClick={() => openAssetLibrary("selectBackground")}
+                  ></Icon>
+                  <Icon
+                    cursor={"pointer"}
+                    w={4}
+                    h={4}
+                    as={IconDelete}
+                    onClick={removeBackground}
+                  ></Icon>
+                </Flex>
+              </ListItem>
+            </UnorderedList>
           ) : (
             <Button
               colorScheme="teal"
@@ -725,33 +751,39 @@ export default function DialogueSceneDetail({
         </FormControl>
         <FormControl>
           <FormLabel fontSize={"sm"}>角色立绘</FormLabel>
-          {activeScene.characterImgs.map((item, index) => {
-            return (
-              <Flex
-                gap={2}
-                alignItems={"center"}
-                fontSize={"sm"}
-                mb={2}
-                key={index}
-              >
-                {item.name}
-                <Icon
-                  cursor={"pointer"}
-                  w={4}
-                  h={4}
-                  as={IconEdit}
-                  onClick={() => openAssetLibrary("changeCharacter", index)}
-                ></Icon>
-                <Icon
-                  cursor={"pointer"}
-                  w={4}
-                  h={4}
-                  as={IconDelete}
-                  onClick={() => removeCharacterImg(index)}
-                ></Icon>
-              </Flex>
-            );
-          })}
+          <UnorderedList>
+            {activeScene.characterImgs.map((item, index) => {
+              return (
+                <ListItem>
+                  <Flex
+                    gap={2}
+                    alignItems={"center"}
+                    fontSize={"sm"}
+                    mb={2}
+                    key={index}
+                  >
+                    <Text cursor={"pointer"} onClick={() => focusChild(item)}>
+                      {item.name}
+                    </Text>
+                    <Icon
+                      cursor={"pointer"}
+                      w={4}
+                      h={4}
+                      as={IconEdit}
+                      onClick={() => openAssetLibrary("changeCharacter", index)}
+                    ></Icon>
+                    <Icon
+                      cursor={"pointer"}
+                      w={4}
+                      h={4}
+                      as={IconDelete}
+                      onClick={() => removeCharacterImg(index)}
+                    ></Icon>
+                  </Flex>
+                </ListItem>
+              );
+            })}
+          </UnorderedList>
           <Button
             colorScheme="teal"
             size="xs"
@@ -765,23 +797,32 @@ export default function DialogueSceneDetail({
         <FormControl>
           <FormLabel fontSize={"sm"}>对话框</FormLabel>
           {activeScene.dialogImg ? (
-            <Flex alignItems={"center"} fontSize={"sm"} gap={2}>
-              {activeScene.dialogImg.name}
-              <Icon
-                cursor={"pointer"}
-                w={4}
-                h={4}
-                as={IconEdit}
-                onClick={() => openAssetLibrary("selectDialog")}
-              ></Icon>
-              <Icon
-                cursor={"pointer"}
-                w={4}
-                h={4}
-                as={IconDelete}
-                onClick={removeDialogImg}
-              ></Icon>
-            </Flex>
+            <UnorderedList>
+              <ListItem>
+                <Flex alignItems={"center"} fontSize={"sm"} gap={2}>
+                  <Text
+                    cursor={"pointer"}
+                    onClick={() => focusChild(activeScene.dialogImg)}
+                  >
+                    {activeScene.dialogImg.name}
+                  </Text>
+                  <Icon
+                    cursor={"pointer"}
+                    w={4}
+                    h={4}
+                    as={IconEdit}
+                    onClick={() => openAssetLibrary("selectDialog")}
+                  ></Icon>
+                  <Icon
+                    cursor={"pointer"}
+                    w={4}
+                    h={4}
+                    as={IconDelete}
+                    onClick={removeDialogImg}
+                  ></Icon>
+                </Flex>
+              </ListItem>
+            </UnorderedList>
           ) : (
             <Button
               colorScheme="teal"

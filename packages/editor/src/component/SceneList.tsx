@@ -42,6 +42,7 @@ export default function SceneList({
       sounds: [...scene.sounds],
       characterImgs: [...((scene as DialogueScene).characterImgs || [])],
     } as any);
+    setActiveChild(undefined);
   }
 
   function removeScene(scene: Scene, e: React.MouseEvent) {
