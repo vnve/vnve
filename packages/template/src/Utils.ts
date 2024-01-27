@@ -4,6 +4,8 @@ export const LINE_GAP_TIME = 500;
 
 export const DEFAULT_WORDS_PER_MINUTE = 600;
 
+export const LINE_FADE_IN_DURATION = 500;
+
 export function readingTime(text: string, wordsPerMinute = 600) {
   if (!text) {
     return 0;

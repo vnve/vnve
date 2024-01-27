@@ -19,6 +19,14 @@ import {
   useDisclosure,
   Select,
   Text,
+  Popover,
+  PopoverCloseButton,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverHeader,
+  PopoverBody,
+  PopoverArrow,
+  Portal,
 } from "@chakra-ui/react";
 import { MonologueScene } from "@vnve/template";
 import { EditorContext, getEditor } from "../../lib/context";
@@ -284,6 +292,30 @@ export default function MonologueSceneDetail({
     } as MonologueScene);
   }
 
+  function customSingleLine(
+    lineIndex: number,
+    key: "wordsPerMinute" | "displayEffect" | "gapTime",
+    value: unknown,
+  ) {
+    const editor = getEditor();
+    const scene = editor.activeScene as MonologueScene;
+    const newLines = scene.lines.map((item, index) => {
+      if (index === lineIndex) {
+        return {
+          ...item,
+          [key]: key === "gapTime" ? Number(value) * 1000 : value,
+        };
+      }
+      return item;
+    });
+
+    scene.setLines(newLines);
+    setActiveScene({
+      ...activeScene,
+      lines: newLines,
+    } as MonologueScene);
+  }
+
   return (
     <Flex flexDirection={"column"} gap={6}>
       <FormControl>
@@ -291,10 +323,89 @@ export default function MonologueSceneDetail({
         {activeScene.lines.map((line, index) => {
           return (
             <Card key={index} mb={1} variant={"outline"}>
-              <CardHeader pb={0}>
+              <CardHeader
+                pb={0}
+                display={"flex"}
+                justifyContent={"space-between"}
+                alignItems={"center"}
+              >
                 <Heading size="xs" fontWeight="medium">
                   独白{index + 1}
                 </Heading>
+                <Popover trigger="click">
+                  <PopoverTrigger>
+                    <Button size={"xs"}>自定义</Button>
+                  </PopoverTrigger>
+                  <Portal>
+                    <PopoverContent>
+                      <PopoverArrow />
+                      <PopoverCloseButton />
+                      <PopoverHeader as={"b"}>单句自定义设置</PopoverHeader>
+                      <PopoverBody
+                        display={"flex"}
+                        flexDirection={"column"}
+                        gap={2}
+                      >
+                        <FormControl>
+                          <FormLabel fontSize={"sm"}>语速(字/分钟)</FormLabel>
+                          <NumberInput
+                            step={100}
+                            min={1}
+                            value={line.wordsPerMinute}
+                            onChange={(value) =>
+                              customSingleLine(index, "wordsPerMinute", value)
+                            }
+                          >
+                            <NumberInputField type="number" />
+                            <NumberInputStepper>
+                              <NumberIncrementStepper />
+                              <NumberDecrementStepper />
+                            </NumberInputStepper>
+                          </NumberInput>
+                        </FormControl>
+                        <FormControl>
+                          <FormLabel fontSize={"sm"}>停顿时间(s)</FormLabel>
+                          <NumberInput
+                            step={0.1}
+                            min={0}
+                            value={line.gapTime ? line.gapTime / 1000 : ""}
+                            onChange={(value) =>
+                              customSingleLine(index, "gapTime", value)
+                            }
+                          >
+                            <NumberInputField />
+                            <NumberInputStepper>
+                              <NumberIncrementStepper />
+                              <NumberDecrementStepper />
+                            </NumberInputStepper>
+                          </NumberInput>
+                        </FormControl>
+                        <FormControl>
+                          <FormLabel fontSize={"sm"}>台词效果</FormLabel>
+                          <Select
+                            placeholder=" "
+                            value={line.displayEffect}
+                            onChange={(event) =>
+                              customSingleLine(
+                                index,
+                                "displayEffect",
+                                event.target.value,
+                              )
+                            }
+                          >
+                            {LINE_DISPLAY_EFFECT_OPTIONS.map((option) => {
+                              return (
+                                <option key={option.value} value={option.value}>
+                                  {option.name}
+                                </option>
+                              );
+                            })}
+                          </Select>
+                        </FormControl>
+                      </PopoverBody>
+                    </PopoverContent>
+                  </Portal>
+                </Popover>
               </CardHeader>
               <CardBody display={"flex"} gap={1}>
                 <Flex flexDirection={"column"} w={"full"}>
@@ -399,7 +510,7 @@ export default function MonologueSceneDetail({
           );
         })}
         <Button colorScheme="teal" size="xs" onClick={addLine}>
-          新增
+          新增独白
         </Button>
       </FormControl>
       <Flex gap={2}>
@@ -433,7 +544,7 @@ export default function MonologueSceneDetail({
           <FormLabel fontSize={"sm"}>语速(字/分钟)</FormLabel>
           <NumberInput
             step={100}
-            min={0}
+            min={1}
             value={activeScene.wordsPerMinute}
             onChange={changeWordsPerMinute}
           >

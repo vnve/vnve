@@ -12,6 +12,7 @@ import {
 import {
   DEFAULT_WORDS_PER_MINUTE,
   LINE_GAP_TIME,
+  LINE_FADE_IN_DURATION,
   getChildFromChildren,
   readingTime,
 } from "../Utils";
@@ -21,6 +22,9 @@ interface ICharacterLine {
   content: string;
   start?: number;
   duration?: number;
+  displayEffect?: LineDisplayEffectType;
+  wordsPerMinute?: number;
+  gapTime?: number;
 }
 
 type LineDisplayEffectType = "typewriter" | "fadeIn" | "none";
@@ -208,17 +212,22 @@ export class DialogueScene extends Scene {
 
   private setLinesAnimation(lines: ICharacterLine[]) {
     lines.forEach((line, index) => {
-      const lineReadingTime = readingTime(line.content, this.wordsPerMinute);
+      const lineReadingTime = readingTime(
+        line.content,
+        line.wordsPerMinute ?? this.wordsPerMinute,
+      );
 
       line.duration = lineReadingTime;
       line.start =
         index === 0
           ? 0
           : lines[index - 1].start! +
-              lines[index - 1].duration! +
-              LINE_GAP_TIME || 0;
+            lines[index - 1].duration! +
+            (lines[index - 1].gapTime ?? LINE_GAP_TIME);
 
-      if (this.lineDisplayEffect === "typewriter") {
+      const lineDisplayEffect = line.displayEffect ?? this.lineDisplayEffect;
+
+      if (lineDisplayEffect === "typewriter") {
         this.nameText?.addAnimation({
           value: [
             {
@@ -245,7 +254,7 @@ export class DialogueScene extends Scene {
             },
           ],
         });
-      } else if (this.lineDisplayEffect === "fadeIn") {
+      } else if (lineDisplayEffect === "fadeIn") {
         this.nameText?.addAnimation({
           value: [
             {
@@ -274,7 +283,7 @@ export class DialogueScene extends Scene {
             },
           ],
         });
-      } else if (this.lineDisplayEffect === "none") {
+      } else if (lineDisplayEffect === "none") {
         this.nameText?.addAnimation({
           value: [
             {

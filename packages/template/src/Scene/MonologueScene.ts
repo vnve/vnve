@@ -11,15 +11,19 @@ import {
 } from "@vnve/core";
 import {
   DEFAULT_WORDS_PER_MINUTE,
+  LINE_FADE_IN_DURATION,
   LINE_GAP_TIME,
   getChildFromChildren,
   readingTime,
 } from "../Utils";
 
 interface ILine {
+  content: string;
   start?: number;
   duration?: number;
-  content: string;
+  displayEffect?: LineDisplayEffectType;
+  wordsPerMinute?: number;
+  gapTime?: number;
 }
 
 type LineDisplayEffectType = "typewriter" | "fadeIn" | "none";
@@ -141,17 +145,22 @@ export class MonologueScene extends Scene {
 
   public setLinesAnimation(lines: ILine[]) {
     lines.forEach((line, index) => {
-      const lineReadingTime = readingTime(line.content, this.wordsPerMinute);
+      const lineReadingTime = readingTime(
+        line.content,
+        line.wordsPerMinute ?? this.wordsPerMinute,
+      );
 
       line.duration = lineReadingTime;
       line.start =
         index === 0
           ? 0
           : lines[index - 1].start! +
-              lines[index - 1].duration! +
-              LINE_GAP_TIME || 0;
+            lines[index - 1].duration! +
+            (lines[index - 1].gapTime ?? LINE_GAP_TIME);
 
-      if (this.lineDisplayEffect === "typewriter") {
+      const lineDisplayEffect = line.displayEffect ?? this.lineDisplayEffect;
+
+      if (lineDisplayEffect === "typewriter") {
         this.lineText?.addAnimation({
           value: [
             {
@@ -165,7 +174,7 @@ export class MonologueScene extends Scene {
             },
           ],
         });
-      } else if (this.lineDisplayEffect === "fadeIn") {
+      } else if (lineDisplayEffect === "fadeIn") {
         this.lineText?.addAnimation({
           value: [
             {
@@ -175,12 +184,14 @@ export class MonologueScene extends Scene {
             {
               alpha: 1,
               duration:
-                line.duration < LINE_GAP_TIME ? line.duration : LINE_GAP_TIME,
+                line.duration < LINE_FADE_IN_DURATION
+                  ? line.duration
+                  : LINE_FADE_IN_DURATION,
               delay: line.start,
             },
           ],
         });
-      } else if (this.lineDisplayEffect === "none") {
+      } else if (lineDisplayEffect === "none") {
         this.lineText?.addAnimation({
           value: [
             {
