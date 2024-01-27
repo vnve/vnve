@@ -190,7 +190,9 @@ export class DialogueScene extends Scene {
 
     const lastLine = this.lines[this.lines.length - 1];
 
-    return lastLine.start! + lastLine.duration!;
+    return (
+      lastLine.start! + lastLine.duration! + (lastLine.gapTime ?? LINE_GAP_TIME)
+    );
   }
 
   public getLinePositionStartTime(lineIndex: number, position: number) {

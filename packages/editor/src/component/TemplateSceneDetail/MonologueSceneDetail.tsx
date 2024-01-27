@@ -313,6 +313,7 @@ export default function MonologueSceneDetail({
     setActiveScene({
       ...activeScene,
       lines: newLines,
+      duration: scene.duration,
     } as MonologueScene);
   }
 
@@ -368,7 +369,7 @@ export default function MonologueSceneDetail({
                           <NumberInput
                             step={0.1}
                             min={0}
-                            value={line.gapTime ? line.gapTime / 1000 : ""}
+                            value={line.gapTime >= 0 ? line.gapTime / 1000 : ""}
                             onChange={(value) =>
                               customSingleLine(index, "gapTime", value)
                             }
