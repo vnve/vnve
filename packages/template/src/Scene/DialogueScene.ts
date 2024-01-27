@@ -189,6 +189,18 @@ export class DialogueScene extends Scene {
     return lastLine.start! + lastLine.duration!;
   }
 
+  public getLinePositionStartTime(lineIndex: number, position: number) {
+    const line = this.lines[lineIndex];
+    let startTime = line.start!;
+
+    startTime += readingTime(
+      line.content.slice(0, position),
+      this.wordsPerMinute,
+    );
+
+    return startTime;
+  }
+
   private clearLinesAnimation() {
     this.nameText?.removeAllAnimation();
     this.dialogText?.removeAllAnimation();

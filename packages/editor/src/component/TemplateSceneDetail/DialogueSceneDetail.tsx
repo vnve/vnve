@@ -65,6 +65,10 @@ export default function DialogueSceneDetail({
   const [assetTypeFilter, setAssetTypeFilter] = useState<
     "background" | "character" | "dialog"
   >();
+  const [currentLinePosition, setCurrentLinePosition] = useState({
+    lineIndex: -1,
+    positionStartTime: 0,
+  });
 
   function focusLine(line: { name: string; content: string }) {
     const editor = getEditor();
@@ -80,6 +84,31 @@ export default function DialogueSceneDetail({
       scene.dialogText._width = 0;
       scene.dialogText._height = 0;
       scene.dialogText.text = line.content;
+    }
+
+    // reset line position
+    setCurrentLinePosition({
+      lineIndex: -1,
+      positionStartTime: 0,
+    });
+  }
+
+  function selectLine(
+    targetIndex: number,
+    e: React.SyntheticEvent<HTMLTextAreaElement, Event>,
+  ) {
+    if (e.nativeEvent.type === "mouseup") {
+      const editor = getEditor();
+      const scene = editor.activeScene as DialogueScene;
+      const positionStartTime = scene.getLinePositionStartTime(
+        targetIndex,
+        e.currentTarget.selectionStart,
+      );
+
+      setCurrentLinePosition({
+        lineIndex: targetIndex,
+        positionStartTime,
+      });
     }
   }
 
@@ -443,8 +472,23 @@ export default function DialogueSceneDetail({
                       changeLines(index, event.target.value, "content")
                     }
                     onFocus={() => focusLine(line)}
+                    onSelect={(e) => selectLine(index, e)}
                   ></Textarea>
                   <Flex gap={1} alignItems={"center"} alignSelf={"flex-end"}>
+                    {currentLinePosition.lineIndex === index && (
+                      <>
+                        <Text fontSize={"xs"} color={"GrayText"}>
+                          选中位置开始时间:
+                          {(
+                            currentLinePosition.positionStartTime / 1000
+                          ).toFixed(1)}
+                          s
+                        </Text>
+                        <Text fontSize={"xs"} color={"GrayText"}>
+                          |
+                        </Text>
+                      </>
+                    )}
                     <Text fontSize={"xs"} color={"GrayText"}>
                       开始时间: {(line.start / 1000).toFixed(1)}s
                     </Text>
