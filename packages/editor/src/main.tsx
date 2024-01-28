@@ -1,6 +1,7 @@
 import ReactDOM from "react-dom/client";
 import { ChakraProvider, extendTheme, withDefaultSize } from "@chakra-ui/react";
 import "./app.css";
+import "react-contexify/dist/ReactContexify.css";
 import App from "./App.tsx";
 
 window.onbeforeunload = function () {

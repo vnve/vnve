@@ -48,6 +48,14 @@ import {
   setDefaultLineDisplayEffect,
   setDefaultWordsPerMinute,
 } from "../../lib/const";
+import {
+  Menu,
+  Item,
+  useContextMenu,
+  Separator,
+  ItemParams,
+} from "react-contexify";
+import QuickAnimationSetting from "./QuickAnimationSetting";
 
 type OpenFromType =
   | "addCharacter"
@@ -82,6 +90,34 @@ export default function DialogueSceneDetail({
     lineIndex: -1,
     positionStartTime: 0,
   });
+  const MENU_ID = "DialogueMenuID";
+
+  const { show: showContextMenu } = useContextMenu({
+    id: MENU_ID,
+  });
+  const {
+    isOpen: isOpenQuickAnimation,
+    onOpen: onOpenQuickAnimation,
+    onClose: onCloseQuickAnimation,
+  } = useDisclosure();
+
+  function handleMenuItemClick(params: ItemParams<{ lineIndex: number }>) {
+    const { id, props } = params;
+
+    onOpenQuickAnimation();
+  }
+
+  function showRightClickMenu(
+    lineIndex: number,
+    event: React.MouseEvent<HTMLTextAreaElement>,
+  ) {
+    showContextMenu({
+      event,
+      props: {
+        lineIndex,
+      },
+    });
+  }
 
   function focusLine(
     line: { name: string; content: string },
@@ -95,7 +131,7 @@ export default function DialogueSceneDetail({
       scene.nameText._height = 0;
       scene.nameText.text = line.name;
       if (type === "name") {
-        editor.setActiveChild(scene.nameText);
+        focusChild(scene.nameText);
       }
     }
 
@@ -104,7 +140,7 @@ export default function DialogueSceneDetail({
       scene.dialogText._height = 0;
       scene.dialogText.text = line.content;
       if (type === "content") {
-        editor.setActiveChild(scene.dialogText);
+        focusChild(scene.dialogText);
       }
     }
 
@@ -302,6 +338,7 @@ export default function DialogueSceneDetail({
     backgroundImg.load();
     editor.addChildTransformListener(backgroundImg);
     (editor.activeScene as DialogueScene).setBackgroundImg(backgroundImg);
+    focusChild(backgroundImg);
     setActiveScene({
       ...activeScene,
       backgroundImg,
@@ -334,6 +371,7 @@ export default function DialogueSceneDetail({
     newImg.load();
     editor.addChildTransformListener(newImg);
     (editor.activeScene as DialogueScene).addCharacterImg(newImg);
+    focusChild(newImg);
     setActiveScene({
       ...activeScene,
       characterImgs: [...activeScene.characterImgs, newImg],
@@ -349,6 +387,7 @@ export default function DialogueSceneDetail({
       hitCharacterImg.name = asset.name;
       hitCharacterImg.source = asset.source;
       hitCharacterImg.load();
+      focusChild(hitCharacterImg);
 
       setActiveScene({
         ...activeScene,
@@ -396,6 +435,7 @@ export default function DialogueSceneDetail({
     dialogImg.load();
     editor.addChildTransformListener(dialogImg);
     (editor.activeScene as DialogueScene).setDialogImg(dialogImg);
+    focusChild(dialogImg);
     setActiveScene({
       ...activeScene,
       dialogImg,
@@ -494,8 +534,13 @@ export default function DialogueSceneDetail({
 
   function focusChild(child: Child) {
     const editor = getEditor();
+    const hitChild = editor.activeScene.children.find(
+      (item: Child) => item.uuid === child.uuid,
+    );
 
-    editor.setActiveChild(child);
+    if (hitChild) {
+      editor.setActiveChild(hitChild as Child);
+    }
   }
 
   return (
@@ -610,7 +655,10 @@ export default function DialogueSceneDetail({
                         changeLines(index, event.target.value, "content")
                       }
                       onFocus={() => focusLine(line, "content")}
-                      onSelect={(e) => selectLine(index, e)}
+                      onSelect={(event) => selectLine(index, event)}
+                      onContextMenu={(event) =>
+                        showRightClickMenu(index, event)
+                      }
                     ></Textarea>
                     <Flex gap={1} alignItems={"center"} alignSelf={"flex-end"}>
                       {currentLinePosition.lineIndex === index && (
@@ -754,14 +802,8 @@ export default function DialogueSceneDetail({
           <UnorderedList>
             {activeScene.characterImgs.map((item, index) => {
               return (
-                <ListItem>
-                  <Flex
-                    gap={2}
-                    alignItems={"center"}
-                    fontSize={"sm"}
-                    mb={2}
-                    key={index}
-                  >
+                <ListItem key={index}>
+                  <Flex gap={2} alignItems={"center"} fontSize={"sm"} mb={2}>
                     <Text cursor={"pointer"} onClick={() => focusChild(item)}>
                       {item.name}
                     </Text>
@@ -882,6 +924,23 @@ export default function DialogueSceneDetail({
         onClose={onClose}
         onSelect={onAssetSelect}
       ></AssetLibrary>
+
+      <Menu id={MENU_ID}>
+        <Item id="animation" onClick={handleMenuItemClick}>
+          新增动画
+        </Item>
+        {/* <Separator></Separator>
+        <Item id="music" onClick={handleMenuItemClick}>
+          新增音乐
+        </Item> */}
+      </Menu>
+
+      <QuickAnimationSetting
+        activeScene={activeScene}
+        delay={currentLinePosition.positionStartTime}
+        isOpen={isOpenQuickAnimation}
+        onClose={onCloseQuickAnimation}
+      ></QuickAnimationSetting>
     </Flex>
   );
 }

@@ -48,6 +48,7 @@ import {
   setDefaultLineDisplayEffect,
   setDefaultWordsPerMinute,
 } from "../../lib/const";
+import { Menu, Item, useContextMenu, ItemParams } from "react-contexify";
 
 export default function MonologueSceneDetail({
   activeScene,
@@ -72,6 +73,27 @@ export default function MonologueSceneDetail({
     lineIndex: -1,
     positionStartTime: 0,
   });
+  const MENU_ID = "MonologueMenuID";
+
+  const { show: showContextMenu } = useContextMenu({
+    id: MENU_ID,
+  });
+
+  function handleMenuItemClick(params: ItemParams<{ lineIndex: number }>) {
+    const { id, props } = params;
+  }
+
+  function showRightClickMenu(
+    lineIndex: number,
+    event: React.MouseEvent<HTMLTextAreaElement>,
+  ) {
+    showContextMenu({
+      event,
+      props: {
+        lineIndex,
+      },
+    });
+  }
 
   function focusLine(value: string) {
     const editor = getEditor();
@@ -81,7 +103,7 @@ export default function MonologueSceneDetail({
       scene.lineText._width = 0;
       scene.lineText._height = 0;
       scene.lineText.text = value;
-      editor.setActiveChild(scene.lineText);
+      focusChild(scene.lineText);
     }
 
     // reset line position
@@ -238,6 +260,7 @@ export default function MonologueSceneDetail({
     backgroundImg.load();
     editor.addChildTransformListener(backgroundImg);
     (editor.activeScene as MonologueScene).setBackgroundImg(backgroundImg);
+    focusChild(backgroundImg);
     setActiveScene({
       ...activeScene,
       backgroundImg,
@@ -322,8 +345,13 @@ export default function MonologueSceneDetail({
 
   function focusChild(child: Child) {
     const editor = getEditor();
+    const hitChild = editor.activeScene.children.find(
+      (item: Child) => item.uuid === child.uuid,
+    );
 
-    editor.setActiveChild(child);
+    if (hitChild) {
+      editor.setActiveChild(hitChild as Child);
+    }
   }
 
   return (
@@ -425,7 +453,8 @@ export default function MonologueSceneDetail({
                     value={line.content}
                     onChange={(event) => changeLines(index, event.target.value)}
                     onFocus={(event) => focusLine(event.target.value)}
-                    onSelect={(e) => selectLine(index, e)}
+                    onSelect={(event) => selectLine(index, event)}
+                    // onContextMenu={(event) => showRightClickMenu(index, event)}
                   ></Textarea>
                   <Flex gap={1} alignItems={"center"} alignSelf={"flex-end"}>
                     {currentLinePosition.lineIndex === index && (
@@ -607,6 +636,12 @@ export default function MonologueSceneDetail({
         onClose={onClose}
         onSelect={selectBackground}
       ></AssetLibrary>
+
+      <Menu id={MENU_ID}>
+        <Item id="music" onClick={handleMenuItemClick}>
+          新增音乐
+        </Item>
+      </Menu>
     </Flex>
   );
 }
