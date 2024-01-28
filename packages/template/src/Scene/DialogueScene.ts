@@ -255,7 +255,9 @@ export class DialogueScene extends Scene {
             {
               alpha: 1,
               duration:
-                line.duration < LINE_GAP_TIME ? line.duration : LINE_GAP_TIME,
+                line.duration < LINE_FADE_IN_DURATION
+                  ? line.duration
+                  : LINE_FADE_IN_DURATION,
               delay: line.start,
             },
           ],
@@ -269,7 +271,9 @@ export class DialogueScene extends Scene {
             {
               alpha: 1,
               duration:
-                line.duration < LINE_GAP_TIME ? line.duration : LINE_GAP_TIME,
+                line.duration < LINE_FADE_IN_DURATION
+                  ? line.duration
+                  : LINE_FADE_IN_DURATION,
               delay: line.start,
             },
           ],
