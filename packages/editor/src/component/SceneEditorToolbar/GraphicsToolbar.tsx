@@ -13,7 +13,7 @@ import {
 import { Graphics } from "@vnve/core";
 import { getEditor } from "../../lib/context";
 import { HexColorPicker } from "react-colorful";
-import IconImagesmodeSharp from "~icons/material-symbols/imagesmode-outline-sharp";
+import IconFullScreen from "~icons/tdesign/fullscreen-2";
 import IconFormatColorFill from "~icons/material-symbols/format-color-fill";
 
 export default function GraphicsToolbar() {
@@ -78,7 +78,7 @@ export default function GraphicsToolbar() {
           <Icon
             w={6}
             h={6}
-            as={IconImagesmodeSharp}
+            as={IconFullScreen}
             onClick={setAsBackground}
           ></Icon>
         </Box>

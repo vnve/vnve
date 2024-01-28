@@ -29,7 +29,8 @@
   },
   "devDependencies": {
     "@iconify-json/carbon": "^1.1.21",
-    "@iconify-json/material-symbols": "^1.1.61",
+    "@iconify-json/material-symbols": "^1.1.71",
+    "@iconify-json/tdesign": "^1.1.3",
     "@svgr/core": "^8.1.0",
     "@svgr/plugin-jsx": "^8.1.0",
     "@vitejs/plugin-legacy": "^4.1.1",

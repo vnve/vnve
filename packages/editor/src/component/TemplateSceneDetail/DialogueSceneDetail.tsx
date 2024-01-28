@@ -10,6 +10,7 @@ import {
   FormControl,
   FormLabel,
   Button,
+  ButtonGroup,
   Textarea,
   NumberInput,
   NumberInputField,
@@ -29,6 +30,7 @@ import {
   Portal,
   UnorderedList,
   ListItem,
+  useToast,
 } from "@chakra-ui/react";
 import { DialogueScene } from "@vnve/template";
 import { EditorContext, getEditor } from "../../lib/context";
@@ -56,6 +58,7 @@ import {
   ItemParams,
 } from "react-contexify";
 import QuickAnimationSetting from "./QuickAnimationSetting";
+import { IEditorChildPosition } from "@vnve/core";
 
 type OpenFromType =
   | "addCharacter"
@@ -100,6 +103,7 @@ export default function DialogueSceneDetail({
     onOpen: onOpenQuickAnimation,
     onClose: onCloseQuickAnimation,
   } = useDisclosure();
+  const toast = useToast();
 
   function handleMenuItemClick(params: ItemParams<{ lineIndex: number }>) {
     const { id, props } = params;
@@ -335,7 +339,8 @@ export default function DialogueSceneDetail({
     const editor = getEditor();
     const backgroundImg = new Img(asset);
 
-    backgroundImg.load();
+    await loadImg(backgroundImg);
+
     editor.addChildTransformListener(backgroundImg);
     (editor.activeScene as DialogueScene).setBackgroundImg(backgroundImg);
     focusChild(backgroundImg);
@@ -364,13 +369,30 @@ export default function DialogueSceneDetail({
     } as DialogueScene);
   }
 
-  function addCharacterImg(asset: AssetItem) {
+  async function loadImg(img: Img) {
+    const imgLoadingPromise = img.load();
+
+    toast.promise(imgLoadingPromise, {
+      success: { title: "新增成功！", duration: 1000 },
+      error: { title: "新增失败!", duration: 1500 },
+      loading: { title: "图片加载中..." },
+    });
+
+    await imgLoadingPromise;
+  }
+
+  async function addCharacterImg(asset: AssetItem) {
     const editor = getEditor();
+    const scene = editor.activeScene as DialogueScene;
     const newImg = new Img(asset);
 
-    newImg.load();
+    await loadImg(newImg);
+
+    const newImgIndex = scene.characterImgs?.length;
+    editor.setChildPosition("bottom", newImg);
+    editor.setChildPosition(newImgIndex === 0 ? "center" : "right", newImg);
     editor.addChildTransformListener(newImg);
-    (editor.activeScene as DialogueScene).addCharacterImg(newImg);
+    scene.addCharacterImg(newImg);
     focusChild(newImg);
     setActiveScene({
       ...activeScene,
@@ -378,7 +400,7 @@ export default function DialogueSceneDetail({
     } as DialogueScene);
   }
 
-  function changeCharacterImg(asset: AssetItem) {
+  async function changeCharacterImg(asset: AssetItem) {
     if (typeof currentTargetIndex !== "undefined") {
       const editor = getEditor();
       const hitCharacterImg = (editor.activeScene as DialogueScene)
@@ -386,7 +408,8 @@ export default function DialogueSceneDetail({
 
       hitCharacterImg.name = asset.name;
       hitCharacterImg.source = asset.source;
-      hitCharacterImg.load();
+
+      await loadImg(hitCharacterImg);
       focusChild(hitCharacterImg);
 
       setActiveScene({
@@ -432,7 +455,7 @@ export default function DialogueSceneDetail({
     const editor = getEditor();
     const dialogImg = new Img(asset);
 
-    dialogImg.load();
+    await loadImg(dialogImg);
     editor.addChildTransformListener(dialogImg);
     (editor.activeScene as DialogueScene).setDialogImg(dialogImg);
     focusChild(dialogImg);
@@ -541,6 +564,12 @@ export default function DialogueSceneDetail({
     if (hitChild) {
       editor.setActiveChild(hitChild as Child);
     }
+  }
+
+  function setChildPosition(child: Child, position: IEditorChildPosition) {
+    const editor = getEditor();
+
+    editor.setChildPosition(position);
   }
 
   return (
@@ -807,6 +836,17 @@ export default function DialogueSceneDetail({
                     <Text cursor={"pointer"} onClick={() => focusChild(item)}>
                       {item.name}
                     </Text>
+                    <ButtonGroup size={"xs"} isAttached={true}>
+                      <Button onClick={() => setChildPosition(item, "left")}>
+                        左
+                      </Button>
+                      <Button onClick={() => setChildPosition(item, "center")}>
+                        中
+                      </Button>
+                      <Button onClick={() => setChildPosition(item, "right")}>
+                        右
+                      </Button>
+                    </ButtonGroup>
                     <Icon
                       cursor={"pointer"}
                       w={4}

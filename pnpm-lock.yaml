@@ -151,8 +151,11 @@ importers:
         specifier: ^1.1.21
         version: 1.1.21
       '@iconify-json/material-symbols':
-        specifier: ^1.1.61
-        version: 1.1.61
+        specifier: ^1.1.71
+        version: 1.1.71
+      '@iconify-json/tdesign':
+        specifier: ^1.1.3
+        version: 1.1.3
       '@svgr/core':
         specifier: ^8.1.0
         version: 8.1.0(typescript@5.2.2)
@@ -2903,8 +2906,14 @@ packages:
       '@iconify/types': 2.0.0
     dev: true
 
-  /@iconify-json/material-symbols@1.1.61:
-    resolution: {integrity: sha512-NbLHV5VF5MZsfydXvr4M/jCODjBHzOg3ctLMQ39yOtY7+VZgVkBuJiMlp3zKWcWPHIt1J3t0CLwVLZ9szyL8BA==}
+  /@iconify-json/material-symbols@1.1.71:
+    resolution: {integrity: sha512-6zW73qQjzxPgQV0zJRyV9RabSJiVVGvDQtcZV4eZyw5Xpt5WZSJ7Gq3J0w+AkxAf5B21jMydJysQV6umrUMnrA==}
+    dependencies:
+      '@iconify/types': 2.0.0
+    dev: true
+
+  /@iconify-json/tdesign@1.1.3:
+    resolution: {integrity: sha512-A0yjgmepPW+95Vgz6WHwsR0q/IQbFS6faXHhoEcevamhM077om6ddM2C2Usiz9WTqWLeUFGM7SRu0DuLxlq5Sg==}
     dependencies:
       '@iconify/types': 2.0.0
     dev: true

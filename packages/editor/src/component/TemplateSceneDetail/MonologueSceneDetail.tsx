@@ -29,6 +29,7 @@ import {
   Portal,
   UnorderedList,
   ListItem,
+  useToast,
 } from "@chakra-ui/react";
 import { MonologueScene } from "@vnve/template";
 import { EditorContext, getEditor } from "../../lib/context";
@@ -78,6 +79,7 @@ export default function MonologueSceneDetail({
   const { show: showContextMenu } = useContextMenu({
     id: MENU_ID,
   });
+  const toast = useToast();
 
   function handleMenuItemClick(params: ItemParams<{ lineIndex: number }>) {
     const { id, props } = params;
@@ -253,11 +255,24 @@ export default function MonologueSceneDetail({
     } as MonologueScene);
   }
 
+  async function loadImg(img: Img) {
+    const imgLoadingPromise = img.load();
+
+    toast.promise(imgLoadingPromise, {
+      success: { title: "新增成功！", duration: 1000 },
+      error: { title: "新增失败!", duration: 1500 },
+      loading: { title: "图片加载中..." },
+    });
+
+    await imgLoadingPromise;
+  }
+
   async function selectBackground(asset: AssetItem) {
     const editor = getEditor();
     const backgroundImg = new Img(asset);
 
-    backgroundImg.load();
+    await loadImg(backgroundImg);
+
     editor.addChildTransformListener(backgroundImg);
     (editor.activeScene as MonologueScene).setBackgroundImg(backgroundImg);
     focusChild(backgroundImg);

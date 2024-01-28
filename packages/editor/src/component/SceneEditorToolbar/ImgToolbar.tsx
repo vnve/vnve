@@ -3,7 +3,7 @@ import { Img } from "@vnve/core";
 import { getEditor } from "../../lib/context";
 import { AssetItem } from "../../lib/assets";
 import AssetLibrary from "../AssetLibrary/AssetLibrary";
-import IconImagesmodeSharp from "~icons/material-symbols/imagesmode-outline-sharp";
+import IconFullScreen from "~icons/tdesign/fullscreen-2";
 import IconPhotoLibrary from "~icons/material-symbols/reset-image-sharp";
 
 export default function ImgToolbar() {
@@ -44,7 +44,7 @@ export default function ImgToolbar() {
           <Icon
             w={6}
             h={6}
-            as={IconImagesmodeSharp}
+            as={IconFullScreen}
             onClick={setAsBackground}
           ></Icon>
         </Box>

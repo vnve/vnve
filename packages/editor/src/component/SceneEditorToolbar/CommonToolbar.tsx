@@ -18,6 +18,7 @@ import {
   Text,
   Portal,
   Button,
+  ButtonGroup,
   List,
   ListItem,
   Select,
@@ -33,13 +34,13 @@ import { EditorContext, getEditor } from "../../lib/context";
 import { useContext } from "react";
 import { PRESET_ANIMATION_LIST, PRESET_FILTER_LIST } from "../../lib/const";
 import IconOpacity from "~icons/material-symbols/opacity";
-import IconStack from "~icons/material-symbols/stack-sharp";
-import IconPosition from "~icons/material-symbols/position-bottom-left-outline-sharp";
+import IconStack from "~icons/material-symbols/stacks";
+import IconPosition from "~icons/carbon/center-square";
 import IconCopy from "~icons/material-symbols/content-copy-outline-sharp";
 import IconDelete from "~icons/material-symbols/delete-outline-sharp";
-import IconAnimation from "~icons/material-symbols/animation";
+import IconAnimation from "~icons/tdesign/animation-1";
 import IconWidthAndHeight from "~icons/material-symbols/width-full-outline-sharp";
-import IconFilterEffect from "~icons/material-symbols/filter-b-and-w-sharp";
+import IconFilterEffect from "~icons/tdesign/filter-3";
 import { DialogueScene } from "@vnve/template";
 
 export default function CommonToolbar({
@@ -380,10 +381,12 @@ export default function CommonToolbar({
               <PopoverArrow />
               <PopoverHeader as={"b"}>层级</PopoverHeader>
               <PopoverBody display={"flex"} gap={2}>
-                <Button onClick={moveChildToTop}>置顶</Button>
-                <Button onClick={moveUpChild}>上移一层</Button>
-                <Button onClick={moveDownChild}>下移一层</Button>
-                <Button onClick={moveChildToBottom}>置底</Button>
+                <ButtonGroup isAttached={true}>
+                  <Button onClick={moveChildToTop}>置顶</Button>
+                  <Button onClick={moveUpChild}>上移一层</Button>
+                  <Button onClick={moveDownChild}>下移一层</Button>
+                  <Button onClick={moveChildToBottom}>置底</Button>
+                </ButtonGroup>
               </PopoverBody>
             </PopoverContent>
           </Portal>
@@ -403,17 +406,29 @@ export default function CommonToolbar({
                   <Text fontSize={"14px"} as={"b"}>
                     水平
                   </Text>
-                  <Button onClick={() => setChildPosition("left")}>左</Button>
-                  <Button onClick={() => setChildPosition("center")}>中</Button>
-                  <Button onClick={() => setChildPosition("right")}>右</Button>
+                  <ButtonGroup isAttached={true}>
+                    <Button onClick={() => setChildPosition("left")}>左</Button>
+                    <Button onClick={() => setChildPosition("center")}>
+                      中
+                    </Button>
+                    <Button onClick={() => setChildPosition("right")}>
+                      右
+                    </Button>
+                  </ButtonGroup>
                 </Flex>
                 <Flex gap={2} alignItems={"center"}>
                   <Text fontSize={"14px"} as={"b"}>
                     垂直
                   </Text>
-                  <Button onClick={() => setChildPosition("top")}>上</Button>
-                  <Button onClick={() => setChildPosition("middle")}>中</Button>
-                  <Button onClick={() => setChildPosition("bottom")}>下</Button>
+                  <ButtonGroup isAttached={true}>
+                    <Button onClick={() => setChildPosition("top")}>上</Button>
+                    <Button onClick={() => setChildPosition("middle")}>
+                      中
+                    </Button>
+                    <Button onClick={() => setChildPosition("bottom")}>
+                      下
+                    </Button>
+                  </ButtonGroup>
                 </Flex>
               </PopoverBody>
             </PopoverContent>

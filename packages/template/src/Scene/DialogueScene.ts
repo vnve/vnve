@@ -151,17 +151,6 @@ export class DialogueScene extends Scene {
   }
 
   public addCharacterImg(characterImg: Img) {
-    const index = this.characterImgs.length;
-
-    characterImg.y = Converter.y(100);
-    if (index === 0) {
-      characterImg.x = Converter.x(100);
-    } else if (index === 1) {
-      characterImg.x = Converter.x(1380);
-    } else if (index > 1) {
-      characterImg.x = Converter.x(780);
-    }
-
     this.characterImgs.push(characterImg);
     this.addChild(characterImg);
     this.setChildIndex(characterImg, 1);
