@@ -14,6 +14,7 @@ import {
   LINE_FADE_IN_DURATION,
   LINE_GAP_TIME,
   getChildFromChildren,
+  getChildFromChildrenById,
   readingTime,
 } from "../Utils";
 
@@ -226,5 +227,36 @@ export class MonologueScene extends Scene {
     );
 
     return cloned;
+  }
+
+  public toJSON() {
+    return {
+      ...super.toJSON(),
+      __type: "MonologueScene",
+      type: this.type,
+      lines: this.lines,
+      wordsPerMinute: this.wordsPerMinute,
+      lineDisplayEffect: this.lineDisplayEffect,
+      lineTextID: this.lineText?.uuid,
+      backgroundImgID: this.backgroundImg?.uuid,
+    };
+  }
+
+  static async fromJSON(raw: any) {
+    let scene = new MonologueScene({
+      lines: raw.lines,
+      lineDisplayEffect: raw.lineDisplayEffect,
+      wordsPerMinute: raw.wordsPerMinute,
+    });
+
+    scene.removeChildren(); // remove default lineText
+    scene = await Scene.fromJSON(raw, scene);
+    scene.lineText = getChildFromChildrenById(scene.children, raw.lineTextID);
+    scene.backgroundImg = getChildFromChildrenById(
+      scene.children,
+      raw.backgroundImgID,
+    );
+
+    return scene;
   }
 }

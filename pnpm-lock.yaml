@@ -95,12 +95,12 @@ importers:
       mp4-muxer:
         specifier: ^2.2.2
         version: 2.3.0
+      nanoid:
+        specifier: ^5.0.5
+        version: 5.0.5
       pixi.js:
         specifier: ^7.3.2
         version: 7.3.2(@pixi/utils@7.3.2)
-      uuid:
-        specifier: ^9.0.1
-        version: 9.0.1
 
   packages/editor:
     dependencies:
@@ -7251,6 +7251,12 @@ packages:
     hasBin: true
     dev: true
 
+  /nanoid@5.0.5:
+    resolution: {integrity: sha512-/Veqm+QKsyMY3kqi4faWplnY1u+VuKO3dD2binyPIybP31DRO29bPF+1mszgLnrR2KqSLceFLBNw0zmvDzN1QQ==}
+    engines: {node: ^18 || >=20}
+    hasBin: true
+    dev: false
+
   /natural-compare@1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
     dev: true
@@ -9159,11 +9165,6 @@ packages:
   /util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
     dev: true
-
-  /uuid@9.0.1:
-    resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
-    hasBin: true
-    dev: false
 
   /validate-npm-package-license@3.0.4:
     resolution: {integrity: sha512-DpKm2Ui/xN7/HQKCtpZxoRWBhZ9Z0kqtygG8XCgNQ8ZlDnxuQmWhj566j8fN4Cu3/JmbhsDo7fcAJq4s9h27Ew==}

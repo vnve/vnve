@@ -15,6 +15,7 @@ import {
   LINE_FADE_IN_DURATION,
   getChildFromChildren,
   readingTime,
+  getChildFromChildrenById,
 } from "../Utils";
 
 interface ICharacterLine {
@@ -333,5 +334,52 @@ export class DialogueScene extends Scene {
       .filter((item) => !!item);
 
     return cloned;
+  }
+
+  public toJSON() {
+    return {
+      ...super.toJSON(),
+      __type: "DialogueScene",
+      type: this.type,
+      lines: this.lines,
+      wordsPerMinute: this.wordsPerMinute,
+      lineDisplayEffect: this.lineDisplayEffect,
+      nameTextID: this.nameText?.uuid,
+      dialogTextID: this.dialogText?.uuid,
+      dialogRectID: this.dialogRect?.uuid,
+      dialogImgID: this.dialogImg?.uuid,
+      backgroundImgID: this.backgroundImg?.uuid,
+      characterImgIDs: this.characterImgs.map((item) => item.uuid),
+    };
+  }
+
+  static async fromJSON(raw: any) {
+    let scene = new DialogueScene({
+      lines: raw.lines,
+      lineDisplayEffect: raw.lineDisplayEffect,
+      wordsPerMinute: raw.wordsPerMinute,
+    });
+
+    scene.removeChildren(); // remove default nameText...
+    scene = await Scene.fromJSON(raw, scene);
+    scene.nameText = getChildFromChildrenById(scene.children, raw.nameTextID);
+    scene.dialogText = getChildFromChildrenById(
+      scene.children,
+      raw.dialogTextID,
+    );
+    scene.dialogRect = getChildFromChildrenById(
+      scene.children,
+      raw.dialogRectID,
+    );
+    scene.dialogImg = getChildFromChildrenById(scene.children, raw.dialogImgID);
+    scene.backgroundImg = getChildFromChildrenById(
+      scene.children,
+      raw.backgroundImgID,
+    );
+    scene.characterImgs = raw.characterImgIDs.map((id: string) =>
+      getChildFromChildrenById(scene.children, id),
+    );
+
+    return scene;
   }
 }

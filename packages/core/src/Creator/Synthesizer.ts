@@ -12,7 +12,7 @@ export interface SynthesizerOptions {
   ticker?: FrameTicker<SynthesizerTickCtx>;
   videoConfig?: VideoConfig;
   audioConfig?: AudioConfig;
-  onProgress?: (percent: number) => void;
+  onProgress?: (percent: number, timestamp: number, duration: number) => void;
 }
 
 interface SynthesizerTickCtx {
@@ -46,7 +46,11 @@ export class Synthesizer {
   public onlyVideo: boolean;
   public active: boolean;
   public ticker: FrameTicker<SynthesizerTickCtx>;
-  public onProgress?: (percent: number) => void;
+  public onProgress?: (
+    percent: number,
+    timestamp: number,
+    duration: number,
+  ) => void;
 
   private videoConfig: VideoConfig;
   private audioConfig: AudioConfig;
@@ -105,7 +109,7 @@ export class Synthesizer {
       }
 
       if (this.onProgress) {
-        this.onProgress(timestamp / this.duration);
+        this.onProgress(timestamp / this.duration, timestamp, this.duration);
       }
 
       log.debug("progress", timestamp / this.duration);

@@ -53,6 +53,10 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
   const previewRef = useRef(null);
   const [exportVideoSrc, setExportVideoSrc] = useState("");
   const [exportProgress, setExportProgress] = useState(0);
+  const [previewProgressInfo, setPreviewProgressInfo] = useState({
+    timestamp: 0,
+    duration: 0,
+  });
   const [exportFileName, setExportFileName] = useState("");
   const [splitExportProgressTip, setSplitExportProgressTip] = useState("");
   const {
@@ -82,8 +86,12 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
 
   useEffect(() => {
     creatorRef.current = new Creator({
-      onProgress(percent) {
+      onProgress(percent, timestamp, duration) {
         setExportProgress(percent * 100);
+        setPreviewProgressInfo({
+          timestamp,
+          duration,
+        });
       },
       onlyVideo,
     });
@@ -139,6 +147,10 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
   }
 
   async function openPreview(type: "current" | "fromCurrent" | "all") {
+    setPreviewProgressInfo({
+      timestamp: 0,
+      duration: 0,
+    });
     onOpenPreview();
     const editor = getEditor();
     let scenes: Scene[] = [];
@@ -544,7 +556,12 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
         <ModalContent maxW={{ base: "350px", md: "820px" }}>
           <ModalHeader>预览</ModalHeader>
           <ModalCloseButton />
-          <ModalBody display={"flex"} justifyContent={"center"}>
+          <ModalBody
+            display={"flex"}
+            justifyContent={"center"}
+            flexDirection={"column"}
+            alignItems={"center"}
+          >
             <Box
               width={{ base: "320px", md: "768px" }}
               height={{ base: "180px", md: "432px" }}
@@ -554,6 +571,12 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
                 style={{ width: "100%", height: "100%" }}
               ></canvas>
             </Box>
+            {previewProgressInfo.timestamp > 0 && (
+              <Text>
+                {(previewProgressInfo.timestamp / 1000).toFixed(1)}/
+                {(previewProgressInfo.duration / 1000).toFixed(1)}s
+              </Text>
+            )}
           </ModalBody>
 
           <ModalFooter>

@@ -18,7 +18,7 @@ interface ICreatorOptions {
   background?: string;
   fps?: number;
   onlyVideo?: boolean;
-  onProgress?: (percent: number) => void;
+  onProgress?: (percent: number, timestamp: number, duration: number) => void;
 }
 
 export interface ICreatorTickCtx {
@@ -51,7 +51,11 @@ export class Creator {
   private ticker: FrameTicker<ICreatorTickCtx>;
   private synthesizer?: Synthesizer;
   private previewer?: Previewer;
-  private onProgress?: (percent: number) => void;
+  private onProgress?: (
+    percent: number,
+    timestamp: number,
+    duration: number,
+  ) => void;
 
   constructor(options: ICreatorOptions = {}) {
     this.options = options;
@@ -216,6 +220,7 @@ export class Creator {
         duration,
         fps: this.fps,
         ticker: this.ticker,
+        onProgress: this.onProgress,
       });
     }
 

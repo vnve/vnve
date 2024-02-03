@@ -13,4 +13,14 @@ export class VignetteFilter extends OldFilmFilter {
   public cloneSelf() {
     return new VignetteFilter();
   }
+
+  public toJSON() {
+    return {
+      __type: "VignetteFilter",
+    };
+  }
+
+  static fromJSON() {
+    return new VignetteFilter();
+  }
 }

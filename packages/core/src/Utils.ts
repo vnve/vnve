@@ -1,9 +1,22 @@
 import {
+  BlackMaskFilter,
+  BlurFilter,
+  NoiseFilter,
+  OldFilmFilter,
+  VignetteFilter,
+} from ".";
+import {
   DEFAULT_AUDIO_CONFIG,
   DEFAULT_HEIGHT,
   DEFAULT_VIDEO_CONFIG,
   DEFAULT_WIDTH,
 } from "./Const";
+import * as PIXI from "pixi.js";
+import { nanoid } from "nanoid";
+
+export function uuid() {
+  return nanoid(8);
+}
 
 export async function sliceAudioBuffer(
   audioBuffer: AudioBuffer,
@@ -149,4 +162,36 @@ export async function canIUse() {
     video,
     audio,
   };
+}
+
+export function getTransformArray(child: PIXI.DisplayObject) {
+  return [
+    child.x,
+    child.y,
+    child.scale.x,
+    child.scale.y,
+    child.rotation,
+    child.skew.x,
+    child.skew.y,
+    child.pivot.x,
+    child.pivot.y,
+  ];
+}
+
+export function reviveFilters(rawFilters: any) {
+  if (!rawFilters) {
+    return;
+  }
+
+  const Types: any = {
+    BlackMaskFilter,
+    BlurFilter,
+    NoiseFilter,
+    OldFilmFilter,
+    VignetteFilter,
+  };
+
+  return rawFilters.map((item: any) => {
+    return Types[item.__type].fromJSON();
+  });
 }

@@ -1,3 +1,5 @@
+import { db } from "./db";
+
 export async function fetchImgAsBlob(url: string) {
   return await (await fetch(url)).blob();
 }
@@ -28,4 +30,36 @@ export function downloadFile(filename: string, fileSrc: string) {
 
 export function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export function setSourceToDB(source?: string) {
+  if (!source) {
+    return;
+  }
+
+  if (source.startsWith("blob:")) {
+    return source.split("#")[1]; // id=1 or draftId=1
+  }
+
+  return source;
+}
+
+export async function getSourceFromDB(source: string) {
+  if (!source || /^(http|\/)/.test(source)) {
+    return source;
+  }
+
+  const [assetType, idStr] = source.split("=");
+  const id = Number(idStr);
+  let blob;
+
+  if (assetType === "id") {
+    blob = (await db.assets.get(id)).source;
+  } else if (assetType === "draftId") {
+    blob = (await db.draftAssets.get(id)).source;
+  } else {
+    // unreachable
+  }
+
+  return `${URL.createObjectURL(blob)}#${assetType}=${id}`;
 }

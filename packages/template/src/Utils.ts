@@ -39,3 +39,7 @@ export function getChildFromChildren(children: any[], child?: Child): any {
 
   return;
 }
+
+export function getChildFromChildrenById(children: any[], uuid: string): any {
+  return children.find((item) => item.uuid === uuid);
+}

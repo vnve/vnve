@@ -389,10 +389,12 @@ export default function DialogueSceneDetail({
     await loadImg(newImg);
 
     const newImgIndex = scene.characterImgs?.length;
-    editor.setChildPosition("bottom", newImg);
-    editor.setChildPosition(newImgIndex === 0 ? "center" : "right", newImg);
     editor.addChildTransformListener(newImg);
     scene.addCharacterImg(newImg);
+    setTimeout(() => {
+      editor.setChildPosition("bottom", newImg);
+      editor.setChildPosition(newImgIndex === 0 ? "center" : "right", newImg);
+    }, 100);
     focusChild(newImg);
     setActiveScene({
       ...activeScene,
@@ -569,7 +571,7 @@ export default function DialogueSceneDetail({
   function setChildPosition(child: Child, position: IEditorChildPosition) {
     const editor = getEditor();
 
-    editor.setChildPosition(position);
+    editor.setChildPosition(position, child);
   }
 
   return (

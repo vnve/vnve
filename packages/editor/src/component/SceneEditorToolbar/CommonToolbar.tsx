@@ -95,6 +95,7 @@ export default function CommonToolbar({
       clonedChild.y += clonedChild.height * 0.1;
 
       editor.addChild(clonedChild);
+      editor.setActiveChild(clonedChild);
     }
   }
 

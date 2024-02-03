@@ -1,5 +1,6 @@
 import { Flex, Input } from "@chakra-ui/react";
 import { useRef } from "react";
+import { db } from "../../lib/db";
 
 export default function UploadVoice({
   onChangeVoiceUrl,
@@ -8,10 +9,16 @@ export default function UploadVoice({
 }) {
   const voiceFileRef = useRef(null);
 
-  function onSelectVoiceFile(file: File) {
-    const url = URL.createObjectURL(file);
+  async function onSelectVoiceFile(file: File) {
+    await db.draftAssets
+      .add({
+        source: file as Blob,
+      })
+      .then((id) => {
+        const url = `${URL.createObjectURL(file)}#draftId=${id}`;
 
-    onChangeVoiceUrl(url);
+        onChangeVoiceUrl(url);
+      });
   }
 
   return (

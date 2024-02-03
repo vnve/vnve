@@ -8,7 +8,7 @@ import {
   Sound,
   PREST_ANIMATION,
 } from "@vnve/core";
-import { getChildFromChildren } from "../Utils";
+import { getChildFromChildren, getChildFromChildrenById } from "../Utils";
 
 interface ITitleSceneOption {
   duration: number;
@@ -110,5 +110,37 @@ export class TitleScene extends Scene {
     );
 
     return cloned;
+  }
+
+  public toJSON() {
+    return {
+      ...super.toJSON(),
+      __type: "TitleScene",
+      type: this.type,
+      titleTextID: this.titleText.uuid,
+      subtitleTextID: this.subtitleText?.uuid,
+      backgroundImgID: this.backgroundImg?.uuid,
+    };
+  }
+
+  static async fromJSON(raw: any) {
+    let scene = new TitleScene({
+      title: "",
+      duration: 0,
+    });
+
+    scene.removeChildren(); // remove default titleText
+    scene = await Scene.fromJSON(raw, scene);
+    scene.titleText = getChildFromChildrenById(scene.children, raw.titleTextID);
+    scene.subtitleText = getChildFromChildrenById(
+      scene.children,
+      raw.subtitleTextID,
+    );
+    scene.backgroundImg = getChildFromChildrenById(
+      scene.children,
+      raw.backgroundImgID,
+    );
+
+    return scene;
   }
 }

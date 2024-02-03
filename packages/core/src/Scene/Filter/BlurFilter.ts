@@ -6,4 +6,14 @@ export class BlurFilter extends PIXI.BlurFilter {
   public cloneSelf() {
     return new BlurFilter();
   }
+
+  public toJSON() {
+    return {
+      __type: "BlurFilter",
+    };
+  }
+
+  static fromJSON() {
+    return new BlurFilter();
+  }
 }

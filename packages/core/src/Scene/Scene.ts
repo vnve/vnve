@@ -1,23 +1,24 @@
 import * as PIXI from "pixi.js";
 import { gsap } from "gsap";
-import { v4 as uuid } from "uuid";
 import { Child } from "./Type";
 import { Sound } from "./Sound";
 import { ICreatorTickCtx } from "../Creator";
 import { cloneDeep } from "lodash-es";
-import { Transition } from "./Transition";
+import { Transition, FadeInTransition } from "./Transition";
 import { Filter } from "./Filter";
+import { Img, Text, Graphics } from "./Child";
+import { uuid } from "../Utils";
 
 interface ISceneOption {
   name?: string;
   start?: number;
-  duration: number;
+  duration?: number;
 }
 
 export class Scene extends PIXI.Container {
   public uuid: string;
   public name: string;
-  public options: ISceneOption;
+  public options?: ISceneOption;
   public start: number;
   public duration: number;
   public sounds: Sound[];
@@ -26,13 +27,13 @@ export class Scene extends PIXI.Container {
 
   private animationLine?: gsap.core.Timeline;
 
-  constructor(options: ISceneOption) {
+  constructor(options?: ISceneOption) {
     super();
     this.options = options;
     this.uuid = uuid();
-    this.name = options.name || "";
-    this.start = options.start || 0;
-    this.duration = options.duration;
+    this.name = options?.name ?? "";
+    this.start = options?.start ?? 0;
+    this.duration = options?.duration ?? 0;
     this.sounds = [];
     this.transitions = [];
     this.type = "";
@@ -46,7 +47,14 @@ export class Scene extends PIXI.Container {
   }
 
   public removeSound(sound: Sound) {
-    this.sounds = this.sounds.filter((s) => s !== sound);
+    this.sounds = this.sounds.filter((item) => {
+      if (item.uuid === sound.uuid) {
+        sound.destroy();
+        return false;
+      }
+
+      return true;
+    });
   }
 
   public addTransition(transition: Transition) {
@@ -147,6 +155,73 @@ export class Scene extends PIXI.Container {
     return clonedScene;
   }
 
+  public toJSON() {
+    return {
+      __type: "Scene",
+      type: this.type,
+      uuid: this.uuid,
+      name: this.name,
+      start: this.start,
+      duration: this.duration,
+      sounds: this.sounds,
+      transitions: this.transitions,
+      children: this.children.filter((item: any) => !item.wireframe),
+      filters: this.filters,
+    };
+  }
+
+  static async fromJSON(raw: any, templateScene?: any) {
+    const scene = templateScene ?? new Scene();
+    const ChildrenTypes: any = {
+      Text,
+      Img,
+      Graphics,
+    };
+    const TransitionTypes: any = {
+      FadeInTransition,
+    };
+
+    scene.type = raw.type;
+    scene.duration = raw.duration;
+    scene.uuid = raw.uuid;
+    scene.name = raw.name;
+    scene.start = raw.start;
+
+    // revive sounds
+    const sounds = [];
+    for (let index = 0; index < raw.sounds.length; index++) {
+      let item = raw.sounds[index];
+
+      item = await Sound.fromJSON(item);
+      sounds.push(item);
+    }
+    scene.sounds = sounds;
+
+    // revive transitions
+    const transitions = [];
+    for (let index = 0; index < raw.transitions.length; index++) {
+      let item = raw.transitions[index];
+
+      item = TransitionTypes[item.__type].fromJSON(item);
+      transitions.push(item);
+    }
+    scene.transitions = transitions;
+
+    // revive children
+    const children: Child[] = [];
+    for (let index = 0; index < raw.children.length; index++) {
+      let item = raw.children[index];
+      item = await ChildrenTypes[item.__type].fromJSON(item);
+      children.push(item);
+    }
+
+    if (children.length > 0) {
+      scene.addChild(...children);
+    }
+
+    return scene;
+  }
+
   public async loadResource() {
     const traverseChild = async (child: any) => {
       if (typeof child.load === "function") {
@@ -168,14 +243,6 @@ export class Scene extends PIXI.Container {
     for (const sound of this.sounds) {
       await sound.load();
     }
-  }
-
-  public saveAsJSON() {
-    // TODO:
-  }
-
-  public loadFromJSON() {
-    // TODO:
   }
 
   public loadAnimation() {

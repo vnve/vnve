@@ -76,10 +76,18 @@ export default function AssetList({
     () =>
       [
         ...(dbAssets || []).map((item) => {
+          const id = item.id!;
+          let sourceURL = db.getSourceURL(id);
+
+          if (!sourceURL) {
+            sourceURL = `${URL.createObjectURL(item.source)}#id=${item.id!}`;
+            db.addSourceURL(id, sourceURL);
+          }
+
           return {
             ...item,
-            id: item.id!,
-            source: URL.createObjectURL(item.source),
+            id,
+            source: sourceURL,
           };
         }),
         ...presetAssets,
@@ -165,6 +173,7 @@ export default function AssetList({
   function deleteAsset(e: React.MouseEvent, id?: number) {
     e.stopPropagation();
     db.assets.where("id").equals(id!).delete();
+    db.removeSourceURL(id);
   }
 
   function selectAsset(asset: AssetItem) {
@@ -222,6 +231,11 @@ export default function AssetList({
             <PopoverHeader as={"b"}>新增本地素材</PopoverHeader>
             <PopoverBody>
               <Flex direction={"column"} gap={2}>
+                {type === "image" && (
+                  <Text fontSize={"xs"} color={"orange"}>
+                    图片素材请注意，视频画布尺寸为1920*1080px
+                  </Text>
+                )}
                 <FormControl>
                   <FormLabel fontSize={"sm"}>名称</FormLabel>
                   <Input

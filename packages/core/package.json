@@ -46,8 +46,8 @@
     "lodash-es": "^4.17.21",
     "loglevel": "^1.8.1",
     "mp4-muxer": "^2.2.2",
-    "pixi.js": "^7.3.2",
-    "uuid": "^9.0.1"
+    "nanoid": "^5.0.5",
+    "pixi.js": "^7.3.2"
   },
   "repository": {
     "type": "git",

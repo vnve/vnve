@@ -7,6 +7,7 @@ interface IPreviewerOptions {
   duration: number;
   fps: number;
   ticker: FrameTicker<ICreatorTickCtx>;
+  onProgress?: (percent: number, timestamp: number, duration: number) => void;
 }
 
 export class Previewer {
@@ -15,12 +16,18 @@ export class Previewer {
   public fps: number;
   public ticker: FrameTicker<ICreatorTickCtx>;
   public active: boolean;
+  public onProgress?: (
+    percent: number,
+    timestamp: number,
+    duration: number,
+  ) => void;
 
   constructor(options: IPreviewerOptions) {
     this.container = options.container;
     this.duration = options.duration;
     this.fps = options.fps;
     this.ticker = options.ticker;
+    this.onProgress = options.onProgress;
     this.active = false;
     this.createPreviewTickInterceptor();
   }
@@ -78,6 +85,10 @@ export class Previewer {
         if (remainingFrameTime > 0) {
           await wait(remainingFrameTime);
         }
+      }
+
+      if (this.onProgress) {
+        this.onProgress(timestamp / this.duration, timestamp, this.duration);
       }
     });
   }

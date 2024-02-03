@@ -38,8 +38,11 @@ export default function TextToolbar({
 
   function changeStyle(prop: string, value: any) {
     const editor = getEditor();
+    const textChild = editor.activeChild as TextChild;
 
-    (editor.activeChild as TextChild).style[prop] = value;
+    textChild._width = 0;
+    textChild._height = 0;
+    textChild.style[prop] = value;
     setActiveChild({
       ...activeChild,
       style: {

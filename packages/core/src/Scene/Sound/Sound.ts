@@ -1,6 +1,5 @@
-import { v4 as uuid } from "uuid";
 import { ICreatorTickCtx } from "../../Creator";
-import { fetchUrlToAudiBuffer } from "../../Utils";
+import { fetchUrlToAudiBuffer, uuid } from "../../Utils";
 
 export interface ISoundOption {
   name?: string;
@@ -42,8 +41,49 @@ export class Sound {
     }
   }
 
+  public toJSON() {
+    return {
+      __type: "Sound",
+      name: this.name,
+      source: Sound.setSourceToDB(this.source),
+      start: this.start,
+      duration: this.duration,
+      loop: this.loop,
+      volume: this.volume,
+      uuid: this.uuid,
+    };
+  }
+
+  static async fromJSON(raw: any) {
+    const sound = new Sound({
+      source: (await Sound.getSourceFromDB(raw.source)) as string,
+    });
+    sound.name = raw.name;
+    sound.start = raw.start;
+    sound.duration = raw.duration;
+    sound.loop = raw.loop;
+    sound.volume = raw.volume;
+    sound.uuid = raw.uuid;
+
+    return sound;
+  }
+
+  static setSourceToDB(source?: any) {
+    return source;
+  }
+
+  static async getSourceFromDB(source?: string) {
+    return source;
+  }
+
   public cloneSelf() {
     // TODO: return new Sound()
+  }
+
+  public destroy() {
+    if (this.source?.startsWith("blob:")) {
+      URL.revokeObjectURL(this.source);
+    }
   }
 
   async tick(rawTimestamp: number, tickCtx: ICreatorTickCtx) {

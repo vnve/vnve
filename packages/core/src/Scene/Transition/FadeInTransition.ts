@@ -12,4 +12,19 @@ export class FadeInTransition extends Transition {
       }
     }
   }
+
+  public toJSON() {
+    return {
+      __type: "FadeInTransition",
+      start: this.start,
+      duration: this.duration,
+    };
+  }
+
+  static fromJSON(raw: any) {
+    return new FadeInTransition({
+      start: raw.start,
+      duration: raw.duration,
+    });
+  }
 }

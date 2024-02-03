@@ -6,4 +6,14 @@ export class OldFilmFilter extends RawOldFilmFilter {
   public cloneSelf() {
     return new OldFilmFilter();
   }
+
+  public toJSON() {
+    return {
+      __type: "OldFilmFilter",
+    };
+  }
+
+  static fromJSON() {
+    return new OldFilmFilter();
+  }
 }

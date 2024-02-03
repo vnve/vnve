@@ -10,4 +10,14 @@ export class BlackMaskFilter extends PIXI.ColorMatrixFilter {
   public cloneSelf() {
     return new BlackMaskFilter();
   }
+
+  public toJSON() {
+    return {
+      __type: "BlackMaskFilter",
+    };
+  }
+
+  static fromJSON() {
+    return new BlackMaskFilter();
+  }
 }

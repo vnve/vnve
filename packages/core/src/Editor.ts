@@ -5,6 +5,7 @@ import * as PIXI from "pixi.js";
 import { Transformer } from "@pixi-essentials/transformer";
 import { Scene, Filter, Child, Sound } from "./Scene";
 import { DEFAULT_BACKGROUND, DEFAULT_HEIGHT, DEFAULT_WIDTH } from "./Const";
+import { uuid } from "./Utils";
 
 export type IEditorChildPosition =
   | "top"
@@ -142,6 +143,12 @@ export class Editor {
     }
   }
 
+  public loadScenes(scenes: Scene[]) {
+    scenes.forEach((scene) => {
+      this.addScene(scene);
+    });
+  }
+
   public removeScene(scene: Scene) {
     this.scenes.splice(this.scenes.indexOf(scene), 1);
     if (this.activeScene === scene) {
@@ -205,6 +212,7 @@ export class Editor {
     if (scene) {
       this.removeChildTransformListener(child);
       scene.removeChild(child);
+      child.destroy();
     }
   }
 
@@ -213,6 +221,8 @@ export class Editor {
 
     if (child) {
       const clonedChild = child.cloneSelf();
+
+      clonedChild.uuid = uuid(); // clonedChild should be different uuid
 
       return clonedChild as Child;
     }
@@ -284,6 +294,29 @@ export class Editor {
 
     return scenes;
   }
+
+  public saveAsJSON() {
+    return JSON.stringify({
+      version: "1.0",
+      scenes: this.scenes,
+    });
+  }
+
+  public async loadFromJSON(draftJSON: string) {
+    const draft = JSON.parse(draftJSON);
+
+    const scenes = [];
+    for (let index = 0; index < draft.scenes.length; index++) {
+      let item = draft.scenes[index];
+
+      item = await Editor.supportSceneTypes[item.__type].fromJSON(item);
+      scenes.push(item);
+    }
+
+    this.loadScenes(scenes);
+  }
+
+  static supportSceneTypes: any = { Scene };
 
   public start() {
     this.app.start();

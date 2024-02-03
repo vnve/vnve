@@ -1,4 +1,4 @@
-import { Child, Scene, canIUse } from "@vnve/core";
+import { Child, Scene, canIUse, Img, Sound, Editor } from "@vnve/core";
 import { useEffect, useState } from "react";
 import { EditorContext } from "../lib/context";
 import PageHeader from "../component/PageHeader";
@@ -18,6 +18,19 @@ import SceneEditor from "../component/SceneEditor";
 import SceneDetail from "../component/SceneDetail";
 import SceneList from "../component/SceneList";
 import { BrowserEnvSupportType } from "../lib/const";
+import { getSourceFromDB, setSourceToDB } from "../lib/utils";
+import { MonologueScene, TitleScene, DialogueScene } from "@vnve/template";
+
+Editor.supportSceneTypes = {
+  Scene,
+  MonologueScene,
+  TitleScene,
+  DialogueScene,
+};
+Sound.setSourceToDB = setSourceToDB;
+Sound.getSourceFromDB = getSourceFromDB;
+Img.setSourceToDB = setSourceToDB;
+Img.getSourceFromDB = getSourceFromDB;
 
 export default function EditorPage() {
   const [activeChild, setActiveChild] = useState<Child>();

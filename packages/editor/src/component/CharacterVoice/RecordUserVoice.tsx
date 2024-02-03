@@ -1,5 +1,6 @@
 import { Flex, Button } from "@chakra-ui/react";
 import { useRef, useState } from "react";
+import { db } from "../../lib/db";
 
 export default function RecordUserVoice({
   onChangeVoiceUrl,
@@ -27,12 +28,19 @@ export default function RecordUserVoice({
           }
         };
 
-        mediaRecorder.current.onstop = () => {
+        mediaRecorder.current.onstop = async () => {
           const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
-          const url = URL.createObjectURL(audioBlob);
 
-          setAudioUrl(url);
-          onChangeVoiceUrl(url);
+          await db.draftAssets
+            .add({
+              source: audioBlob,
+            })
+            .then((id) => {
+              const url = `${URL.createObjectURL(audioBlob)}#draftId=${id}`;
+
+              setAudioUrl(url);
+              onChangeVoiceUrl(url);
+            });
         };
 
         mediaRecorder.current.start();

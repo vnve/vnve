@@ -15,16 +15,51 @@ export interface TemplateDBItem {
   source: string;
 }
 
+export interface DraftDBItem {
+  id?: number;
+  name: string;
+  time: number;
+  content: string;
+}
+
+export interface DraftAssetDBItem {
+  id?: number;
+  name?: string;
+  source: Blob;
+}
+
 export class VNVEDexie extends Dexie {
   assets!: Table<AssetDBItem>;
   templates!: Table<TemplateDBItem>;
+  drafts!: Table<DraftDBItem>;
+  draftAssets!: Table<DraftAssetDBItem>;
+  sourceURLMap: Record<number, string>;
 
   constructor() {
     super("vnveDB");
-    this.version(1).stores({
+    this.version(2).stores({
       assets: "++id, name, *type, *tag, source",
       templates: "++id, name, type, source",
+      drafts: "++id, name, time, content",
+      draftAssets: "++id, name, source",
     });
+    this.sourceURLMap = {};
+  }
+
+  addSourceURL(id: number, url: string) {
+    this.sourceURLMap[id] = url;
+  }
+
+  removeSourceURL(id: number) {
+    const url = this.sourceURLMap[id];
+    if (url && url.startsWith("blob:")) {
+      URL.revokeObjectURL(url);
+    }
+    this.sourceURLMap[id] = "";
+  }
+
+  getSourceURL(id: number) {
+    return this.sourceURLMap[id];
   }
 }
 
