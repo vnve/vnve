@@ -61,6 +61,8 @@ export default function PageHeader() {
 
     if (hasDraft) {
       onOpenDraftTip();
+    } else {
+      startAutoSave.current = true;
     }
   }
 
