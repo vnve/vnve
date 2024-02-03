@@ -44,7 +44,7 @@ export default function PageHeader() {
           saveDraft();
         }
       },
-      3 * 60 * 1000,
+      1 * 60 * 1000,
     );
 
     return () => {
