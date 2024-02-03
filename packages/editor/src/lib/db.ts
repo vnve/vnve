@@ -50,6 +50,11 @@ export class VNVEDexie extends Dexie {
     this.sourceURLMap[id] = url;
   }
 
+  updateSourceURL(id: number, url: string) {
+    this.removeSourceURL(id);
+    this.addSourceURL(id, url);
+  }
+
   removeSourceURL(id: number) {
     const url = this.sourceURLMap[id];
     if (url && url.startsWith("blob:")) {

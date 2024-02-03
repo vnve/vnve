@@ -118,6 +118,7 @@ export default function AssetList({
       db.assets.where("id").equals(editAssetItem.id).modify({
         source: blob,
       });
+      db.updateSourceURL(editAssetItem.id, URL.createObjectURL(blob));
       closeImgEditor();
     });
   }
