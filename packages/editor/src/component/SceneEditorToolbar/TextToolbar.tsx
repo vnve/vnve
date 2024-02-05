@@ -25,7 +25,7 @@ import IconFormatBlod from "~icons/material-symbols/format-bold";
 import IconFormatItalic from "~icons/material-symbols/format-italic";
 import IconFormatClear from "~icons/material-symbols/format-clear";
 import IconFont from "~icons/material-symbols/font-download-outline-sharp";
-import { FONT_LIST } from "../../lib/const";
+import { SUPPORTED_FONT_LIST } from "../../lib/font";
 
 export default function TextToolbar({
   activeChild,
@@ -189,10 +189,10 @@ export default function TextToolbar({
                 value={activeChild.style.fontFamily}
                 onChange={(event) => changeFontFamily(event.target.value)}
               >
-                {FONT_LIST.map((item) => {
+                {SUPPORTED_FONT_LIST.map((item) => {
                   return (
-                    <option key={item.value} value={item.value}>
-                      {item.name}
+                    <option key={item.en} value={item.en}>
+                      {item.ch}
                     </option>
                   );
                 })}

@@ -261,37 +261,6 @@ export const SCENE_TYPE_NAME_MAP: { [_: string]: string } = {
   DialogueScene: "对话",
 };
 
-export const FONT_LIST = [
-  {
-    name: "Arial",
-    value: "Arial",
-  },
-  {
-    name: "微软雅黑",
-    value: "Microsoft YaHei",
-  },
-  {
-    name: "宋体",
-    value: "SimSun",
-  },
-  {
-    name: "黑体",
-    value: "SimHei",
-  },
-  {
-    name: "思源黑体",
-    value: "Source Han Sans CN",
-  },
-  {
-    name: "苹方",
-    value: "PingFang SC",
-  },
-  {
-    name: "Courier New",
-    value: "Courier New",
-  },
-];
-
 export const LINE_DISPLAY_EFFECT_OPTIONS = [
   {
     name: "打字机",
