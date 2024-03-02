@@ -257,6 +257,8 @@ export class MonologueScene extends Scene {
       raw.backgroundImgID,
     );
 
+    scene.setLines(scene.lines);
+
     return scene;
   }
 }

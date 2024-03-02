@@ -380,6 +380,8 @@ export class DialogueScene extends Scene {
       getChildFromChildrenById(scene.children, id),
     );
 
+    scene.setLines(scene.lines);
+
     return scene;
   }
 }
