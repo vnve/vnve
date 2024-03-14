@@ -1,6 +1,6 @@
 {
   "name": "@vnve/core",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Use PixiJS + Webcodecs to create mp4 videos in browser",
   "type": "module",
   "main": "./src/index.ts",
