@@ -76,7 +76,9 @@ const sound = new Sound({ source: "音频地址" })
 // 把元素加到场景中
 scene.addChild(img)
 scene.addChild(text)
-scene.addChild(sound)
+
+// 添加音频
+scene.addSound(sound)
 
 // 可以给元素加些动画
 text.addAnimation(PREST_ANIMATION.FadeIn)
