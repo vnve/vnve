@@ -305,6 +305,12 @@ export class Scene extends PIXI.Container {
         await sound.tick(sceneTimestamp, tickCtx);
       }
 
+      for (const child of this.children) {
+        if (child instanceof Video) {
+          await child.tick(sceneTimestamp, tickCtx);
+        }
+      }
+
       for (const transition of this.transitions) {
         await transition.tick(sceneTimestamp, tickCtx);
       }
