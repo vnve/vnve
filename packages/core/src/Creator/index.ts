@@ -36,6 +36,7 @@ export interface ICreatorTickCtx {
   tickStartTime?: number;
   previewerAudioContext?: AudioContext;
   previewerAudioBufferSourceNodes?: AudioBufferSourceNode[];
+  synthesizing?: boolean;
 }
 
 export class Creator {
@@ -50,6 +51,7 @@ export class Creator {
   private renderer: PIXI.IRenderer;
   private ticker: FrameTicker<ICreatorTickCtx>;
   private synthesizer?: Synthesizer;
+  private synthesizing?: boolean;
   private previewer?: Previewer;
   private onProgress?: (
     percent: number,
@@ -83,6 +85,7 @@ export class Creator {
   private addCreatorTickerInterceptor() {
     this.ticker.interceptor.beforeAll(async () => {
       this.ticker.tickCtx = {
+        synthesizing: this.synthesizing ?? false,
         sliceAudioBuffer: this.onlyVideo
           ? undefined
           : (audioBuffer: AudioBuffer, timestamp: number, volume?: number) =>
@@ -238,6 +241,7 @@ export class Creator {
       log.warn("ticker is running");
       return;
     }
+    this.synthesizing = true;
 
     if (scenes) {
       this.load(scenes);
@@ -261,6 +265,7 @@ export class Creator {
     }
 
     const videoBlob = await this.synthesizer.start(duration);
+    this.synthesizing = false;
 
     return videoBlob;
   }
