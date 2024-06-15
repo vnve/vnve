@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js";
 import { Scene } from "../Scene";
 import { FrameTicker } from "./FrameTicker";
-import { Synthesizer } from "./Synthesizer";
+import { Synthesizer, SynthesizerTickCtx } from "./Synthesizer";
 import { Previewer } from "./Previewer";
 import { sliceAudioBuffer, wait } from "../Utils";
 import {
@@ -21,7 +21,7 @@ interface ICreatorOptions {
   onProgress?: (percent: number, timestamp: number, duration: number) => void;
 }
 
-export interface ICreatorTickCtx {
+export interface ICreatorTickCtx extends SynthesizerTickCtx {
   currentStage?: PIXI.Container; // for video render
   slicedAudioBuffers?: AudioBuffer[]; // for audio slice
   sliceAudioBuffer?: (
@@ -29,14 +29,10 @@ export interface ICreatorTickCtx {
     timestamp: number,
     volume?: number,
   ) => Promise<AudioBuffer>;
-  // mixed ctx from synthesizer
-  imageSource?: CanvasImageSource;
-  audioBuffers?: AudioBuffer[];
   // mixed ctx for previewer
   tickStartTime?: number;
   previewerAudioContext?: AudioContext;
   previewerAudioBufferSourceNodes?: AudioBufferSourceNode[];
-  synthesizing?: boolean;
 }
 
 export class Creator {
@@ -51,7 +47,6 @@ export class Creator {
   private renderer: PIXI.IRenderer;
   private ticker: FrameTicker<ICreatorTickCtx>;
   private synthesizer?: Synthesizer;
-  private synthesizing?: boolean;
   private previewer?: Previewer;
   private onProgress?: (
     percent: number,
@@ -85,7 +80,6 @@ export class Creator {
   private addCreatorTickerInterceptor() {
     this.ticker.interceptor.beforeAll(async () => {
       this.ticker.tickCtx = {
-        synthesizing: this.synthesizing ?? false,
         sliceAudioBuffer: this.onlyVideo
           ? undefined
           : (audioBuffer: AudioBuffer, timestamp: number, volume?: number) =>
@@ -241,7 +235,6 @@ export class Creator {
       log.warn("ticker is running");
       return;
     }
-    this.synthesizing = true;
 
     if (scenes) {
       this.load(scenes);
@@ -265,7 +258,6 @@ export class Creator {
     }
 
     const videoBlob = await this.synthesizer.start(duration);
-    this.synthesizing = false;
 
     return videoBlob;
   }

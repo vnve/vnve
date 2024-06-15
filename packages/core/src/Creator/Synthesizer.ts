@@ -15,7 +15,8 @@ export interface SynthesizerOptions {
   onProgress?: (percent: number, timestamp: number, duration: number) => void;
 }
 
-interface SynthesizerTickCtx {
+export interface SynthesizerTickCtx {
+  synthesizing?: true;
   imageSource?: CanvasImageSource;
   audioBuffers?: AudioBuffer[];
 }
@@ -83,6 +84,20 @@ export class Synthesizer {
   }
 
   public createEncodeTickInterceptor() {
+    this.ticker.interceptor.beforeAll(async (tickCtx) => {
+      if (!this.active) {
+        return;
+      }
+
+      tickCtx.synthesizing = true;
+    });
+    this.ticker.interceptor.afterAll(async (tickCtx) => {
+      if (!this.active) {
+        return;
+      }
+
+      tickCtx.synthesizing = undefined;
+    });
     this.ticker.interceptor.after(async (timestamp, tickCtx) => {
       if (!this.active) {
         return;
