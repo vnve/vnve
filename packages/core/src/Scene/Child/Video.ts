@@ -22,7 +22,7 @@ interface IVideoOptions {
 
 export class Video extends PIXI.Sprite {
   public uuid = uuid();
-  public type = "Img";
+  public type = "Video";
   public options: IVideoOptions;
   public source: VideoSource;
   public start: number;
