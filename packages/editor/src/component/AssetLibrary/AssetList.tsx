@@ -186,7 +186,7 @@ export default function AssetList({
 
   function getAssetFileType() {
     const typeMap = {
-      image: ".webp, .png, .jpg",
+      image: ".webp, .png, .jpg, .gif",
       audio: ".mp3, .wav",
     };
 

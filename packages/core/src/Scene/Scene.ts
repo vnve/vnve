@@ -299,6 +299,12 @@ export class Scene extends PIXI.Container {
 
       this.seek(sceneTimestamp);
 
+      for (const child of this.children) {
+        if (typeof (child as any).tick === "function") {
+          await (child as any).tick(sceneTimestamp, tickCtx);
+        }
+      }
+
       for (const sound of this.sounds) {
         await sound.tick(sceneTimestamp, tickCtx);
       }
