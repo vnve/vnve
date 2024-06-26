@@ -3,7 +3,7 @@
  */
 import { Sprite, Texture, Renderer, SCALE_MODES } from "pixi.js";
 import { parseGIF, decompressFrames, ParsedFrame } from "gifuct-js"; // TODO: replace with ImageDecoder
-import { getTransformArray, uuid } from "../../Utils";
+import { getTransformArray, reviveFilters, uuid } from "../../Utils";
 import { cloneDeep } from "lodash-es";
 import { Child } from "./Child";
 import { applyMixins } from "./Mixin";
@@ -395,6 +395,47 @@ export class AnimatedGIF extends Sprite {
       this.filters?.map((item) => (item as Filter).cloneSelf()) || null;
 
     return cloned;
+  }
+
+  public toJSON() {
+    return {
+      __type: "AnimatedGIF",
+      uuid: this.uuid,
+      name: this.name,
+      source: AnimatedGIF.setSourceToDB(this.source),
+      alpha: this.alpha,
+      width: this.width,
+      height: this.height,
+      transform: getTransformArray(this),
+      animationParams: this.animationParams,
+      filters: this.filters,
+    };
+  }
+
+  static async fromJSON(raw: any) {
+    const gif = new AnimatedGIF({ source: raw.source });
+
+    gif.uuid = raw.uuid;
+    gif.name = raw.name;
+    if (raw.source) {
+      gif.source = await AnimatedGIF.getSourceFromDB(raw.source);
+    }
+    gif.alpha = raw.alpha;
+    gif.width = raw.width;
+    gif.height = raw.height;
+    gif.setTransform(...raw.transform);
+    gif.animationParams = raw.animationParams;
+    gif.filters = reviveFilters(raw.filters);
+
+    return gif;
+  }
+
+  static setSourceToDB(source?: any) {
+    return source;
+  }
+
+  static async getSourceFromDB(source: string) {
+    return source;
   }
 
   async tick(timestamp: number) {
