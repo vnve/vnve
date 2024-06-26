@@ -1,4 +1,5 @@
 import {
+  AnimatedGIF,
   BlackMaskFilter,
   BlurFilter,
   Converter,
@@ -14,6 +15,7 @@ import {
 } from "@vnve/core";
 import { DialogueScene, MonologueScene, TitleScene } from "@vnve/template";
 import placeholder from "../assets/image/placeholder.webp";
+import gifPlaceholder from "../assets/image/gif-placeholder.gif";
 
 let defaultWordsPerMinute;
 let defaultLineDisplayEffect;
@@ -235,6 +237,15 @@ export const SCENE_CHILD_TEMPLATE_LIST = [
       img.load();
 
       return img;
+    },
+  },
+  {
+    name: "动图元素",
+    factory: () => {
+      const gif = new AnimatedGIF({ source: gifPlaceholder });
+      gif.load();
+
+      return gif;
     },
   },
   {

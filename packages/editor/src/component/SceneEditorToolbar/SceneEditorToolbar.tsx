@@ -37,7 +37,9 @@ export default function SceneEditorToolbar() {
               changeActiveChild={changeActiveChild}
             ></TextToolbar>
           )}
-          {activeChild.type === "Img" && <ImgToolbar></ImgToolbar>}
+          {["Img", "AnimatedGIF"].includes(activeChild.type) && (
+            <ImgToolbar></ImgToolbar>
+          )}
           {activeChild.type === "Graphics" && (
             <GraphicsToolbar></GraphicsToolbar>
           )}

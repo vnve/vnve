@@ -53,7 +53,7 @@ interface AnimatedGIFOptions {
  */
 export class AnimatedGIF extends Sprite {
   public uuid = uuid();
-  public type = "GIF";
+  public type = "AnimatedGIF";
 
   public source?: string;
   public options: Required<AnimatedGIFOptions>;
@@ -229,6 +229,7 @@ export class AnimatedGIF extends Sprite {
     this._currentTime = 0;
 
     // Draw the first frame
+    this.dirty = true;
     this.currentFrame = 0;
   }
 
@@ -384,7 +385,9 @@ export class AnimatedGIF extends Sprite {
   cloneSelf(): AnimatedGIF {
     const cloned = new AnimatedGIF(cloneDeep(this.options));
 
+    cloned.name = this.name;
     cloned.uuid = this.uuid;
+    cloned.source = this.source;
     cloned.alpha = this.alpha;
     cloned.visible = this.visible;
     cloned.width = this.width;

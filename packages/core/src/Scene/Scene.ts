@@ -6,7 +6,7 @@ import { ICreatorTickCtx } from "../Creator";
 import { cloneDeep } from "lodash-es";
 import { Transition, FadeInTransition } from "./Transition";
 import { Filter } from "./Filter";
-import { Img, Text, Graphics } from "./Child";
+import { Img, Text, Graphics, AnimatedGIF } from "./Child";
 import { uuid } from "../Utils";
 
 interface ISceneOption {
@@ -175,6 +175,7 @@ export class Scene extends PIXI.Container {
     const ChildrenTypes: any = {
       Text,
       Img,
+      AnimatedGIF,
       Graphics,
     };
     const TransitionTypes: any = {
