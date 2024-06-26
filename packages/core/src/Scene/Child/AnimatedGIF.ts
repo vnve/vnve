@@ -83,7 +83,7 @@ export class AnimatedGIF extends Sprite {
   public dirty = true;
 
   /** The current frame number (zero-based index). */
-  private _currentFrame = 0;
+  private _currentFrame = -1;
 
   /** If animation is currently playing. */
   private _playing = false;
@@ -293,7 +293,7 @@ export class AnimatedGIF extends Sprite {
    * Redraw the current frame, is necessary for the animation to work when
    */
   private updateFrame(): void {
-    if (!this.dirty) {
+    if (!this.dirty || this._currentFrame < 0) {
       return;
     }
 
