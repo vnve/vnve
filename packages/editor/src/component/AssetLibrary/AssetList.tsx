@@ -88,6 +88,7 @@ export default function AssetList({
             ...item,
             id,
             source: sourceURL,
+            sourceType: item.source.type,
           };
         }),
         ...presetAssets,

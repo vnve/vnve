@@ -1,4 +1,6 @@
+import { AnimatedGIF, Img } from "@vnve/core";
 import { db } from "./db";
+import { AssetItem } from "./assets";
 
 export async function fetchImgAsBlob(url: string) {
   return await (await fetch(url)).blob();
@@ -62,4 +64,15 @@ export async function getSourceFromDB(source: string) {
   }
 
   return `${URL.createObjectURL(blob)}#${assetType}=${id}`;
+}
+
+export function createImgOrAnimatedGIF(assetItem: AssetItem) {
+  const { name, source, sourceType } = assetItem;
+
+  return sourceType === "image/gif"
+    ? new AnimatedGIF({ name, source })
+    : new Img({
+        name,
+        source,
+      });
 }
