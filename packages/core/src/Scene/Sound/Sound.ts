@@ -8,6 +8,7 @@ export interface ISoundOption {
   duration?: number;
   loop?: boolean;
   volume?: number;
+  untilEnd?: boolean;
 }
 
 export class Sound {
@@ -17,6 +18,7 @@ export class Sound {
   public duration: number;
   public loop: boolean;
   public volume: number;
+  public untilEnd: boolean;
   public uuid: string;
 
   public buffer?: AudioBuffer;
@@ -29,6 +31,7 @@ export class Sound {
     this.duration = options.duration ?? 0;
     this.loop = options.loop ?? false;
     this.volume = options.volume ?? 1;
+    this.untilEnd = options.untilEnd ?? false;
     this.uuid = uuid();
   }
 
@@ -50,6 +53,7 @@ export class Sound {
       duration: this.duration,
       loop: this.loop,
       volume: this.volume,
+      untilEnd: this.untilEnd,
       uuid: this.uuid,
     };
   }
@@ -63,6 +67,7 @@ export class Sound {
     sound.duration = raw.duration;
     sound.loop = raw.loop;
     sound.volume = raw.volume;
+    sound.untilEnd = raw.untilEnd;
     sound.uuid = raw.uuid;
 
     return sound;
@@ -86,14 +91,19 @@ export class Sound {
     }
   }
 
-  async tick(rawTimestamp: number, tickCtx: ICreatorTickCtx) {
-    let timestamp = rawTimestamp;
-
+  async tick(
+    timestamp: number,
+    tickCtx: ICreatorTickCtx,
+    isCurrentScene: boolean,
+  ) {
     if (this.loop && timestamp > this.start + this.duration) {
       timestamp = timestamp % (this.start + this.duration);
     }
 
+    isCurrentScene = this.untilEnd ? true : isCurrentScene;
+
     if (
+      isCurrentScene &&
       tickCtx.sliceAudioBuffer &&
       this.buffer &&
       timestamp >= this.start &&

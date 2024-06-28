@@ -42,6 +42,7 @@ export class Previewer {
       tickCtx.previewerAudioBufferSourceNodes = [];
     });
     this.ticker.interceptor.afterAll(async (tickCtx) => {
+      // TODO: replace active return logic
       if (!this.active) {
         return;
       }
@@ -54,6 +55,7 @@ export class Previewer {
         tickCtx.previewerAudioContext.close();
         tickCtx.previewerAudioContext = undefined;
       }
+      this.active = false;
     });
     this.ticker.interceptor.before(async (_timestamp, tickCtx) => {
       if (!this.active) {
@@ -105,7 +107,6 @@ export class Previewer {
   }
 
   public stop() {
-    this.active = false;
     this.ticker.stop();
   }
 }
