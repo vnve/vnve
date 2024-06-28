@@ -130,15 +130,12 @@ export class Sound {
           (item) => item.buffer === this.buffer,
         );
 
-        if (hitNode) {
-          if (hitNode.context.state !== "running") {
-            hitNode.start();
-          }
-        } else {
+        if (!hitNode) {
           const newNode = tickCtx.previewerAudioContext.createBufferSource();
 
           newNode.buffer = this.buffer;
           newNode.connect(tickCtx.previewerAudioContext.destination);
+          newNode.loop = this.loop;
           newNode.start();
 
           tickCtx.previewerAudioBufferSourceNodes.push(newNode);
