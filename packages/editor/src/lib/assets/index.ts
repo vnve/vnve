@@ -7,6 +7,7 @@ export interface AssetItem {
   type: string[];
   tag: string[];
   source: string;
+  sourceType?: string;
 }
 
 export const PRESET_IMAGE_TYPE_OPTIONS = [

@@ -6,7 +6,7 @@ import { ICreatorTickCtx } from "../Creator";
 import { cloneDeep } from "lodash-es";
 import { Transition, FadeInTransition } from "./Transition";
 import { Filter } from "./Filter";
-import { Img, Text, Graphics, Video } from "./Child";
+import { Img, Text, Graphics, Video, AnimatedGIF } from "./Child";
 import { uuid } from "../Utils";
 
 interface ISceneOption {
@@ -177,6 +177,7 @@ export class Scene extends PIXI.Container {
     const ChildrenTypes: any = {
       Text,
       Img,
+      AnimatedGIF,
       Graphics,
     };
     const TransitionTypes: any = {
@@ -292,17 +293,26 @@ export class Scene extends PIXI.Container {
   }
 
   public async tick(timestamp: number, tickCtx: ICreatorTickCtx) {
+    const isCurrentScene =
+      timestamp >= this.start && timestamp <= this.start + this.duration;
+    const sceneTimestamp = timestamp - this.start;
+
+    // update sound
+    for (const sound of this.sounds) {
+      await sound.tick(sceneTimestamp, tickCtx, isCurrentScene);
+    }
+
     // update view
-    if (timestamp >= this.start && timestamp <= this.start + this.duration) {
+    if (isCurrentScene) {
       // stage change
       tickCtx.currentStage = this;
 
-      const sceneTimestamp = timestamp - this.start;
-
       this.seek(sceneTimestamp);
 
-      for (const sound of this.sounds) {
-        await sound.tick(sceneTimestamp, tickCtx);
+      for (const child of this.children) {
+        if (typeof (child as any).tick === "function") {
+          await (child as any).tick(sceneTimestamp, tickCtx);
+        }
       }
 
       for (const child of this.children) {
@@ -313,23 +323,6 @@ export class Scene extends PIXI.Container {
 
       for (const transition of this.transitions) {
         await transition.tick(sceneTimestamp, tickCtx);
-      }
-    } else {
-      // when scene finished stop all preview sounds
-      // TODO: perf for preview sound play
-      if (
-        tickCtx.previewerAudioContext &&
-        tickCtx.previewerAudioBufferSourceNodes
-      ) {
-        this.sounds.forEach((sound) => {
-          const hitNode = tickCtx.previewerAudioBufferSourceNodes?.find(
-            (item) => item.buffer === sound.buffer,
-          );
-
-          if (hitNode) {
-            hitNode.stop();
-          }
-        });
       }
     }
   }

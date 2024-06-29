@@ -59,6 +59,7 @@ import {
 } from "react-contexify";
 import QuickAnimationSetting from "./QuickAnimationSetting";
 import { IEditorChildPosition } from "@vnve/core";
+import { createImgOrAnimatedGIF } from "../../lib/utils";
 
 type OpenFromType =
   | "addCharacter"
@@ -337,7 +338,7 @@ export default function DialogueSceneDetail({
 
   async function selectBackground(asset: AssetItem) {
     const editor = getEditor();
-    const backgroundImg = new Img(asset);
+    const backgroundImg = createImgOrAnimatedGIF(asset);
 
     await loadImg(backgroundImg);
 
@@ -384,7 +385,7 @@ export default function DialogueSceneDetail({
   async function addCharacterImg(asset: AssetItem) {
     const editor = getEditor();
     const scene = editor.activeScene as DialogueScene;
-    const newImg = new Img(asset);
+    const newImg = createImgOrAnimatedGIF(asset);
 
     await loadImg(newImg);
 
@@ -455,7 +456,7 @@ export default function DialogueSceneDetail({
 
   async function selectDialogImg(asset: AssetItem) {
     const editor = getEditor();
-    const dialogImg = new Img(asset);
+    const dialogImg = createImgOrAnimatedGIF(asset);
 
     await loadImg(dialogImg);
     editor.addChildTransformListener(dialogImg);

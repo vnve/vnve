@@ -75,7 +75,7 @@ export class FrameTicker<ITickCtx> {
       const timestamp = i * frameDuration;
 
       if (!this.running) {
-        throw new Error("stop");
+        break;
       }
 
       await this.tick(timestamp).catch((e) => {
@@ -89,6 +89,10 @@ export class FrameTicker<ITickCtx> {
         this.running = false;
         throw e;
       });
+    }
+
+    if (!this.running) {
+      throw new Error("FrameTicker stopped before finish.");
     }
 
     this.running = false;

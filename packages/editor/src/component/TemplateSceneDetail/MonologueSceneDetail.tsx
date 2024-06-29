@@ -50,6 +50,7 @@ import {
   setDefaultWordsPerMinute,
 } from "../../lib/const";
 import { Menu, Item, useContextMenu, ItemParams } from "react-contexify";
+import { createImgOrAnimatedGIF } from "../../lib/utils";
 
 export default function MonologueSceneDetail({
   activeScene,
@@ -269,7 +270,7 @@ export default function MonologueSceneDetail({
 
   async function selectBackground(asset: AssetItem) {
     const editor = getEditor();
-    const backgroundImg = new Img(asset);
+    const backgroundImg = createImgOrAnimatedGIF(asset);
 
     await loadImg(backgroundImg);
 

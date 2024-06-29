@@ -370,18 +370,33 @@ export default function SceneDetail({
                                   <SliderThumb />
                                 </Slider>
                               </FormControl>
-                              <FormControl>
-                                <FormLabel fontSize={"sm"}>是否循环</FormLabel>
-                                <Switch
-                                  isChecked={sound.loop}
-                                  onChange={(event) =>
-                                    changeSoundProperty(
-                                      index,
-                                      "loop",
-                                      event.target.checked,
-                                    )
-                                  }
-                                ></Switch>
+                              <FormControl display={"flex"}>
+                                <FormControl>
+                                  <FormLabel fontSize={"sm"}>循环</FormLabel>
+                                  <Switch
+                                    isChecked={sound.loop}
+                                    onChange={(event) =>
+                                      changeSoundProperty(
+                                        index,
+                                        "loop",
+                                        event.target.checked,
+                                      )
+                                    }
+                                  ></Switch>
+                                </FormControl>
+                                <FormControl>
+                                  <FormLabel fontSize={"sm"}>跨场景</FormLabel>
+                                  <Switch
+                                    isChecked={sound.untilEnd}
+                                    onChange={(event) =>
+                                      changeSoundProperty(
+                                        index,
+                                        "untilEnd",
+                                        event.target.checked,
+                                      )
+                                    }
+                                  ></Switch>
+                                </FormControl>
                               </FormControl>
                             </Flex>
                           </ListItem>

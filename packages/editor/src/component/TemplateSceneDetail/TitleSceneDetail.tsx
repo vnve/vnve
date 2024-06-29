@@ -14,6 +14,7 @@ import AssetLibrary from "../AssetLibrary/AssetLibrary";
 import { AssetItem } from "../../lib/assets";
 import IconDelete from "~icons/material-symbols/delete-outline-sharp";
 import IconEdit from "~icons/material-symbols/edit-square-outline-sharp";
+import { createImgOrAnimatedGIF } from "../../lib/utils";
 
 export default function TitleSceneDetail({
   activeScene,
@@ -63,10 +64,7 @@ export default function TitleSceneDetail({
 
   async function selectBackground(asset: AssetItem) {
     const editor = getEditor();
-    const backgroundImg = new Img({
-      name: asset.name,
-      source: asset.source,
-    });
+    const backgroundImg = createImgOrAnimatedGIF(asset);
 
     backgroundImg.load();
     editor.addChildTransformListener(backgroundImg);

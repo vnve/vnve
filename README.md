@@ -73,10 +73,12 @@ const text = new Text("V N V E", {
 })
 const sound = new Sound({ source: "sound url" })
 
-// Adding elements to the scene
+// Add elements to the scene
 scene.addChild(img)
 scene.addChild(text)
-scene.addChild(sound)
+
+// Add sound
+scene.addSound(sound)
 
 // You can add some animation to the element
 text.addAnimation(PREST_ANIMATION.FadeIn)
