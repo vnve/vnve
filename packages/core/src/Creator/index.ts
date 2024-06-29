@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js";
 import { Scene } from "../Scene";
 import { FrameTicker } from "./FrameTicker";
-import { Synthesizer } from "./Synthesizer";
+import { Synthesizer, SynthesizerTickCtx } from "./Synthesizer";
 import { Previewer } from "./Previewer";
 import { sliceAudioBuffer, wait } from "../Utils";
 import {
@@ -21,7 +21,7 @@ interface ICreatorOptions {
   onProgress?: (percent: number, timestamp: number, duration: number) => void;
 }
 
-export interface ICreatorTickCtx {
+export interface ICreatorTickCtx extends SynthesizerTickCtx {
   currentStage?: PIXI.Container; // for video render
   slicedAudioBuffers?: AudioBuffer[]; // for audio slice
   sliceAudioBuffer?: (
@@ -29,9 +29,6 @@ export interface ICreatorTickCtx {
     timestamp: number,
     volume?: number,
   ) => Promise<AudioBuffer>;
-  // mixed ctx from synthesizer
-  imageSource?: CanvasImageSource;
-  audioBuffers?: AudioBuffer[];
   // mixed ctx for previewer
   tickStartTime?: number;
   previewerAudioContext?: AudioContext;

@@ -6,7 +6,7 @@ import { ICreatorTickCtx } from "../Creator";
 import { cloneDeep } from "lodash-es";
 import { Transition, FadeInTransition } from "./Transition";
 import { Filter } from "./Filter";
-import { Img, Text, Graphics, AnimatedGIF } from "./Child";
+import { Img, Text, Graphics, Video, AnimatedGIF } from "./Child";
 import { uuid } from "../Utils";
 
 interface ISceneOption {
@@ -22,6 +22,7 @@ export class Scene extends PIXI.Container {
   public start: number;
   public duration: number;
   public sounds: Sound[];
+  public videos: Video[];
   public transitions: Transition[];
   public type: string;
 
@@ -35,6 +36,7 @@ export class Scene extends PIXI.Container {
     this.start = options?.start ?? 0;
     this.duration = options?.duration ?? 0;
     this.sounds = [];
+    this.videos = [];
     this.transitions = [];
     this.type = "";
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -310,6 +312,12 @@ export class Scene extends PIXI.Container {
       for (const child of this.children) {
         if (typeof (child as any).tick === "function") {
           await (child as any).tick(sceneTimestamp, tickCtx);
+        }
+      }
+
+      for (const child of this.children) {
+        if (child instanceof Video) {
+          await child.tick(sceneTimestamp, tickCtx);
         }
       }
 
