@@ -9,9 +9,16 @@ import { ICreatorTickCtx } from "../../Creator";
 
 export type VideoSource = string | PIXI.VideoResource;
 
-interface IVideoOptions {
+export interface ISize {
+  width: number;
+  height: number;
+}
+
+export interface IVideoOptions {
   name?: string;
   source: VideoSource;
+  /** Render video size after load */
+  size?: ISize;
   start?: number;
   duration?: number;
   /** Play after offset mileseconds */
@@ -51,6 +58,10 @@ export class Video extends PIXI.Sprite {
   }
 
   public async load() {
+    if (this.options.size) {
+      this.width = this.options.size.width;
+      this.height = this.options.size.height;
+    }
     if (this.source) {
       this.texture = await Assets.load(this.source);
       const videoElement = this.getVideoElement();
@@ -82,12 +93,15 @@ export class Video extends PIXI.Sprite {
       return;
     }
 
-    const targetDuration = Math.min(this.duration, this.bufferDuration);
-    if (this.loop && timestamp > this.start + targetDuration) {
-      timestamp = timestamp % (this.start + targetDuration);
+    if (
+      this.loop &&
+      this.start + this.duration > this.bufferDuration &&
+      timestamp > this.start + this.bufferDuration
+    ) {
+      timestamp = timestamp % (this.start + this.bufferDuration);
     }
 
-    if (timestamp >= this.start && timestamp <= this.start + targetDuration) {
+    if (timestamp >= this.start && timestamp <= this.start + this.duration) {
       if (tickCtx.synthesizing) {
         await this.setCurrentTime(timestamp / 1000);
       } else {
