@@ -40,9 +40,9 @@ export class Img extends PIXI.Sprite {
     cloned.source = this.source;
     cloned.alpha = this.alpha;
     cloned.visible = this.visible;
+    cloned.setTransform(...getTransformArray(this));
     cloned.width = this.width;
     cloned.height = this.height;
-    cloned.setTransform(...getTransformArray(this));
     cloned.animationParams = cloneDeep(this.animationParams);
     cloned.filters =
       this.filters?.map((item) => (item as Filter).cloneSelf()) || null;
@@ -81,9 +81,9 @@ export class Img extends PIXI.Sprite {
       img.source = await Img.getSourceFromDB(raw.source);
     }
     img.alpha = raw.alpha;
+    img.setTransform(...raw.transform);
     img.width = raw.width;
     img.height = raw.height;
-    img.setTransform(...raw.transform);
     img.animationParams = raw.animationParams;
     img.filters = reviveFilters(raw.filters);
 

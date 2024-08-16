@@ -390,9 +390,9 @@ export class AnimatedGIF extends Sprite {
     cloned.source = this.source;
     cloned.alpha = this.alpha;
     cloned.visible = this.visible;
+    cloned.setTransform(...getTransformArray(this));
     cloned.width = this.width;
     cloned.height = this.height;
-    cloned.setTransform(...getTransformArray(this));
     cloned.animationParams = cloneDeep(this.animationParams);
     cloned.filters =
       this.filters?.map((item) => (item as Filter).cloneSelf()) || null;
@@ -424,9 +424,9 @@ export class AnimatedGIF extends Sprite {
       gif.source = await AnimatedGIF.getSourceFromDB(raw.source);
     }
     gif.alpha = raw.alpha;
+    gif.setTransform(...raw.transform);
     gif.width = raw.width;
     gif.height = raw.height;
-    gif.setTransform(...raw.transform);
     gif.animationParams = raw.animationParams;
     gif.filters = reviveFilters(raw.filters);
 

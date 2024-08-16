@@ -1,24 +1,20 @@
 import * as PIXI from "pixi.js";
 import { Child } from "./Child";
 import { applyMixins } from "./Mixin";
-import { Assets } from "../../Assets";
 import { cloneDeep } from "lodash-es";
 import { Filter } from "..";
 import { getTransformArray, reviveFilters, uuid } from "../../Utils";
 import { ICreatorTickCtx } from "../../Creator";
+import { VideoRenderer } from "../../Lib/VideoRenderer";
+import { AudioRenderer } from "../../Lib/AudioRenderer";
 
-export type VideoSource = string | PIXI.VideoResource;
-
-export interface ISize {
-  width: number;
-  height: number;
-}
+export type VideoSource = string; // TODO: support File type
 
 export interface IVideoOptions {
   name?: string;
   source: VideoSource;
-  /** Render video size after load */
-  size?: ISize;
+  width?: number;
+  height?: number;
   start?: number;
   duration?: number;
   /** Play after offset mileseconds */
@@ -39,11 +35,16 @@ export class Video extends PIXI.Sprite {
   public volume: number;
   public bufferDuration = 0;
 
+  private videoRenderer!: VideoRenderer;
+  private audioRenderer!: AudioRenderer;
+
   constructor(options: IVideoOptions) {
     super();
     this.options = options;
     this.name = options.name || "";
     this.source = options.source;
+    this.width = this.options.width ?? 0;
+    this.height = this.options.height ?? 0;
     this.start = options.start ?? 0;
     this.duration = options.duration ?? 0;
     this.offset = options.offset ?? 0;
@@ -51,72 +52,71 @@ export class Video extends PIXI.Sprite {
     this.volume = options.volume ?? 1;
   }
 
-  public getVideoElement() {
-    const resource = this.texture.baseTexture.resource as PIXI.VideoResource;
-    const videoElement = resource.source;
-    return videoElement;
-  }
-
   public async load() {
-    if (this.options.size) {
-      this.width = this.options.size.width;
-      this.height = this.options.size.height;
-    }
     if (this.source) {
-      this.texture = await Assets.load(this.source);
-      const videoElement = this.getVideoElement();
-      videoElement.volume = this.volume;
-      this.bufferDuration = videoElement.duration * 1000;
-      if (this.duration === 0) {
-        this.duration = videoElement.duration * 1000;
-      }
-      videoElement.pause();
-    }
-  }
+      const fileURL = this.source;
 
-  setCurrentTime(timestamp: number) {
-    return new Promise<void>((resolve) => {
-      const videoElement = this.getVideoElement();
-      const internalSeekedCallback = () => {
-        videoElement.removeEventListener("seeked", internalSeekedCallback);
-        resolve();
-      };
-      videoElement.addEventListener("seeked", internalSeekedCallback);
-      videoElement.currentTime = timestamp;
-    });
+      // load video
+      const textureCanvas = document.createElement("canvas");
+      const textureContext = textureCanvas.getContext(
+        "2d",
+      ) as CanvasRenderingContext2D;
+      const videoRenderer = new VideoRenderer();
+      await videoRenderer.initialize(fileURL, textureContext, {
+        width: this.width,
+        height: this.height,
+      });
+
+      this.width = videoRenderer.width;
+      this.height = videoRenderer.height;
+
+      this.videoRenderer = videoRenderer;
+      this.texture = PIXI.Texture.from(textureCanvas);
+
+      // default render zero frame
+      this.videoRenderer.render(0);
+      this.texture.update();
+
+      // load audio
+      const audioRenderer = new AudioRenderer();
+      await audioRenderer.initialize(fileURL);
+
+      this.audioRenderer = audioRenderer;
+    }
   }
 
   async tick(rawTimestamp: number, tickCtx: ICreatorTickCtx) {
-    let timestamp = rawTimestamp - this.offset;
+    const timestamp = rawTimestamp - this.offset;
 
     if (timestamp < 0) {
       return;
     }
 
-    if (
-      this.loop &&
-      this.start + this.duration > this.bufferDuration &&
-      timestamp > this.start + this.bufferDuration
-    ) {
-      timestamp = timestamp % (this.start + this.bufferDuration);
+    this.videoRenderer.render(timestamp * 1000);
+    this.texture.update();
+
+    const slicedAudioBuffers = tickCtx.slicedAudioBuffers ?? [];
+    const slicedAudioBuffer = await this.audioRenderer.render(
+      timestamp * 1000,
+      tickCtx.fps,
+    );
+
+    if (slicedAudioBuffer) {
+      slicedAudioBuffers.push(slicedAudioBuffer);
+      tickCtx.slicedAudioBuffers = slicedAudioBuffers;
     }
 
-    if (timestamp >= this.start && timestamp <= this.start + this.duration) {
-      if (tickCtx.synthesizing) {
-        await this.setCurrentTime(timestamp / 1000);
-      } else {
-        if (this.getVideoElement().paused) {
-          await this.setCurrentTime(timestamp / 1000);
-          this.getVideoElement().play();
-        }
-      }
-    } else {
-      if (tickCtx.synthesizing) {
-        // Do nothing
-      } else {
-        this.getVideoElement().pause();
-      }
-    }
+    // if (
+    //   this.loop &&
+    //   this.start + this.duration > this.bufferDuration &&
+    //   timestamp > this.start + this.bufferDuration
+    // ) {
+    //   timestamp = timestamp % (this.start + this.bufferDuration);
+    // }
+
+    // if (timestamp >= this.start && timestamp <= this.start + this.duration) {
+    //   // TODO: time duration
+    // }
   }
 
   public cloneSelf() {
@@ -125,11 +125,16 @@ export class Video extends PIXI.Sprite {
     cloned.name = this.name;
     cloned.uuid = this.uuid;
     cloned.source = this.source;
+    cloned.start = this.start;
+    cloned.duration = this.duration;
+    cloned.offset = this.offset;
+    cloned.loop = this.loop;
+    cloned.volume = this.volume;
     cloned.alpha = this.alpha;
     cloned.visible = this.visible;
+    cloned.setTransform(...getTransformArray(this));
     cloned.width = this.width;
     cloned.height = this.height;
-    cloned.setTransform(...getTransformArray(this));
     cloned.animationParams = cloneDeep(this.animationParams);
     cloned.filters =
       this.filters?.map((item) => (item as Filter).cloneSelf()) || null;
@@ -169,9 +174,9 @@ export class Video extends PIXI.Sprite {
       video.source = await Video.getSourceFromDB(raw.source);
     }
     video.alpha = raw.alpha;
+    video.setTransform(...raw.transform);
     video.width = raw.width;
     video.height = raw.height;
-    video.setTransform(...raw.transform);
     video.animationParams = raw.animationParams;
     video.filters = reviveFilters(raw.filters);
 

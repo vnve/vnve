@@ -22,6 +22,7 @@ interface ICreatorOptions {
 }
 
 export interface ICreatorTickCtx extends SynthesizerTickCtx {
+  fps?: number;
   currentStage?: PIXI.Container; // for video render
   slicedAudioBuffers?: AudioBuffer[]; // for audio slice
   sliceAudioBuffer?: (
@@ -80,6 +81,7 @@ export class Creator {
   private addCreatorTickerInterceptor() {
     this.ticker.interceptor.beforeAll(async () => {
       this.ticker.tickCtx = {
+        fps: this.fps,
         sliceAudioBuffer: this.onlyVideo
           ? undefined
           : (audioBuffer: AudioBuffer, timestamp: number, volume?: number) =>

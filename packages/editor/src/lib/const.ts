@@ -12,10 +12,12 @@ import {
   Scene,
   Text,
   VignetteFilter,
+  Video,
 } from "@vnve/core";
 import { DialogueScene, MonologueScene, TitleScene } from "@vnve/template";
 import placeholder from "../assets/image/placeholder.webp";
 import gifPlaceholder from "../assets/image/gif-placeholder.gif";
+import videoPlaceholder from "../assets/video/video-placeholder.mp4";
 
 let defaultWordsPerMinute;
 let defaultLineDisplayEffect;
@@ -246,6 +248,16 @@ export const SCENE_CHILD_TEMPLATE_LIST = [
       gif.load();
 
       return gif;
+    },
+  },
+  {
+    name: "视频元素",
+    factory: () => {
+      const video = new Video({ source: videoPlaceholder });
+
+      video.load();
+
+      return video;
     },
   },
   {

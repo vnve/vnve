@@ -1,3 +1,3 @@
-import { Img, Text, Graphics, Video } from "./Child";
+import { Img, Text, Graphics, Video, AnimatedGIF } from "./Child";
 
-export type Child = Img | Text | Graphics | Video;
+export type Child = Img | Text | Graphics | Video | AnimatedGIF;

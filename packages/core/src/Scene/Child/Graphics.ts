@@ -16,9 +16,9 @@ export class Graphics extends PIXI.Graphics {
     cloned.uuid = this.uuid;
     cloned.alpha = this.alpha;
     cloned.visible = this.visible;
+    cloned.setTransform(...getTransformArray(this));
     cloned.width = this.width;
     cloned.height = this.height;
-    cloned.setTransform(...getTransformArray(this));
     cloned.animationParams = cloneDeep(this.animationParams);
     cloned.filters =
       this.filters?.map((item) => (item as Filter).cloneSelf()) || null;
@@ -91,9 +91,9 @@ export class Graphics extends PIXI.Graphics {
     graphics.name = raw.name;
     graphics.uuid = raw.uuid;
     graphics.alpha = raw.alpha;
+    graphics.setTransform(...raw.transform);
     graphics.width = raw.width;
     graphics.height = raw.height;
-    graphics.setTransform(...raw.transform);
     graphics.animationParams = raw.animationParams;
     graphics.filters = reviveFilters(raw.filters);
 
