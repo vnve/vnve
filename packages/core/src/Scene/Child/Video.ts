@@ -6,7 +6,6 @@ import { Filter } from "..";
 import { getTransformArray, reviveFilters, uuid } from "../../Utils";
 import { ICreatorTickCtx } from "../../Creator";
 import { VideoRenderer } from "../../Lib/VideoRenderer";
-import { AudioRenderer } from "../../Lib/AudioRenderer";
 
 export type VideoSource = string; // TODO: support File type
 
@@ -36,7 +35,6 @@ export class Video extends PIXI.Sprite {
   public bufferDuration = 0;
 
   private videoRenderer!: VideoRenderer;
-  private audioRenderer!: AudioRenderer;
 
   constructor(options: IVideoOptions) {
     super();
@@ -76,12 +74,6 @@ export class Video extends PIXI.Sprite {
       // default render zero frame
       this.videoRenderer.render(0);
       this.texture.update();
-
-      // load audio
-      const audioRenderer = new AudioRenderer();
-      await audioRenderer.initialize(fileURL);
-
-      this.audioRenderer = audioRenderer;
     }
   }
 
@@ -94,17 +86,6 @@ export class Video extends PIXI.Sprite {
 
     this.videoRenderer.render(timestamp * 1000);
     this.texture.update();
-
-    const slicedAudioBuffers = tickCtx.slicedAudioBuffers ?? [];
-    const slicedAudioBuffer = await this.audioRenderer.render(
-      timestamp * 1000,
-      tickCtx.fps,
-    );
-
-    if (slicedAudioBuffer) {
-      slicedAudioBuffers.push(slicedAudioBuffer);
-      tickCtx.slicedAudioBuffers = slicedAudioBuffers;
-    }
 
     // if (
     //   this.loop &&

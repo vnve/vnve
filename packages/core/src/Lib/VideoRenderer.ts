@@ -2,12 +2,12 @@
 /**
  * ref: https://github.com/w3c/webcodecs/blob/main/samples/lib/video_renderer.js
  */
-import { MP4PullDemuxer, VIDEO_STREAM_TYPE } from "./MP4PullDemuxer.js";
+import { MP4Demuxer, StreamType } from "./MP4Demuxer.ts";
 import log from "loglevel";
 
 const FRAME_BUFFER_TARGET_SIZE = 3;
 
-function debugLog(...args) {
+function debugLog(...args: (string | number)[]) {
   log.debug(...args)
 }
 
@@ -15,16 +15,25 @@ function debugLog(...args) {
 // VideoFrames to canvas. Maintains a buffer of FRAME_BUFFER_TARGET_SIZE
 // decoded frames for future rendering.
 export class VideoRenderer {
-  async initialize(fileURL, canvasCtx, { width, height }) {
+  public width!: number;
+  public height!: number;
+  private demuxer!: MP4Demuxer;
+  private frameBuffer!: VideoFrame[];
+  private fillInProgress!: boolean;
+  private canvasCtx!: CanvasRenderingContext2D;
+  private decoder!: VideoDecoder;
+  private init_resolver?: (value: unknown) => void;
+
+  async initialize(fileURL: string, canvasCtx: CanvasRenderingContext2D, { width, height }: { width: number, height: number }) {
     this.frameBuffer = [];
     this.fillInProgress = false;
 
-    this.demuxer = new MP4PullDemuxer(fileURL);
-    await this.demuxer.initialize(VIDEO_STREAM_TYPE);
+    this.demuxer = new MP4Demuxer(fileURL);
+    await this.demuxer.initialize(StreamType.VIDEO_STREAM_TYPE);
     const config = this.demuxer.getDecoderConfig();
 
-    this.width = width > 0 ? width : config.displayWidth;
-    this.height = height > 0 ? height : config.displayHeight;
+    this.width = width > 0 ? width : config.displayWidth!;
+    this.height = height > 0 ? height : config.displayHeight!;
     this.canvasCtx = canvasCtx
     this.canvasCtx.canvas.width = this.width;
     this.canvasCtx.canvas.height = this.height;
@@ -38,14 +47,14 @@ export class VideoRenderer {
     console.assert(support.supported);
     this.decoder.configure(config);
 
-    this.init_resolver = null;
+    this.init_resolver = undefined;
     let promise = new Promise((resolver) => (this.init_resolver = resolver));
 
     this.fillFrameBuffer();
     return promise;
   }
 
-  render(timestamp) {
+  render(timestamp: number) {
     debugLog("render(%d)", timestamp);
     let frame = this.chooseFrame(timestamp);
     this.fillFrameBuffer();
@@ -59,7 +68,7 @@ export class VideoRenderer {
     return frame
   }
 
-  chooseFrame(timestamp) {
+  chooseFrame(timestamp: number) {
     if (this.frameBuffer.length == 0) return null;
 
     let minTimeDelta = Number.MAX_VALUE;
@@ -81,7 +90,9 @@ export class VideoRenderer {
 
     for (let i = 0; i < frameIndex; i++) {
       let staleFrame = this.frameBuffer.shift();
-      staleFrame.close();
+      if (staleFrame) {
+        staleFrame.close();
+      }
     }
 
     let chosenFrame = this.frameBuffer[0];
@@ -99,8 +110,8 @@ export class VideoRenderer {
       debugLog("frame buffer full");
 
       if (this.init_resolver) {
-        this.init_resolver();
-        this.init_resolver = null;
+        this.init_resolver(true);
+        this.init_resolver = undefined;
       }
 
       return;
@@ -131,12 +142,12 @@ export class VideoRenderer {
     return this.frameBuffer.length >= FRAME_BUFFER_TARGET_SIZE;
   }
 
-  bufferFrame(frame) {
+  bufferFrame(frame: VideoFrame) {
     debugLog(`bufferFrame(${frame.timestamp})`);
     this.frameBuffer.push(frame);
   }
 
-  paint(frame) {
+  paint(frame: VideoFrame) {
     debugLog("paint(%d)", frame.timestamp);
     this.canvasCtx.drawImage(
       frame,

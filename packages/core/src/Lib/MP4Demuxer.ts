@@ -1,54 +1,41 @@
 /* eslint-disable */
 // ref: https://github.com/w3c/webcodecs/blob/main/samples/audio-video-player/mp4_pull_demuxer.js
-import MP4Box from "mp4box";
+import MP4Box, { MP4ArrayBuffer, MP4AudioTrack, MP4Info, MP4Sample, MP4VideoTrack } from "mp4box";
+import log from "loglevel";
 
-// Constants passed to initialize() to indicate which stream should be demuxed.
-export const AUDIO_STREAM_TYPE = 0;
-export const VIDEO_STREAM_TYPE = 1;
+export enum StreamType {
+  AUDIO_STREAM_TYPE = 0,
+  VIDEO_STREAM_TYPE = 1,
+}
 
 const { DataStream } = MP4Box
 
-// Interface to be extended by concrete demuxer implementations.
-class PullDemuxerBase {
-  // Starts fetching file. Resolves when enough of the file is fetched/parsed to
-  // populate getDecoderConfig().
-  async initialize(streamType) {}
-
-  // Returns either an AudioDecoderConfig or VideoDecoderConfig based on the
-  // streamType passed to initialize().
-  getDecoderConfig() {}
-
-  // Returns either EncodedAudioChunks or EncodedVideoChunks based on the
-  // streamType passed to initialize(). Returns null after EOF.
-  async getNextChunk() {}
+function debugLog(...args: string[]) {
+  log.debug(...args)
 }
 
-const ENABLE_DEBUG_LOGGING = false;
+export class MP4Demuxer {
+  private fileUri: string;
+  private streamType!: StreamType;
+  private source!: MP4Source;
+  private readySamples!: any[];
+  private _pending_read_resolver?: (sample: MP4Sample)=> void;
+  private audioTrack!: MP4AudioTrack;
+  private videoTrack!: MP4VideoTrack;
 
-function debugLog(msg) {
-  if (!ENABLE_DEBUG_LOGGING) {
-    return;
-  }
-  console.debug(msg);
-}
-
-// Wrapper around MP4Box.js that shims pull-based demuxing on top their
-// push-based API.
-export class MP4PullDemuxer extends PullDemuxerBase {
-  constructor(fileUri) {
-    super();
+  constructor(fileUri: string) {
     this.fileUri = fileUri;
   }
 
-  async initialize(streamType) {
+  async initialize(streamType: StreamType) {
     this.source = new MP4Source(this.fileUri);
     this.readySamples = [];
-    this._pending_read_resolver = null;
+    this._pending_read_resolver = undefined;
     this.streamType = streamType;
 
     await this._tracksReady();
 
-    if (this.streamType == AUDIO_STREAM_TYPE) {
+    if (this.streamType == StreamType.AUDIO_STREAM_TYPE) {
       this._selectTrack(this.audioTrack);
     } else {
       this._selectTrack(this.videoTrack);
@@ -56,7 +43,7 @@ export class MP4PullDemuxer extends PullDemuxerBase {
   }
 
   getDecoderConfig() {
-    if (this.streamType == AUDIO_STREAM_TYPE) {
+    if (this.streamType == StreamType.AUDIO_STREAM_TYPE) {
       return {
         codec: this.audioTrack.codec,
         sampleRate: this.audioTrack.audio.sample_rate,
@@ -83,7 +70,7 @@ export class MP4PullDemuxer extends PullDemuxerBase {
     const pts_us = (sample.cts * 1000000) / sample.timescale;
     const duration_us = (sample.duration * 1000000) / sample.timescale;
     const ChunkType =
-      this.streamType == AUDIO_STREAM_TYPE
+      this.streamType == StreamType.AUDIO_STREAM_TYPE
         ? EncodedAudioChunk
         : EncodedVideoChunk;
     return new ChunkType({
@@ -94,28 +81,23 @@ export class MP4PullDemuxer extends PullDemuxerBase {
     });
   }
 
-  _getDescription(descriptionBox) {
+  _getDescription(descriptionBox: any) {
     const stream = new DataStream(undefined, 0, DataStream.BIG_ENDIAN);
     descriptionBox.write(stream);
     return new Uint8Array(stream.buffer, 8); // Remove the box header.
   }
 
   async _tracksReady() {
-    let info = await this.source.getInfo();
+    let info = await this.source.getInfo() as MP4Info;
     this.videoTrack = info.videoTracks[0];
     this.audioTrack = info.audioTracks[0];
   }
 
-  _selectTrack(track) {
-    console.assert(!this.selectedTrack, "changing tracks is not implemented");
-    this.selectedTrack = track;
+  _selectTrack(track: MP4AudioTrack | MP4VideoTrack) {
     this.source.selectTrack(track);
   }
 
   async _readSample() {
-    console.assert(this.selectedTrack);
-    console.assert(!this._pending_read_resolver);
-
     if (this.readySamples.length) {
       return Promise.resolve(this.readySamples.shift());
     }
@@ -123,12 +105,11 @@ export class MP4PullDemuxer extends PullDemuxerBase {
     let promise = new Promise((resolver) => {
       this._pending_read_resolver = resolver;
     });
-    console.assert(this._pending_read_resolver);
     this.source.start(this._onSamples.bind(this));
     return promise;
   }
 
-  _onSamples(samples) {
+  _onSamples(samples: MP4Sample[]) {
     const SAMPLE_BUFFER_TARGET_SIZE = 50;
 
     this.readySamples.push(...samples);
@@ -142,13 +123,18 @@ export class MP4PullDemuxer extends PullDemuxerBase {
 
     if (this._pending_read_resolver) {
       this._pending_read_resolver(this.readySamples.shift());
-      this._pending_read_resolver = null;
+      this._pending_read_resolver = undefined;
     }
   }
 }
 
 class MP4Source {
-  constructor(uri) {
+  private file: MP4Box.MP4File;
+  private _onSamples!: (samples: MP4Sample[]) => void;
+  private info?: MP4Info;
+  private _info_resolver?: (info: MP4Info) => void;
+
+  constructor(uri: string) {
     this.file = MP4Box.createFile();
     this.file.onError = console.error.bind(console);
     this.file.onReady = this.onReady.bind(this);
@@ -157,39 +143,38 @@ class MP4Source {
     debugLog("fetching file");
     fetch(uri).then((response) => {
       debugLog("fetch responded");
-      const reader = response.body.getReader();
+      const reader = response.body!.getReader();
       let offset = 0;
       let mp4File = this.file;
 
-      function appendBuffers({ done, value }) {
+      function appendBuffers({ done, value }: { done: boolean; value: Uint8Array }) {
         if (done) {
           mp4File.flush();
           return;
         }
-        let buf = value.buffer;
+        let buf = value.buffer as MP4ArrayBuffer;
         buf.fileStart = offset;
 
         offset += buf.byteLength;
 
         mp4File.appendBuffer(buf);
 
-        return reader.read().then(appendBuffers);
+        return reader.read().then(appendBuffers as any);
       }
 
-      return reader.read().then(appendBuffers);
+      return reader.read().then(appendBuffers as any);
     });
 
-    this.info = null;
-    this._info_resolver = null;
+    this.info = undefined;
+    this._info_resolver = undefined;
   }
 
-  onReady(info) {
-    // TODO: Generate configuration changes.
+  onReady(info: MP4Info) {
     this.info = info;
 
     if (this._info_resolver) {
       this._info_resolver(info);
-      this._info_resolver = null;
+      this._info_resolver = undefined;
     }
   }
 
@@ -220,12 +205,11 @@ class MP4Source {
     }
   }
 
-  selectTrack(track) {
-    debugLog("selecting track %d", track.id);
+  selectTrack(track: MP4AudioTrack | MP4VideoTrack) {
     this.file.setExtractionOptions(track.id);
   }
 
-  start(onSamples) {
+  start(onSamples: (samples: MP4Sample[]) => void) {
     this._onSamples = onSamples;
     this.file.start();
   }
@@ -234,7 +218,7 @@ class MP4Source {
     this.file.stop();
   }
 
-  onSamples(track_id, ref, samples) {
+  onSamples(_track_id: number, _ref: any, samples: MP4Sample[]) {
     this._onSamples(samples);
   }
 }
