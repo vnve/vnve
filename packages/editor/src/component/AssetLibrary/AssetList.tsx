@@ -41,11 +41,13 @@ const ImageEditor = lazy(() => import("./ImageEditor"));
 export default function AssetList({
   type,
   typeFilter,
+  sourceTypeFilter,
   onClose,
   onSelect,
 }: {
   type: "image" | "audio";
   typeFilter?: "background" | "character" | "dialog";
+  sourceTypeFilter?: string;
   onClose: () => void;
   onSelect?: (asset: AssetItem) => void;
 }) {
@@ -92,8 +94,12 @@ export default function AssetList({
           };
         }),
         ...presetAssets,
-      ].filter((item) => item.type.includes(assetTypeFilter)),
-    [presetAssets, dbAssets, assetTypeFilter],
+      ]
+        .filter((item) => item.type.includes(assetTypeFilter))
+        .filter((item) =>
+          sourceTypeFilter ? item.sourceType === sourceTypeFilter : true,
+        ),
+    [presetAssets, dbAssets, assetTypeFilter, sourceTypeFilter],
   );
   const [newAssetName, setNewAssetName] = useState("");
   const [newAssetType, setNewAssetType] = useState("");

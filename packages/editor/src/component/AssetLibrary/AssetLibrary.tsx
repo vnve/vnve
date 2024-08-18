@@ -17,12 +17,14 @@ import { AssetItem } from "../../lib/assets";
 export default function AssetLibrary({
   type,
   typeFilter,
+  sourceTypeFilter,
   isOpen,
   onClose,
   onSelect,
 }: {
   type?: "image" | "audio";
   typeFilter?: "background" | "character" | "dialog";
+  sourceTypeFilter?: string;
   isOpen: boolean;
   onClose: () => void;
   onSelect?: (asset: AssetItem) => void;
@@ -45,6 +47,7 @@ export default function AssetLibrary({
                 <AssetList
                   type="image"
                   typeFilter={typeFilter}
+                  sourceTypeFilter={sourceTypeFilter}
                   onClose={onClose}
                   onSelect={onSelect}
                 ></AssetList>

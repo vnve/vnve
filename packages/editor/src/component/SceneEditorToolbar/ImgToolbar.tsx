@@ -6,7 +6,7 @@ import AssetLibrary from "../AssetLibrary/AssetLibrary";
 import IconFullScreen from "~icons/tdesign/fullscreen-2";
 import IconPhotoLibrary from "~icons/material-symbols/reset-image-sharp";
 
-export default function ImgToolbar() {
+export default function ImgToolbar({ type }: { type?: string }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   function setAsBackground() {
@@ -51,6 +51,7 @@ export default function ImgToolbar() {
       </Tooltip>
       <AssetLibrary
         type="image"
+        sourceTypeFilter={type === "AnimatedGIF" && "image/gif"}
         isOpen={isOpen}
         onClose={onClose}
         onSelect={changeImg}
