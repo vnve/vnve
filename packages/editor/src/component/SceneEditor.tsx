@@ -239,7 +239,6 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
       duration: 1500,
     });
     closeSplitExport();
-    (window as any)._hmt?.push(["_trackEvent", "video", "splitExportVideo"]);
   }
 
   function closeSplitExport() {
@@ -277,8 +276,6 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
     if (blob) {
       setExportVideoSrc(URL.createObjectURL(blob));
     }
-
-    (window as any)._hmt?.push(["_trackEvent", "video", "exportVideo"]);
   }
 
   function closeExport() {
@@ -304,7 +301,6 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
 
     downloadFile(exportFileName, exportVideoSrc);
     onCloseFileName();
-    (window as any)._hmt?.push(["_trackEvent", "video", "saveVideo"]);
   }
 
   function goVideoUp() {

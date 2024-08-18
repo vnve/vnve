@@ -13,6 +13,7 @@ import {
 } from "@chakra-ui/react";
 import AssetList from "./AssetList";
 import { AssetItem } from "../../lib/assets";
+import { useMemo } from "react";
 
 export default function AssetLibrary({
   type,
@@ -22,13 +23,23 @@ export default function AssetLibrary({
   onClose,
   onSelect,
 }: {
-  type?: "image" | "audio";
+  type?: "image" | "audio" | "video";
   typeFilter?: "background" | "character" | "dialog";
   sourceTypeFilter?: string;
   isOpen: boolean;
   onClose: () => void;
   onSelect?: (asset: AssetItem) => void;
 }) {
+  const defaultIndex = useMemo(() => {
+    const indexMap = {
+      image: 0,
+      audio: 1,
+      video: 2,
+    };
+
+    return indexMap[type] || 0;
+  }, [type]);
+
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
@@ -36,10 +47,11 @@ export default function AssetLibrary({
         <ModalHeader>素材库</ModalHeader>
         <ModalCloseButton />
         <ModalBody overflow={"scroll"} p={{ base: 2, md: 4 }}>
-          <Tabs size={"sm"} defaultIndex={type === "audio" ? 1 : 0}>
+          <Tabs size={"sm"} defaultIndex={defaultIndex}>
             <TabList>
-              <Tab isDisabled={type === "audio"}>图片</Tab>
-              <Tab isDisabled={type === "image"}>音频</Tab>
+              <Tab isDisabled={type ? type !== "image" : false}>图片</Tab>
+              <Tab isDisabled={type ? type !== "audio" : false}>音频</Tab>
+              <Tab isDisabled={type ? type !== "video" : false}>视频</Tab>
             </TabList>
 
             <TabPanels>
@@ -55,6 +67,13 @@ export default function AssetLibrary({
               <TabPanel>
                 <AssetList
                   type="audio"
+                  onClose={onClose}
+                  onSelect={onSelect}
+                ></AssetList>
+              </TabPanel>
+              <TabPanel>
+                <AssetList
+                  type="video"
                   onClose={onClose}
                   onSelect={onSelect}
                 ></AssetList>

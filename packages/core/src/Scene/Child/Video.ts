@@ -97,6 +97,8 @@ export class Video extends PIXI.Sprite {
     if (timestamp >= this.start && timestamp <= this.start + this.duration) {
       this.videoRenderer.render(timestamp * 1000);
       this.texture.update();
+    } else {
+      this.texture.destroy();
     }
   }
 

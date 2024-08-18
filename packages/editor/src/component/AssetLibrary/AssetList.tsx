@@ -45,7 +45,7 @@ export default function AssetList({
   onClose,
   onSelect,
 }: {
-  type: "image" | "audio";
+  type: "image" | "audio" | "video";
   typeFilter?: "background" | "character" | "dialog";
   sourceTypeFilter?: string;
   onClose: () => void;
@@ -56,6 +56,7 @@ export default function AssetList({
   const typeOptionMap = {
     image: PRESET_IMAGE_TYPE_OPTIONS,
     audio: PRESET_AUDIO_TYPE_OPTIONS,
+    video: [],
     font: [],
   };
   const typeOptions = typeOptionMap[type];
@@ -195,6 +196,7 @@ export default function AssetList({
     const typeMap = {
       image: ".webp, .png, .jpg, .gif",
       audio: ".mp3, .wav",
+      video: ".mp4",
     };
 
     return typeMap[type];
@@ -305,6 +307,14 @@ export default function AssetList({
               ></Image>
             )}
             {type === "audio" && <audio src={asset.source} controls></audio>}
+            {type === "video" && (
+              <video
+                src={asset.source}
+                width={320}
+                height={180}
+                controls
+              ></video>
+            )}
             <Flex mt={2} w={"100%"} justifyContent={"space-between"}>
               <Text fontSize={"sm"}>{asset.name}</Text>
               {asset.id < 100000 && (

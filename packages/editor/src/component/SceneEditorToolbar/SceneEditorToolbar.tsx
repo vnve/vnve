@@ -1,11 +1,12 @@
 import { useContext } from "react";
 import { EditorContext, getEditor } from "../../lib/context";
 import { Flex, Divider } from "@chakra-ui/react";
-import { Child, Text } from "@vnve/core";
+import { Child, Text, Video } from "@vnve/core";
 import CommonToolbar from "./CommonToolbar";
 import TextToolbar from "./TextToolbar";
 import ImgToolbar from "./ImgToolbar";
 import GraphicsToolbar from "./GraphicsToolbar";
+import VideoToolbar from "./VideoToolbar";
 
 export default function SceneEditorToolbar() {
   const { activeChild, setActiveChild } = useContext(EditorContext);
@@ -39,6 +40,12 @@ export default function SceneEditorToolbar() {
           )}
           {["Img", "AnimatedGIF"].includes(activeChild.type) && (
             <ImgToolbar type={activeChild.type}></ImgToolbar>
+          )}
+          {activeChild.type === "Video" && (
+            <VideoToolbar
+              activeChild={activeChild as Video}
+              changeActiveChild={changeActiveChild}
+            ></VideoToolbar>
           )}
           {activeChild.type === "Graphics" && (
             <GraphicsToolbar></GraphicsToolbar>
