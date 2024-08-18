@@ -177,6 +177,7 @@ export class Scene extends PIXI.Container {
       Img,
       AnimatedGIF,
       Graphics,
+      Video,
     };
     const TransitionTypes: any = {
       FadeInTransition,
