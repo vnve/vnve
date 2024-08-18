@@ -17,6 +17,7 @@ function debugLog(...args: (string | number)[]) {
 export class VideoRenderer {
   public width!: number;
   public height!: number;
+  public duration!: number;
   private demuxer!: MP4Demuxer;
   private frameBuffer!: VideoFrame[];
   private fillInProgress!: boolean;
@@ -29,11 +30,12 @@ export class VideoRenderer {
     this.fillInProgress = false;
 
     this.demuxer = new MP4Demuxer(fileURL);
-    await this.demuxer.initialize(StreamType.VIDEO_STREAM_TYPE);
+    const { video } = await this.demuxer.initialize(StreamType.VIDEO_STREAM_TYPE);
     const config = this.demuxer.getDecoderConfig();
 
     this.width = width > 0 ? width : config.displayWidth!;
     this.height = height > 0 ? height : config.displayHeight!;
+    this.duration = video.duration / video.timescale;
     this.canvasCtx = canvasCtx
     this.canvasCtx.canvas.width = this.width;
     this.canvasCtx.canvas.height = this.height;

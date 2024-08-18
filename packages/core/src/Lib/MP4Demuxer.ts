@@ -33,13 +33,15 @@ export class MP4Demuxer {
     this._pending_read_resolver = undefined;
     this.streamType = streamType;
 
-    await this._tracksReady();
+    const info = await this._tracksReady();
 
     if (this.streamType == StreamType.AUDIO_STREAM_TYPE) {
       this._selectTrack(this.audioTrack);
     } else {
       this._selectTrack(this.videoTrack);
     }
+
+    return info
   }
 
   getDecoderConfig() {
@@ -91,6 +93,11 @@ export class MP4Demuxer {
     let info = await this.source.getInfo() as MP4Info;
     this.videoTrack = info.videoTracks[0];
     this.audioTrack = info.audioTracks[0];
+
+    return {
+      video: this.videoTrack,
+      audio: this.audioTrack
+    };
   }
 
   _selectTrack(track: MP4AudioTrack | MP4VideoTrack) {

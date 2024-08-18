@@ -4,7 +4,6 @@ import { applyMixins } from "./Mixin";
 import { cloneDeep } from "lodash-es";
 import { Filter } from "..";
 import { getTransformArray, reviveFilters, uuid } from "../../Utils";
-import { ICreatorTickCtx } from "../../Creator";
 import { VideoRenderer } from "../../Lib/VideoRenderer";
 
 export type VideoSource = string; // TODO: support File type
@@ -67,6 +66,9 @@ export class Video extends PIXI.Sprite {
 
       this.width = videoRenderer.width;
       this.height = videoRenderer.height;
+      const bufferDuration = videoRenderer.duration * 1000;
+      this.duration = this.duration || bufferDuration;
+      this.bufferDuration = bufferDuration;
 
       this.videoRenderer = videoRenderer;
       this.texture = PIXI.Texture.from(textureCanvas);
@@ -77,27 +79,25 @@ export class Video extends PIXI.Sprite {
     }
   }
 
-  async tick(rawTimestamp: number, tickCtx: ICreatorTickCtx) {
-    const timestamp = rawTimestamp - this.offset;
+  async tick(rawTimestamp: number) {
+    let timestamp = rawTimestamp - this.offset;
 
     if (timestamp < 0) {
       return;
     }
 
-    this.videoRenderer.render(timestamp * 1000);
-    this.texture.update();
+    if (
+      this.loop &&
+      this.start + this.duration > this.bufferDuration &&
+      timestamp > this.start + this.bufferDuration
+    ) {
+      timestamp = timestamp % (this.start + this.bufferDuration);
+    }
 
-    // if (
-    //   this.loop &&
-    //   this.start + this.duration > this.bufferDuration &&
-    //   timestamp > this.start + this.bufferDuration
-    // ) {
-    //   timestamp = timestamp % (this.start + this.bufferDuration);
-    // }
-
-    // if (timestamp >= this.start && timestamp <= this.start + this.duration) {
-    //   // TODO: time duration
-    // }
+    if (timestamp >= this.start && timestamp <= this.start + this.duration) {
+      this.videoRenderer.render(timestamp * 1000);
+      this.texture.update();
+    }
   }
 
   public cloneSelf() {
