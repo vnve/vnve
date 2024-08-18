@@ -114,7 +114,13 @@ export class Creator {
   public remove(scene: Scene) {
     this.scenes = this.scenes.filter((item) => item.uuid !== scene.uuid);
     this.ticker.remove(scene.tick);
-    scene.destroy();
+    // TODO: rm transition
+    scene.sounds.forEach((sound) => {
+      if (typeof sound.destroy === "function") {
+        sound.destroy();
+      }
+    });
+    scene.destroy(true);
   }
 
   public reset() {

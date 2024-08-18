@@ -33,7 +33,7 @@ export class Video extends PIXI.Sprite {
   public volume: number;
   public bufferDuration = 0;
 
-  private videoRenderer!: VideoRenderer;
+  private videoRenderer?: VideoRenderer;
 
   constructor(options: IVideoOptions) {
     super();
@@ -50,7 +50,7 @@ export class Video extends PIXI.Sprite {
   }
 
   public async load() {
-    if (this.source) {
+    if (this.source && !this.videoRenderer) {
       const fileURL = this.source;
 
       // load video
@@ -95,7 +95,7 @@ export class Video extends PIXI.Sprite {
     }
 
     if (timestamp >= this.start && timestamp <= this.start + this.duration) {
-      this.videoRenderer.render(timestamp * 1000);
+      this.videoRenderer?.render(timestamp * 1000);
       this.texture.update();
     } else {
       this.texture.destroy();
@@ -110,6 +110,7 @@ export class Video extends PIXI.Sprite {
     cloned.source = this.source;
     cloned.start = this.start;
     cloned.duration = this.duration;
+    cloned.bufferDuration = this.bufferDuration;
     cloned.offset = this.offset;
     cloned.loop = this.loop;
     cloned.volume = this.volume;
@@ -129,6 +130,12 @@ export class Video extends PIXI.Sprite {
     if (typeof this.source === "string" && this.source.startsWith("blob:")) {
       URL.revokeObjectURL(this.source);
     }
+
+    if (this.videoRenderer) {
+      this.videoRenderer.destroy();
+      this.videoRenderer = undefined;
+    }
+
     super.destroy();
   }
 
@@ -142,6 +149,8 @@ export class Video extends PIXI.Sprite {
       alpha: this.alpha,
       width: this.width,
       height: this.height,
+      duration: this.duration,
+      bufferDuration: this.bufferDuration,
       transform: getTransformArray(this),
       animationParams: this.animationParams,
       filters: this.filters,
@@ -160,6 +169,8 @@ export class Video extends PIXI.Sprite {
     video.setTransform(...raw.transform);
     video.width = raw.width;
     video.height = raw.height;
+    video.duration = raw.duration;
+    video.bufferDuration = raw.bufferDuration;
     video.animationParams = raw.animationParams;
     video.filters = reviveFilters(raw.filters);
 

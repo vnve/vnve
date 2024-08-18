@@ -1,4 +1,13 @@
-import { Child, Scene, canIUse, Img, Sound, Editor, Video } from "@vnve/core";
+import {
+  Child,
+  Scene,
+  canIUse,
+  Img,
+  Sound,
+  Editor,
+  Video,
+  AnimatedGIF,
+} from "@vnve/core";
 import { useEffect, useState } from "react";
 import { EditorContext } from "../lib/context";
 import PageHeader from "../component/PageHeader";
@@ -31,6 +40,8 @@ Sound.setSourceToDB = setSourceToDB;
 Sound.getSourceFromDB = getSourceFromDB;
 Img.setSourceToDB = setSourceToDB;
 Img.getSourceFromDB = getSourceFromDB;
+AnimatedGIF.setSourceToDB = setSourceToDB;
+AnimatedGIF.getSourceFromDB = getSourceFromDB;
 Video.setSourceToDB = setSourceToDB;
 Video.getSourceFromDB = getSourceFromDB;
 

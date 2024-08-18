@@ -89,6 +89,8 @@ export class Sound {
     if (this.source?.startsWith("blob:")) {
       URL.revokeObjectURL(this.source);
     }
+
+    this.buffer = undefined;
   }
 
   async tick(

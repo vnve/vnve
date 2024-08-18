@@ -159,4 +159,14 @@ export class VideoRenderer {
       this.height,
     )
   }
+
+  async destroy() {
+    if (this.decoder.state != "closed") {
+      this.frameBuffer.forEach((frame) => frame.close());
+      await this.decoder.flush();
+      this.decoder.close();
+    }
+
+    this.demuxer.destroy();
+  }
 }

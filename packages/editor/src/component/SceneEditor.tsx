@@ -237,10 +237,11 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
     setCurrentPreviewIsAll(["fromCurrent", "all"].includes(type));
 
     setTimeout(() => {
-      creatorRef.current?.preview(
-        previewRef.current! as HTMLCanvasElement,
-        scenes,
-      );
+      creatorRef.current
+        ?.preview(previewRef.current! as HTMLCanvasElement, scenes)
+        .finally(() => {
+          creatorRef.current.reset();
+        });
     }, 100);
   }
 
@@ -327,13 +328,18 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
       }
     }
 
-    const blob = await creatorRef.current.start(scenes).catch((e) => {
-      toast({
-        description: `导出失败：${e?.message}`,
-        status: "error",
-        duration: 1500,
+    const blob = await creatorRef.current
+      .start(scenes)
+      .catch((e) => {
+        toast({
+          description: `导出失败：${e?.message}`,
+          status: "error",
+          duration: 1500,
+        });
+      })
+      .finally(() => {
+        creatorRef.current.reset();
       });
-    });
 
     if (blob) {
       setExportVideoSrc(URL.createObjectURL(blob));

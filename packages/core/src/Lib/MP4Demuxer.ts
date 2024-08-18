@@ -133,6 +133,11 @@ export class MP4Demuxer {
       this._pending_read_resolver = undefined;
     }
   }
+
+  destroy() {
+    this.readySamples = [];
+    this.source.close();
+  }
 }
 
 class MP4Source {
@@ -223,6 +228,10 @@ class MP4Source {
 
   stop() {
     this.file.stop();
+  }
+
+  close() {
+    this.file.flush();
   }
 
   onSamples(_track_id: number, _ref: any, samples: MP4Sample[]) {
