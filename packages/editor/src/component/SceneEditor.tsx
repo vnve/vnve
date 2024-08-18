@@ -1,4 +1,13 @@
-import { Creator, Editor, Child, Scene, Text as TextChild } from "@vnve/core";
+import {
+  Creator,
+  Editor,
+  Child,
+  Scene,
+  Text as TextChild,
+  Img,
+  Video,
+  AnimatedGIF,
+} from "@vnve/core";
 import { SCENE_TEMPLATE_LIST, SCENE_CHILD_TEMPLATE_LIST } from "../lib/const";
 import { useContext, useEffect, useRef, useState } from "react";
 import { EditorContext, getEditor, setEditor } from "../lib/context";
@@ -40,7 +49,9 @@ import IconAdd from "~icons/material-symbols/add-box-outline-sharp";
 import IconPreview from "~icons/material-symbols/preview-sharp";
 import IconVideo from "~icons/material-symbols/video-settings-sharp";
 import { DialogueScene } from "@vnve/template";
-import { downloadFile } from "../lib/utils";
+import { createImgOrAnimatedGIF, downloadFile } from "../lib/utils";
+import AssetLibrary from "./AssetLibrary/AssetLibrary";
+import { AssetItem } from "../lib/assets";
 
 let splitExportStopped = false;
 
@@ -81,8 +92,18 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
     onClose: onCloseFileName,
   } = useDisclosure();
 
+  const {
+    isOpen: isOpenAssetLibrary,
+    onOpen: onOpenAssetLibrary,
+    onClose: onCloseAssetLibrary,
+  } = useDisclosure();
+
   const toast = useToast();
   const [currentPreviewIsAll, setCurrentPreviewIsAll] = useState(false);
+  const [assetType, setAssetType] = useState();
+  const [assetSourceTypeFilter, setAssetSourceTypeFilter] = useState<
+    string | undefined
+  >();
 
   useEffect(() => {
     creatorRef.current = new Creator({
@@ -141,8 +162,49 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
 
   function addChild(option: (typeof SCENE_CHILD_TEMPLATE_LIST)[number]) {
     const editor = getEditor();
-    const newChild = option.factory();
 
+    if (option.factory) {
+      const newChild = option.factory();
+
+      editor.addChild(newChild);
+    } else {
+      const typeMap = {
+        Image: "image",
+        AnimatedGIF: "image",
+        Video: "video",
+      };
+
+      setAssetType(typeMap[option.type]);
+      setAssetSourceTypeFilter(
+        option.type === "AnimatedGIF" ? "image/gif" : undefined,
+      );
+      onOpenAssetLibrary();
+    }
+  }
+
+  async function loadChild(child: Img | AnimatedGIF | Video) {
+    const childLoadingPromise = child.load();
+
+    toast.promise(childLoadingPromise, {
+      success: { title: "新增成功！", duration: 1000 },
+      error: { title: "新增失败!", duration: 1500 },
+      loading: { title: "资源加载中..." },
+    });
+
+    await childLoadingPromise;
+  }
+
+  async function selectNewChild(asset: AssetItem) {
+    const editor = getEditor();
+    let newChild: Img | AnimatedGIF | Video;
+
+    if (assetType === "image") {
+      newChild = createImgOrAnimatedGIF(asset);
+    } else if (assetType === "video") {
+      newChild = new Video(asset);
+    }
+
+    await loadChild(newChild);
     editor.addChild(newChild);
   }
 
@@ -667,6 +729,13 @@ export default function SceneEditor({ onlyVideo }: { onlyVideo: boolean }) {
           </ModalFooter>
         </ModalContent>
       </Modal>
+      <AssetLibrary
+        type={assetType}
+        sourceTypeFilter={assetSourceTypeFilter}
+        isOpen={isOpenAssetLibrary}
+        onClose={onCloseAssetLibrary}
+        onSelect={selectNewChild}
+      ></AssetLibrary>
     </>
   );
 }

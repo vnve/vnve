@@ -1,23 +1,17 @@
 import {
-  AnimatedGIF,
   BlackMaskFilter,
   BlurFilter,
   Converter,
   FadeInTransition,
   Graphics,
-  Img,
   NoiseFilter,
   OldFilmFilter,
   PREST_ANIMATION,
   Scene,
   Text,
   VignetteFilter,
-  Video,
 } from "@vnve/core";
 import { DialogueScene, MonologueScene, TitleScene } from "@vnve/template";
-import placeholder from "../assets/image/placeholder.webp";
-import gifPlaceholder from "../assets/image/gif-placeholder.gif";
-import videoPlaceholder from "../assets/video/video-placeholder.mp4";
 
 let defaultWordsPerMinute;
 let defaultLineDisplayEffect;
@@ -234,31 +228,15 @@ export const SCENE_CHILD_TEMPLATE_LIST = [
   },
   {
     name: "图片元素",
-    factory: () => {
-      const img = new Img({ source: placeholder });
-      img.load();
-
-      return img;
-    },
+    type: "Image",
   },
   {
     name: "动图元素",
-    factory: () => {
-      const gif = new AnimatedGIF({ source: gifPlaceholder });
-      gif.load();
-
-      return gif;
-    },
+    type: "AnimatedGIF",
   },
   {
     name: "视频元素",
-    factory: () => {
-      const video = new Video({ source: videoPlaceholder });
-
-      video.load();
-
-      return video;
-    },
+    type: "Video",
   },
   {
     name: "图形元素",

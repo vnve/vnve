@@ -246,6 +246,11 @@ export default function AssetList({
                     图片素材请注意，视频画布尺寸为1920*1080px
                   </Text>
                 )}
+                {type === "video" && (
+                  <Text fontSize={"xs"} color={"orange"}>
+                    视频素材请注意，视频尺寸尽量不要超过100MB
+                  </Text>
+                )}
                 <FormControl>
                   <FormLabel fontSize={"sm"}>名称</FormLabel>
                   <Input
