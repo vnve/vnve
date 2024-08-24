@@ -1,0 +1,51 @@
+{
+  "name": "@vnve/next-core",
+  "version": "1.0.0",
+  "description": "Use PixiJS + Webcodecs to create mp4 videos in browser",
+  "type": "module",
+  "main": "./src/index.ts",
+  "publishConfig": {
+    "main": "./dist/core.umd.cjs",
+    "module": "./dist/core.js",
+    "types": "./dist/core.d.ts",
+    "exports": {
+      ".": {
+        "import": "./dist/core.js",
+        "require": "./dist/core.umd.cjs",
+        "types": "./dist/core.d.ts"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "start": "vite",
+    "dev": "vite build --watch",
+    "build": "rimraf dist && tsc && vite build",
+    "prepublishOnly": "npm run build",
+    "release": "release-it"
+  },
+  "keywords": [
+    "visual novel",
+    "video editor",
+    "video synthesizer",
+    "video encoder",
+    "canvas to video",
+    "webcodecs",
+    "typescript"
+  ],
+  "author": "ForeverSc",
+  "license": "MIT",
+  "dependencies": {
+    "gsap": "^3.12.2",
+    "loglevel": "^1.8.1",
+    "mp4-muxer": "^2.2.2",
+    "nanoid": "^5.0.5",
+    "pixi.js": "^7.3.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vnve/vnve"
+  }
+}
