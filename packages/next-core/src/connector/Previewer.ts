@@ -20,13 +20,8 @@ export class Previewer extends Connector {
 
     if (this.context && imageSource) {
       const now = Date.now();
-      this.context.drawImage(
-        imageSource,
-        0,
-        0,
-        this.options.width,
-        this.options.height,
-      );
+      const canvas = this.context.canvas;
+      this.context.drawImage(imageSource, 0, 0, canvas.width, canvas.height);
       const renderTime = Date.now() - now;
       const frameDuration = 1000 / this.options.fps;
       const remainingTime = frameDuration - renderTime;

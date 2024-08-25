@@ -15,11 +15,10 @@ const director = new Director({
 const scene1 = new PIXI.Container();
 
 // 创建一个文字
-const text = new PIXI.Text("Hello World", {
-  fill: 0xff0000,
+const text = new PIXI.Text("哈哈哈哈哈这是", {
+  fill: 0xffffff,
   fontFamily: "Arial",
-  fontSize: 60,
-  fontWeight: "bold",
+  // fontWeight: "bold",
 });
 
 text.name = "text";
@@ -29,7 +28,6 @@ rect.name = "rect";
 rect.beginFill(0xff0000);
 rect.drawRect(50, 50, 100, 100);
 rect.endFill();
-rect.alpha = 0;
 
 scene1.name = "scene1";
 scene1.addChild(rect);
@@ -64,7 +62,7 @@ const screenplay: Screenplay = {
         {
           directive: "Wait",
           params: {
-            duration: 2,
+            duration: 3,
           },
         },
         {
@@ -113,6 +111,8 @@ document.getElementById("action-compose")?.addEventListener("click", () => {
     console.log("finish", videoSrc);
     const video = document.createElement("video");
     video.src = videoSrc;
+    video.width = 1920 / 2;
+    video.height = 1080 / 2;
     video.controls = true;
     document.body.append(video);
   });
@@ -123,7 +123,7 @@ document.getElementById("action-preview")?.addEventListener("click", () => {
     width: 1920,
     height: 1080,
     fps: 30,
-    disableAudio: true,
+    // disableAudio: true,
     canvas: document.getElementById("preview-canvas") as HTMLCanvasElement,
   });
 

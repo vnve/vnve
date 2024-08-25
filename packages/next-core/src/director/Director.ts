@@ -267,7 +267,7 @@ export class Director {
       // TODO: await this.ticker.ctx.asyncData
 
       if (this.started) {
-        this.ticker.time = frameTimeMS / 1000; // 拓展当前tick时间
+        this.ticker.time = frameTimeMS / 1000; // 拓展字段，记录当前tick的时间
         this.ticker.update(frameTimeMS); // 手动触发ticker更新
 
         if (this.connecter?.connection) {
