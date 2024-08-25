@@ -50,13 +50,8 @@ export interface Screenplay {
   scenes: SceneScript[];
 }
 
-// function wait(duration: number) {
-//   return new Promise((resolve) => {
-//     setTimeout(resolve, duration * 1000);
-//   });
-// }
-
 interface TickerExtend extends PIXI.Ticker {
+  time: number;
   ctx: {
     scene?: PIXI.Container;
     imageSource?: CanvasImageSource;
@@ -120,7 +115,6 @@ export class Director {
     this.connecter = undefined;
   }
 
-  // read screenplay, ReadableStream Output
   // action!
   public async action(screenplay: Screenplay, scenes: PIXI.Container[]) {
     // TODO: lastTime = -1为第一帧，可以做些初始化操作，清空画布元素的状态，比如清空文字等
@@ -144,7 +138,6 @@ export class Director {
 
   public reset() {
     this.started = false;
-    this.ticker.lastTime = -1;
     // hack ticker
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
@@ -153,6 +146,8 @@ export class Director {
     while (listener) {
       listener = listener.destroy(true);
     }
+    this.ticker.time = 0;
+    this.ticker.lastTime = -1;
   }
 
   private parseScreenplay(
@@ -195,11 +190,10 @@ export class Director {
       directive.executeTime = duration;
 
       this.ticker.add(() => {
-        const time = this.ticker.lastTime / 1000;
+        const time = this.ticker.time;
 
         // TODO: 时间精度
         if (
-          time >= 0 &&
           this.approximatelyEqual(
             time,
             directive.executeTime,
@@ -226,13 +220,16 @@ export class Director {
 
     // 切换场景
     this.ticker.add(() => {
-      const time = this.ticker.lastTime / 1000;
+      const time = this.ticker.time;
 
       // TODO: 时间开闭区间问题
       if (time >= prevSceneDuration && time <= duration) {
         this.ticker.ctx.scene = scene;
       }
+
       // TODO:待优化，当前场景结束后，可以清空当前场景注册的指令回调
+      // if (time > duration) {
+      // }
     });
 
     return duration;
@@ -244,9 +241,9 @@ export class Director {
 
   private addCoreTickerCb() {
     this.ticker.add(() => {
-      const time = this.ticker.lastTime / 1000;
+      const time = this.ticker.time;
 
-      // 动画ticker手动同步绑定
+      // 动画ticker手动同步
       gsap.updateRoot(time);
 
       // 渲染当前的场景
@@ -264,14 +261,15 @@ export class Director {
 
     this.started = true;
 
-    // TODO:最后一帧的精度问题
-    for (let frameIndex = 0; frameIndex <= frameCount + 1; frameIndex++) {
+    for (let frameIndex = 0; frameIndex <= frameCount; frameIndex++) {
       const frameTimeMS = (frameIndex / fps) * 1000;
-      console.log("frameTimeMS", frameTimeMS);
 
       // TODO: await this.ticker.ctx.asyncData
 
       if (this.started) {
+        this.ticker.time = frameTimeMS / 1000; // 拓展当前tick时间
+        this.ticker.update(frameTimeMS); // 手动触发ticker更新
+
         if (this.connecter?.connection) {
           await this.connecter.send({
             timestamp: frameTimeMS,
@@ -279,8 +277,6 @@ export class Director {
             audioBuffers: this.ticker.ctx.audioBuffers!,
           });
         }
-
-        this.ticker.update(frameTimeMS);
       } else {
         break;
       }
@@ -288,7 +284,7 @@ export class Director {
 
     let result;
 
-    if (this.connecter?.connection) {
+    if (this.started && this.connecter?.connection) {
       result = await this.connecter.finish();
     }
 

@@ -2,7 +2,7 @@ export interface ConnectorOptions {
   width: number;
   height: number;
   fps: number;
-  videoOnly?: boolean;
+  disableAudio?: boolean;
 }
 
 export interface FrameData {
@@ -13,7 +13,7 @@ export interface FrameData {
 
 export abstract class Connector {
   public connection: boolean;
-  public options: ConnectorOptions;
+  protected options: ConnectorOptions;
 
   constructor(options: ConnectorOptions) {
     this.connection = false;

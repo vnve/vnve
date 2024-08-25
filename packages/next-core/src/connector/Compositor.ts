@@ -1,28 +1,17 @@
 import * as Mp4Muxer from "mp4-muxer";
-import { DEFAULT_AUDIO_CONFIG, DEFAULT_VIDEO_CONFIG, log } from "../util";
+import { DEFAULT_AUDIO_CONFIG, DEFAULT_VIDEO_CONFIG, log, wait } from "../util";
 import { Connector, ConnectorOptions, FrameData } from "./Connector";
-
-interface VideoConfig {
-  width: number;
-  height: number;
-  codec: string;
-  bitrate: number;
-}
-
-interface AudioConfig {
-  codec: string;
-  numberOfChannels: number;
-  sampleRate: number;
-  bitrate: number;
-}
 
 function noop(e: Error) {
   log.error("noop error", e);
 }
 
+/**
+ * WebCodecs Video Compositor
+ */
 export class Compositor extends Connector {
-  private videoConfig: VideoConfig;
-  private audioConfig: AudioConfig;
+  private videoConfig: VideoEncoderConfig;
+  private audioConfig: AudioEncoderConfig;
   private muxer?: Mp4Muxer.Muxer<Mp4Muxer.ArrayBufferTarget>;
   private videoEncoder?: VideoEncoder;
   private audioEncoder?: AudioEncoder;
@@ -58,12 +47,15 @@ export class Compositor extends Connector {
     }
 
     // audio encode
-    if (this.options.videoOnly) {
+    if (!this.options.disableAudio) {
       const audioData = await this.genAudioData(timestamp, audioBuffers);
 
       this.audioEncoder?.encode(audioData);
       audioData.close();
     }
+
+    // TODO: hack避免主线程阻塞 待优化移动到worker中
+    await wait(0);
   }
 
   private async genAudioData(
@@ -145,16 +137,12 @@ export class Compositor extends Connector {
         numberOfChannels: this.audioConfig.numberOfChannels,
         sampleRate: this.audioConfig.sampleRate,
       },
-      firstTimestampBehavior: "offset", // TODO: ?
     });
 
     // video encoder
-    this.videoEncoder = new window.VideoEncoder({
+    this.videoEncoder = new VideoEncoder({
       output: (chunk, meta) => {
-        return this.muxer?.addVideoChunk(
-          chunk,
-          meta as EncodedAudioChunkMetadata,
-        );
+        return this.muxer?.addVideoChunk(chunk, meta);
       },
       error: (e) => {
         log.error("video encoder error", e);
@@ -163,7 +151,7 @@ export class Compositor extends Connector {
     });
     this.videoEncoder.configure(this.videoConfig);
 
-    if (!this.options.videoOnly) {
+    if (!this.options.disableAudio) {
       // audio encoder
       this.audioEncoder = new AudioEncoder({
         output: (chunk, meta) => this.muxer?.addAudioChunk(chunk, meta),

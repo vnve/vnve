@@ -78,7 +78,6 @@ export abstract class AnimationDirective extends Directive {
     const { fromVars, toVars } = this.options;
 
     if (fromVars && toVars) {
-      console.log("from", fromVars);
       gsap.fromTo(this.target, fromVars, toVars);
     } else if (toVars) {
       gsap.to(this.target, toVars);

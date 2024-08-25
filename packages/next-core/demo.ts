@@ -1,32 +1,26 @@
 import * as PIXI from "pixi.js";
-import gsap from "gsap";
-import { PixiPlugin } from "gsap/PixiPlugin";
 import { Director, Screenplay } from "./src/Director/Director";
-import { Compositor } from "./src/connector";
+import { Compositor, Previewer } from "./src/connector";
 
-// register the plugin
-gsap.registerPlugin(PixiPlugin);
-
-// give the plugin a reference to the PIXI object
-PixiPlugin.registerPIXI(PIXI);
-
-//unhooks the GSAP ticker
-gsap.ticker.remove(gsap.updateRoot);
-
-const app = new PIXI.Application({
-  view: document.getElementById("canvas") as HTMLCanvasElement,
-  width: 1920,
-  height: 1080,
-  autoStart: false,
-});
+// const app = new PIXI.Application({
+//   view: document.getElementById("canvas") as HTMLCanvasElement,
+//   width: 1920,
+//   height: 1080,
+//   autoStart: false,
+// });
 const director = new Director({
-  renderer: app.renderer,
+  // renderer: app.renderer,
 });
 
 const scene1 = new PIXI.Container();
 
 // 创建一个文字
-const text = new PIXI.Text("Hello World", { fill: 0xff0000 });
+const text = new PIXI.Text("Hello World", {
+  fill: 0xff0000,
+  fontFamily: "Arial",
+  fontSize: 60,
+  fontWeight: "bold",
+});
 
 text.name = "text";
 
@@ -105,35 +99,38 @@ const screenplay: Screenplay = {
   ],
 };
 
-// const tl = gsap.timeline(); // 一个场景一个timeline，然后往上添加？
-
-// tl.to(rect, { x: 100, duration: 1, ease: "linear" });
-// tl.to(rect, { y: 100, duration: 1, ease: "linear" });
-// tl.to(rect, { pixi: { fillColor: 0xffffff }, duration: 1, ease: "linear" }, 0);
-
-// let i = 0;
-
-// const ticker = PIXI.Ticker.shared;
-
-// // 每帧更新
-// ticker.autoStart = false;
-// ticker.stop();
-
-// ticker.add((t) => {
-//   gsap.updateRoot(ticker.lastTime / 1000);
-//   app.render();
-// });
-
-document.getElementById("btn")?.addEventListener("click", () => {
+document.getElementById("action-compose")?.addEventListener("click", () => {
   const compositor = new Compositor({
     width: 1920,
     height: 1080,
     fps: 30,
-    videoOnly: true,
+    disableAudio: true,
   });
 
   director.connect(compositor);
   director.action(screenplay, [scene1, scene2]).then((res) => {
-    console.log("finish", URL.createObjectURL(res));
+    const videoSrc = URL.createObjectURL(res);
+    console.log("finish", videoSrc);
+    const video = document.createElement("video");
+    video.src = videoSrc;
+    video.controls = true;
+    document.body.append(video);
   });
+});
+
+document.getElementById("action-preview")?.addEventListener("click", () => {
+  const previewer = new Previewer({
+    width: 1920,
+    height: 1080,
+    fps: 30,
+    disableAudio: true,
+    canvas: document.getElementById("preview-canvas") as HTMLCanvasElement,
+  });
+
+  director.connect(previewer);
+  director.action(screenplay, [scene1, scene2]);
+});
+
+document.getElementById("cut")?.addEventListener("click", () => {
+  director.cut();
 });
