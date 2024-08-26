@@ -1,193 +1,90 @@
-import * as Mp4Muxer from "mp4-muxer";
-import { DEFAULT_AUDIO_CONFIG, DEFAULT_VIDEO_CONFIG, log, wait } from "../util";
 import { Connector, ConnectorOptions, FrameData } from "./Connector";
+import CompositorWorker from "./Compositor.worker?worker&inline";
 
-function noop(e: Error) {
-  log.error("noop error", e);
+export enum CompositorWorkerMessageType {
+  LOADED = "loaded",
+  INIT = "init",
+  SEND = "send",
+  FINISH = "finish",
 }
 
 /**
  * WebCodecs Video Compositor
  */
 export class Compositor extends Connector {
-  private videoConfig: VideoEncoderConfig;
-  private audioConfig: AudioEncoderConfig;
-  private muxer?: Mp4Muxer.Muxer<Mp4Muxer.ArrayBufferTarget>;
-  private videoEncoder?: VideoEncoder;
-  private audioEncoder?: AudioEncoder;
-  private errorReject = noop;
+  private compositorWorker: Worker;
+  private initialized: Promise<void>;
 
   constructor(options: ConnectorOptions) {
     super(options);
-    this.videoConfig = {
-      ...DEFAULT_VIDEO_CONFIG,
-    };
-    this.audioConfig = {
-      ...DEFAULT_AUDIO_CONFIG,
-    };
-  }
+    this.compositorWorker = new CompositorWorker();
+    this.initialized = new Promise((resolve, reject) => {
+      this.compositorWorker.addEventListener("message", (event) => {
+        const { type } = event.data;
 
-  public connect(): void {
-    super.connect();
-    this.createMuxerAndEncoder();
-  }
-
-  public async send(frameData: FrameData): Promise<void> {
-    // TODO: to promise and do errorReject
-    const { imageSource, audioBuffers, timestamp } = frameData;
-    // video encode
-    if (imageSource) {
-      const videoFrame = new VideoFrame(imageSource, {
-        timestamp: timestamp * 1000,
-      });
-      this.videoEncoder?.encode(videoFrame, {
-        keyFrame: (timestamp / (1000 / this.options.fps)) % 150 === 0,
-      });
-      videoFrame.close();
-    }
-
-    // audio encode
-    if (!this.options.disableAudio) {
-      const audioData = await this.genAudioData(timestamp, audioBuffers);
-
-      this.audioEncoder?.encode(audioData);
-      audioData.close();
-    }
-
-    // TODO: hack避免主线程阻塞 待优化移动到worker中
-    await wait(0);
-  }
-
-  private async genAudioData(
-    timestamp: number,
-    audioBuffers?: AudioBuffer[],
-  ): Promise<AudioData> {
-    const sampleRate = this.audioConfig.sampleRate;
-    const numberOfChannels = this.audioConfig.numberOfChannels;
-    const numberOfFrames = this.audioConfig.sampleRate * (1 / this.options.fps);
-    const offlineAudioContext = new OfflineAudioContext(
-      numberOfChannels,
-      numberOfFrames,
-      sampleRate,
-    );
-    const mixedAudioBuffer: AudioBuffer = offlineAudioContext.createBuffer(
-      numberOfChannels,
-      numberOfFrames,
-      sampleRate,
-    );
-    let data: Float32Array;
-
-    if (audioBuffers) {
-      // mixin multi audio channel data
-      audioBuffers.forEach((audioBuffer, bufferIndex) => {
-        for (let channel = 0; channel < numberOfChannels; channel++) {
-          // when some audioBuffer is single channel, fill with blank data
-          const channelData =
-            channel < audioBuffer.numberOfChannels
-              ? audioBuffer.getChannelData(channel)
-              : new Float32Array(numberOfFrames).fill(0);
-
-          const mixedChannelData = mixedAudioBuffer.getChannelData(channel);
-
-          if (bufferIndex === 0) {
-            mixedChannelData.set(channelData);
-          } else {
-            for (let i = 0; i < mixedChannelData.length; i++) {
-              mixedChannelData[i] += channelData[i];
-            }
-          }
+        if (type === CompositorWorkerMessageType.LOADED) {
+          this.getFromWorker(CompositorWorkerMessageType.INIT, options)
+            .then(() => {
+              resolve();
+            })
+            .catch((e) => {
+              reject(e);
+            });
         }
       });
-
-      // copy data from audioBuffer to adapt audioData
-      data = new Float32Array(numberOfFrames * numberOfChannels);
-
-      for (let i = 0; i < mixedAudioBuffer.numberOfChannels; i++) {
-        data.set(
-          mixedAudioBuffer.getChannelData(i),
-          i * mixedAudioBuffer.length,
-        );
-      }
-    } else {
-      // fill with blank placeholder data
-      data = new Float32Array(numberOfFrames * numberOfChannels).fill(0);
-    }
-
-    return new AudioData({
-      timestamp,
-      sampleRate,
-      numberOfChannels,
-      numberOfFrames,
-      data,
-      format: "f32-planar",
     });
   }
 
-  private createMuxerAndEncoder() {
-    // muxer
-    this.muxer = new Mp4Muxer.Muxer({
-      target: new Mp4Muxer.ArrayBufferTarget(),
-      video: {
-        codec: "avc",
-        width: this.videoConfig.width,
-        height: this.videoConfig.height,
-      },
-      audio: {
-        codec: "aac",
-        numberOfChannels: this.audioConfig.numberOfChannels,
-        sampleRate: this.audioConfig.sampleRate,
-      },
-    });
+  getFromWorker<T>(
+    type: CompositorWorkerMessageType,
+    msgData?: ConnectorOptions | FrameData,
+    transfer?: Transferable[],
+  ): Promise<T> {
+    return new Promise((resolve, reject) => {
+      const msgListener = ({ data }: MessageEvent) => {
+        if (data.type === type) {
+          if (data.errMsg) {
+            reject(data.errMsg);
+          } else {
+            resolve(data.result);
+          }
+          this.compositorWorker.removeEventListener("message", msgListener);
+        }
+      };
 
-    // video encoder
-    this.videoEncoder = new VideoEncoder({
-      output: (chunk, meta) => {
-        return this.muxer?.addVideoChunk(chunk, meta);
-      },
-      error: (e) => {
-        log.error("video encoder error", e);
-        this.errorReject(e);
-      },
-    });
-    this.videoEncoder.configure(this.videoConfig);
-
-    if (!this.options.disableAudio) {
-      // audio encoder
-      this.audioEncoder = new AudioEncoder({
-        output: (chunk, meta) => this.muxer?.addAudioChunk(chunk, meta),
-        error: (e) => {
-          log.error("audio encoder error", e);
-          this.errorReject(e);
+      this.compositorWorker.addEventListener("message", msgListener);
+      this.compositorWorker.postMessage(
+        {
+          type,
+          data: msgData,
         },
-      });
-      this.audioEncoder.configure(this.audioConfig);
-    }
+        transfer ? transfer : [],
+      );
+    });
   }
 
-  private async endEncoding() {
-    await this.videoEncoder?.flush();
-    this.videoEncoder?.close();
-    await this.audioEncoder?.flush();
-    this.audioEncoder?.close();
+  public async handle(frameData: FrameData): Promise<void> {
+    await this.initialized;
 
-    this.muxer?.finalize();
+    const videoFrame = new VideoFrame(frameData.imageSource, {
+      timestamp: frameData.timestamp * 1000,
+    });
+    frameData.imageSource = videoFrame;
 
-    const buffer = this.muxer?.target?.buffer;
-
-    if (buffer) {
-      const blob = new Blob([buffer], { type: "video/mp4" });
-
-      if (this.muxer) {
-        this.muxer = undefined;
-      }
-
-      return blob;
-    }
+    return this.getFromWorker(CompositorWorkerMessageType.SEND, frameData, [
+      frameData.imageSource,
+      ...(frameData.audioInfos?.map((item) => item.float32Array) ?? []),
+    ]) as Promise<void>;
   }
 
   public async finish() {
-    const videoBlob = await this.endEncoding();
+    await this.initialized;
+    const buffer = (await this.getFromWorker(
+      CompositorWorkerMessageType.FINISH,
+    )) as ArrayBuffer;
 
-    return videoBlob;
+    if (buffer) {
+      return new Blob([buffer], { type: "video/mp4" });
+    }
   }
 }

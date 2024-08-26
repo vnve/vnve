@@ -1,3 +1,5 @@
+import { Float32ArrayAudioInfo } from "../util";
+
 export interface ConnectorOptions {
   width: number;
   height: number;
@@ -8,7 +10,7 @@ export interface ConnectorOptions {
 export interface FrameData {
   timestamp: number;
   imageSource: CanvasImageSource;
-  audioBuffers: AudioBuffer[];
+  audioInfos: Float32ArrayAudioInfo[];
 }
 
 export abstract class Connector {
@@ -20,8 +22,8 @@ export abstract class Connector {
     this.options = options;
   }
 
-  public abstract send(frameData: FrameData): Promise<void>;
-  public abstract finish(): Promise<Blob | undefined>;
+  public abstract handle(frameData: FrameData): Promise<void>;
+  public abstract finish(): Promise<Blob | ArrayBuffer | undefined>;
 
   public connect() {
     this.connection = true;

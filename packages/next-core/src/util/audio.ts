@@ -1,3 +1,10 @@
+export interface Float32ArrayAudioInfo {
+  float32Array: Float32Array;
+  numberOfChannels: number;
+  length: number;
+  sampleRate: number;
+}
+
 export async function sliceAudioBuffer(
   audioBuffer: AudioBuffer,
   timestamp: number,
@@ -41,6 +48,22 @@ export async function sliceAudioBuffer(
   return audioBufferSlice;
 }
 
+export async function sliceFloat32Array(
+  audioBuffer: AudioBuffer,
+  timestamp: number,
+  fps: number,
+  volume?: number,
+) {
+  const slicedAudioBuffer = await sliceAudioBuffer(
+    audioBuffer,
+    timestamp,
+    fps,
+    volume,
+  );
+
+  return audioBufferToFloat32Array(slicedAudioBuffer);
+}
+
 export async function arrayBufferToAudioBuffer(
   arrayBuffer: ArrayBuffer,
   sampleRate = 44100,
@@ -54,6 +77,49 @@ export async function arrayBufferToAudioBuffer(
       audioContext.close();
     });
   });
+}
+
+export function audioBufferToFloat32Array(
+  audioBuffer: AudioBuffer,
+): Float32ArrayAudioInfo {
+  const numberOfChannels = audioBuffer.numberOfChannels;
+  const length = audioBuffer.length;
+  const sampleRate = audioBuffer.sampleRate;
+  const float32Array = new Float32Array(numberOfChannels * length);
+
+  for (let channel = 0; channel < numberOfChannels; channel++) {
+    float32Array.set(audioBuffer.getChannelData(channel), channel * length);
+  }
+
+  return {
+    float32Array: float32Array,
+    numberOfChannels: numberOfChannels,
+    length: length,
+    sampleRate: sampleRate,
+  };
+}
+
+export function float32ArrayToAudioBuffer({
+  float32Array,
+  numberOfChannels,
+  length,
+  sampleRate,
+}: Float32ArrayAudioInfo): AudioBuffer {
+  const audioBuffer = new AudioBuffer({
+    length,
+    numberOfChannels,
+    sampleRate,
+  });
+
+  for (let channel = 0; channel < numberOfChannels; channel++) {
+    const channelData = float32Array.subarray(
+      channel * length,
+      (channel + 1) * length,
+    );
+    audioBuffer.copyToChannel(channelData, channel);
+  }
+
+  return audioBuffer;
 }
 
 export async function fetchUrlToAudiBuffer(url: string) {

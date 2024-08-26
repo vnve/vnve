@@ -1,0 +1,246 @@
+import * as Mp4Muxer from "mp4-muxer";
+import {
+  DEFAULT_AUDIO_CONFIG,
+  DEFAULT_VIDEO_CONFIG,
+  float32ArrayToAudioBuffer,
+  log,
+  waitUntil,
+} from "../util";
+import { Connector, ConnectorOptions, FrameData } from "./Connector";
+import { CompositorWorkerMessageType } from "./Compositor";
+
+function noop(e: Error) {
+  log.error("noop error", e);
+}
+
+/**
+ * WebCodecs Video Compositor
+ */
+export class Compositor extends Connector {
+  private videoConfig: VideoEncoderConfig;
+  private audioConfig: AudioEncoderConfig;
+  private muxer?: Mp4Muxer.Muxer<Mp4Muxer.ArrayBufferTarget>;
+  private videoEncoder?: VideoEncoder;
+  private audioEncoder?: AudioEncoder;
+  private errorReject = noop;
+
+  constructor(options: ConnectorOptions) {
+    super(options);
+    this.videoConfig = {
+      ...DEFAULT_VIDEO_CONFIG,
+    };
+    this.audioConfig = {
+      ...DEFAULT_AUDIO_CONFIG,
+    };
+    this.createMuxerAndEncoder();
+  }
+
+  public async handle(frameData: FrameData): Promise<void> {
+    // TODO: to promise and do errorReject
+    const { imageSource, audioInfos, timestamp } = frameData;
+    // video encode
+    if (imageSource) {
+      const videoFrame = imageSource as VideoFrame;
+
+      // control encode speed
+      if (
+        this.videoEncoder?.encodeQueueSize &&
+        this.videoEncoder?.encodeQueueSize > 20
+      ) {
+        await waitUntil(() =>
+          this.videoEncoder?.encodeQueueSize
+            ? this.videoEncoder?.encodeQueueSize < 10
+            : true,
+        );
+      }
+
+      this.videoEncoder?.encode(videoFrame, {
+        keyFrame: (timestamp / (1000 / this.options.fps)) % 150 === 0,
+      });
+      videoFrame.close();
+    }
+
+    // audio encode
+    if (!this.options.disableAudio) {
+      const audioBuffers = audioInfos.map(float32ArrayToAudioBuffer);
+      const audioData = await this.genAudioData(timestamp, audioBuffers);
+
+      this.audioEncoder?.encode(audioData);
+      audioData.close();
+    }
+  }
+
+  private async genAudioData(
+    timestamp: number,
+    audioBuffers?: AudioBuffer[], // TODO: 直接使用audioInfo，避免重复转换
+  ): Promise<AudioData> {
+    const sampleRate = this.audioConfig.sampleRate;
+    const numberOfChannels = this.audioConfig.numberOfChannels;
+    const numberOfFrames = this.audioConfig.sampleRate * (1 / this.options.fps);
+    const offlineAudioContext = new OfflineAudioContext(
+      numberOfChannels,
+      numberOfFrames,
+      sampleRate,
+    );
+    const mixedAudioBuffer: AudioBuffer = offlineAudioContext.createBuffer(
+      numberOfChannels,
+      numberOfFrames,
+      sampleRate,
+    );
+    let data: Float32Array;
+
+    if (audioBuffers) {
+      // mixin multi audio channel data
+      audioBuffers.forEach((audioBuffer, bufferIndex) => {
+        for (let channel = 0; channel < numberOfChannels; channel++) {
+          // when some audioBuffer is single channel, fill with blank data
+          const channelData =
+            channel < audioBuffer.numberOfChannels
+              ? audioBuffer.getChannelData(channel)
+              : new Float32Array(numberOfFrames).fill(0);
+
+          const mixedChannelData = mixedAudioBuffer.getChannelData(channel);
+
+          if (bufferIndex === 0) {
+            mixedChannelData.set(channelData);
+          } else {
+            for (let i = 0; i < mixedChannelData.length; i++) {
+              mixedChannelData[i] += channelData[i];
+            }
+          }
+        }
+      });
+
+      // copy data from audioBuffer to adapt audioData
+      data = new Float32Array(numberOfFrames * numberOfChannels);
+
+      for (let i = 0; i < mixedAudioBuffer.numberOfChannels; i++) {
+        data.set(
+          mixedAudioBuffer.getChannelData(i),
+          i * mixedAudioBuffer.length,
+        );
+      }
+    } else {
+      // fill with blank placeholder data
+      data = new Float32Array(numberOfFrames * numberOfChannels).fill(0);
+    }
+
+    return new AudioData({
+      timestamp,
+      sampleRate,
+      numberOfChannels,
+      numberOfFrames,
+      data,
+      format: "f32-planar",
+    });
+  }
+
+  private createMuxerAndEncoder() {
+    // muxer
+    this.muxer = new Mp4Muxer.Muxer({
+      target: new Mp4Muxer.ArrayBufferTarget(),
+      video: {
+        codec: "avc",
+        width: this.videoConfig.width,
+        height: this.videoConfig.height,
+      },
+      audio: {
+        codec: "aac",
+        numberOfChannels: this.audioConfig.numberOfChannels,
+        sampleRate: this.audioConfig.sampleRate,
+      },
+    });
+
+    // video encoder
+    this.videoEncoder = new VideoEncoder({
+      output: (chunk, meta) => {
+        return this.muxer?.addVideoChunk(chunk, meta);
+      },
+      error: (e) => {
+        log.error("video encoder error", e);
+        this.errorReject(e);
+      },
+    });
+    this.videoEncoder.configure(this.videoConfig);
+
+    if (!this.options.disableAudio) {
+      // audio encoder
+      this.audioEncoder = new AudioEncoder({
+        output: (chunk, meta) => this.muxer?.addAudioChunk(chunk, meta),
+        error: (e) => {
+          log.error("audio encoder error", e);
+          this.errorReject(e);
+        },
+      });
+      this.audioEncoder.configure(this.audioConfig);
+    }
+  }
+
+  private async endEncoding() {
+    await this.videoEncoder?.flush();
+    this.videoEncoder?.close();
+    await this.audioEncoder?.flush();
+    this.audioEncoder?.close();
+
+    this.muxer?.finalize();
+
+    const buffer = this.muxer?.target?.buffer;
+
+    return buffer;
+  }
+
+  public async finish() {
+    const videoBlob = await this.endEncoding();
+
+    return videoBlob;
+  }
+}
+
+let compositor: Compositor;
+
+self.addEventListener("message", async (event) => {
+  const { type, data } = event.data;
+
+  try {
+    switch (type) {
+      case CompositorWorkerMessageType.INIT:
+        return handleInit(data);
+      case CompositorWorkerMessageType.SEND:
+        return await handleSend(data);
+      case CompositorWorkerMessageType.FINISH:
+        return await handleFinish();
+      default:
+        return;
+    }
+  } catch (e) {
+    self.postMessage({
+      type,
+      errMsg: e instanceof Error ? e.message : "Unknown Error",
+    });
+  }
+});
+
+self.postMessage({ type: CompositorWorkerMessageType.LOADED });
+
+function handleInit(data: ConnectorOptions) {
+  compositor = new Compositor(data);
+
+  self.postMessage({
+    type: CompositorWorkerMessageType.INIT,
+  });
+}
+
+async function handleSend(data: FrameData) {
+  await compositor.handle(data);
+
+  self.postMessage({ type: CompositorWorkerMessageType.SEND });
+}
+
+async function handleFinish() {
+  const result = await compositor.finish();
+
+  self.postMessage(
+    { type: CompositorWorkerMessageType.FINISH, result },
+    result ? [result] : [],
+  );
+}

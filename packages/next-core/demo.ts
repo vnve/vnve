@@ -18,7 +18,8 @@ const scene1 = new PIXI.Container();
 const text = new PIXI.Text("哈哈哈哈哈这是", {
   fill: 0xffffff,
   fontFamily: "Arial",
-  // fontWeight: "bold",
+  fontSize: 30,
+  fontWeight: "bold",
 });
 
 text.name = "text";

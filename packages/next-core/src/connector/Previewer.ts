@@ -15,8 +15,8 @@ export class Previewer extends Connector {
     this.context = this.options.canvas.getContext("2d")!;
   }
 
-  public async send(frameData: FrameData) {
-    const { imageSource, audioBuffers } = frameData;
+  public async handle(frameData: FrameData) {
+    const { imageSource, audioInfos: audioBuffers } = frameData;
 
     if (this.context && imageSource) {
       const now = Date.now();

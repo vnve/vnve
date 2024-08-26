@@ -4,6 +4,7 @@ import { PixiPlugin } from "gsap/PixiPlugin";
 import { TextPlugin } from "./lib/TextPlugin";
 import * as Directives from "./directives";
 import { Connector } from "../connector";
+import { Float32ArrayAudioInfo, log } from "../util";
 
 // register the plugin
 gsap.registerPlugin(PixiPlugin);
@@ -55,7 +56,7 @@ interface TickerExtend extends PIXI.Ticker {
   ctx: {
     scene?: PIXI.Container;
     imageSource?: CanvasImageSource;
-    audioBuffers?: AudioBuffer[];
+    audioInfos?: Float32ArrayAudioInfo[];
   };
 }
 
@@ -117,6 +118,7 @@ export class Director {
 
   // action!
   public async action(screenplay: Screenplay, scenes: PIXI.Container[]) {
+    const now = performance.now();
     // TODO: lastTime = -1为第一帧，可以做些初始化操作，清空画布元素的状态，比如清空文字等
     try {
       const duration = this.parseScreenplay(screenplay, scenes);
@@ -126,6 +128,7 @@ export class Director {
       return await this.run(duration);
     } finally {
       this.reset();
+      log.info("action cost:", performance.now() - now);
     }
   }
 
@@ -271,10 +274,10 @@ export class Director {
         this.ticker.update(frameTimeMS); // 手动触发ticker更新
 
         if (this.connecter?.connection) {
-          await this.connecter.send({
+          await this.connecter.handle({
             timestamp: frameTimeMS,
             imageSource: this.ticker.ctx.imageSource!,
-            audioBuffers: this.ticker.ctx.audioBuffers!,
+            audioInfos: this.ticker.ctx.audioInfos!,
           });
         }
       } else {
