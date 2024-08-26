@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VNVE - 视觉小说视频编辑器 🎥 </title>
+    <meta name="description" content="为视觉小说（互动视频、GalGame）量身定制的视频创作工具，在你的浏览器上直接开始视频创作！">
+    <style>
+      #loader {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100vh;
+      }
+      .loader {
+        width: 48px;
+        height: 48px;
+        border: 5px solid rgb(49, 151, 149);
+        border-bottom-color: transparent;
+        border-radius: 50%;
+        display: inline-block;
+        box-sizing: border-box;
+        animation: rotation 1s linear infinite;
+        margin-bottom: 16px;
+      }
+
+      @keyframes rotation {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+      }
+    </style>
+    <script>
+    var _hmt = _hmt || [];
+    (function () {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3d008ce08f841e7525b83d4d1a40e82a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+  </head>
+  <body>
+    <div id="loader">
+      <span class="loader"></span>
+      <span style="font-size: 16px;">首次访问速度较慢，请耐心等待...</span>
+      <span style="font-size: 14px;">（建议使用科学上网，获得最佳体验）</span>
+    </div>
+    <div id="root"></div>
+    <script>
+      window.addEventListener("DOMContentLoaded", function () {
+        document.body.removeChild(document.getElementById("loader"));
+      });
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
