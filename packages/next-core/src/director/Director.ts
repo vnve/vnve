@@ -32,8 +32,14 @@ interface DirectiveItem {
     | Directives.WaitDirectiveOptions;
 }
 
+interface Dialogue {
+  speaker: string;
+  lines: any[]; // TODO: with plate.js
+}
+
 interface SceneScript {
   scene: string;
+  dialogues?: Dialogue[]; // TODO: dialogues => directives
   directives: DirectiveItem[];
   config?: {
     speak?: {
@@ -103,6 +109,8 @@ export class Director {
         width,
         height,
         background,
+        // antialias: true,
+        // resolution: window.devicePixelRatio ?? 1,
       });
   }
 
@@ -116,8 +124,15 @@ export class Director {
     this.connecter = undefined;
   }
 
+  public hasStarted() {
+    return this.started;
+  }
+
   // action!
   public async action(screenplay: Screenplay, scenes: PIXI.Container[]) {
+    if (this.started) {
+      return;
+    }
     const now = performance.now();
     // TODO: lastTime = -1为第一帧，可以做些初始化操作，清空画布元素的状态，比如清空文字等
     try {
@@ -172,9 +187,19 @@ export class Director {
     scenes: PIXI.Container[],
     prevSceneDuration: number,
   ): number {
-    const { config: sceneConfig, scene: sceneName, directives } = sceneScript;
+    const { config: sceneConfig, scene: sceneName, dialogues } = sceneScript;
+    let { directives } = sceneScript;
     const scene = scenes.find((scene) => scene.name === sceneName)!;
     let duration = prevSceneDuration;
+
+    // 初始化时，默认隐藏所有子元素
+    scene.children.forEach((child) => {
+      child.visible = false;
+    });
+
+    if (!directives) {
+      directives = this.parseDialogues(dialogues);
+    }
 
     // 注册指令
     for (const item of directives) {
@@ -236,6 +261,24 @@ export class Director {
     });
 
     return duration;
+  }
+
+  private parseDialogues(dialogues?: Dialogue[]): DirectiveItem[] {
+    if (!dialogues) {
+      return [];
+    }
+
+    const directives: DirectiveItem[] = [];
+
+    for (const dialogue of dialogues) {
+      const { speaker, lines } = dialogue;
+
+      lines.forEach((line) => {
+        // TODO: line => directives
+      });
+    }
+
+    return [];
   }
 
   private approximatelyEqual(a: number, b: number, tolerance: number) {

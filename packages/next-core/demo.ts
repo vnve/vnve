@@ -55,6 +55,15 @@ const screenplay: Screenplay = {
           },
         },
         {
+          directive: "Speak",
+          params: {
+            targetName: "text",
+            text: "这是增加的话",
+            wordsPerMin: 888,
+            append: true,
+          },
+        },
+        {
           directive: "FadeIn",
           params: {
             targetName: "rect",

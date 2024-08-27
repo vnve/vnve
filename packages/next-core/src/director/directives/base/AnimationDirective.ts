@@ -54,6 +54,7 @@ interface TweenVars {
     x?: number | string;
     y?: number | string;
     zIndex?: number | string;
+    visible?: boolean;
   };
 }
 
@@ -64,8 +65,10 @@ export interface AnimationDirectiveOptions extends DirectiveOptions {
   toVars?: TweenVars;
 }
 
-export abstract class AnimationDirective extends Directive {
-  protected target: PIXI.DisplayObject;
+export abstract class AnimationDirective<
+  T extends PIXI.DisplayObject = PIXI.DisplayObject,
+> extends Directive {
+  protected target: T;
   protected options: AnimationDirectiveOptions;
 
   constructor(options: AnimationDirectiveOptions, stage: PIXI.Container) {
@@ -76,6 +79,9 @@ export abstract class AnimationDirective extends Directive {
 
   public execute(): void {
     const { fromVars, toVars } = this.options;
+
+    // 理论上所有动画指令都需要显示目标
+    this.target.visible = true;
 
     if (fromVars && toVars) {
       gsap.fromTo(this.target, fromVars, toVars);

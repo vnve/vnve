@@ -10,7 +10,13 @@ export const TextPlugin = {
     typeof value !== "object" && (value = { value: value });
     let text = value.value;
 
+    this.startText = tween.vars?.startAt?.text?.value || "";
     this.target = target;
+
+    if (this.startText) {
+      text = text.replace(this.startText, "");
+    }
+
     text = text.split("");
     this.from = tween._from;
 
@@ -26,10 +32,10 @@ export const TextPlugin = {
     if (data.from) {
       ratio = 1 - ratio;
     }
-    const { text, target } = data,
+    const { text, target, startText } = data,
       l = text.length,
       i = (ratio * l + 0.5) | 0;
 
-    target.text = text.slice(0, i).join("");
+    target.text = startText + text.slice(0, i).join("");
   },
 };

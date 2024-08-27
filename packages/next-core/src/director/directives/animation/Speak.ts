@@ -6,9 +6,10 @@ export interface SpeakDirectiveOptions extends AnimationDirectiveOptions {
   text: string;
   wordsPerMin?: number;
   interval?: number;
+  append?: boolean;
 }
 
-export class Speak extends AnimationDirective {
+export class Speak extends AnimationDirective<PIXI.Text> {
   protected options: SpeakDirectiveOptions;
 
   constructor(options: SpeakDirectiveOptions, stage: PIXI.Container) {
@@ -21,27 +22,39 @@ export class Speak extends AnimationDirective {
   }
 
   public execute(): void {
+    const { text, wordsPerMin, append } = this.options;
+    let fromText = "";
+    let toText = text;
+
+    this.target.visible = true;
+
+    if (append) {
+      fromText = this.target.text;
+      toText = this.target.text + text;
+    }
+
     gsap.fromTo(
       this.target,
       {
         text: {
-          value: "",
+          value: fromText,
         },
       },
       {
         text: {
-          value: this.options.text,
+          value: toText,
         },
-        duration: this.readingTime(this.options.text, this.options.wordsPerMin),
+        duration: this.readingTime(text, wordsPerMin),
         ease: "none",
       },
     );
   }
 
   public getDuration(): number {
-    return this.options.sequential
-      ? this.readingTime(this.options.text, this.options.wordsPerMin) +
-          (this.options.interval ?? 0)
+    const { sequential, text, wordsPerMin, interval } = this.options;
+
+    return sequential
+      ? this.readingTime(text, wordsPerMin) + (interval ?? 0)
       : 0;
   }
 

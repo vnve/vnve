@@ -7,7 +7,7 @@ export class Hide extends AnimationDirective {
     this.options = {
       toVars: {
         pixi: {
-          alpha: 0,
+          visible: false,
         },
         ease: "none",
         duration: 0,
