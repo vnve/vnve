@@ -50,7 +50,7 @@ const screenplay: Screenplay = {
           directive: "Speak",
           params: {
             targetName: "text",
-            text: "哈哈哈，这是一段话段话段话段话段话段话段话",
+            text: "哈哈哈，这是一段话段话段话段话段话段话段话哈哈哈，这是一段话段话段话段话段话段话段话",
             wordsPerMin: 888,
           },
         },

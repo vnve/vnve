@@ -7,6 +7,7 @@ export interface SpeakDirectiveOptions extends AnimationDirectiveOptions {
   wordsPerMin?: number;
   interval?: number;
   append?: boolean;
+  effect?: "typewriter" | "fadeIn";
 }
 
 export class Speak extends AnimationDirective<PIXI.Text> {
@@ -17,12 +18,13 @@ export class Speak extends AnimationDirective<PIXI.Text> {
     this.options = {
       interval: 0.2,
       sequential: true,
+      effect: "typewriter",
       ...options,
     };
   }
 
   public execute(): void {
-    const { text, wordsPerMin, append } = this.options;
+    const { text, append, effect } = this.options;
     let fromText = "";
     let toText = text;
 
@@ -32,6 +34,19 @@ export class Speak extends AnimationDirective<PIXI.Text> {
       fromText = this.target.text;
       toText = this.target.text + text;
     }
+
+    switch (effect) {
+      case "typewriter":
+        this.typewriter(fromText, toText);
+        break;
+      case "fadeIn":
+        this.fadeIn(fromText, toText);
+        break;
+    }
+  }
+
+  private typewriter(fromText: string, toText: string) {
+    const { text, wordsPerMin } = this.options;
 
     gsap.fromTo(
       this.target,
@@ -45,6 +60,31 @@ export class Speak extends AnimationDirective<PIXI.Text> {
           value: toText,
         },
         duration: this.readingTime(text, wordsPerMin),
+        ease: "none",
+      },
+    );
+  }
+
+  // TODO: 优化效果
+  private fadeIn(fromText: string, toText: string) {
+    gsap.fromTo(
+      this.target,
+      {
+        pixi: {
+          alpha: 0,
+        },
+        text: {
+          value: fromText,
+        },
+      },
+      {
+        pixi: {
+          alpha: 1,
+        },
+        text: {
+          value: toText,
+        },
+        duration: 0.5,
         ease: "none",
       },
     );
