@@ -1,5 +1,10 @@
 import { Connector, ConnectorOptions, FrameData } from "./Connector";
 import CompositorWorker from "./Compositor.worker?worker&inline";
+import {
+  DEFAULT_AUDIO_CONFIG,
+  DEFAULT_VIDEO_CONFIG,
+  float32ArrayToAudioBuffer,
+} from "../util";
 
 export enum CompositorWorkerMessageType {
   LOADED = "loaded",
@@ -14,16 +19,24 @@ export enum CompositorWorkerMessageType {
 export class Compositor extends Connector {
   private compositorWorker: Worker;
   private initialized: Promise<void>;
+  private videoConfig: VideoEncoderConfig;
+  private audioConfig: AudioEncoderConfig;
 
   constructor(options: ConnectorOptions) {
     super(options);
+    this.videoConfig = options.videoConfig ?? DEFAULT_VIDEO_CONFIG;
+    this.audioConfig = options.audioConfig ?? DEFAULT_AUDIO_CONFIG;
     this.compositorWorker = new CompositorWorker();
     this.initialized = new Promise((resolve, reject) => {
       this.compositorWorker.addEventListener("message", (event) => {
         const { type } = event.data;
 
         if (type === CompositorWorkerMessageType.LOADED) {
-          this.getFromWorker(CompositorWorkerMessageType.INIT, options)
+          this.getFromWorker(CompositorWorkerMessageType.INIT, {
+            videoConfig: this.videoConfig,
+            audioConfig: this.audioConfig,
+            ...options,
+          })
             .then(() => {
               resolve();
             })
@@ -63,18 +76,96 @@ export class Compositor extends Connector {
     });
   }
 
+  private async genAudioData(
+    timestamp: number,
+    audioBuffers?: AudioBuffer[], // TODO: 直接使用audioInfo，避免重复转换
+  ): Promise<AudioData> {
+    const sampleRate = this.audioConfig.sampleRate;
+    const numberOfChannels = this.audioConfig.numberOfChannels;
+    const numberOfFrames = this.audioConfig.sampleRate * (1 / this.options.fps);
+    const offlineAudioContext = new OfflineAudioContext(
+      numberOfChannels,
+      numberOfFrames,
+      sampleRate,
+    );
+    const mixedAudioBuffer: AudioBuffer = offlineAudioContext.createBuffer(
+      numberOfChannels,
+      numberOfFrames,
+      sampleRate,
+    );
+    let data: Float32Array;
+
+    if (audioBuffers) {
+      // mixin multi audio channel data
+      audioBuffers.forEach((audioBuffer, bufferIndex) => {
+        for (let channel = 0; channel < numberOfChannels; channel++) {
+          // when some audioBuffer is single channel, fill with blank data
+          const channelData =
+            channel < audioBuffer.numberOfChannels
+              ? audioBuffer.getChannelData(channel)
+              : new Float32Array(numberOfFrames).fill(0);
+
+          const mixedChannelData = mixedAudioBuffer.getChannelData(channel);
+
+          if (bufferIndex === 0) {
+            mixedChannelData.set(channelData);
+          } else {
+            for (let i = 0; i < mixedChannelData.length; i++) {
+              mixedChannelData[i] += channelData[i];
+            }
+          }
+        }
+      });
+
+      // copy data from audioBuffer to adapt audioData
+      data = new Float32Array(numberOfFrames * numberOfChannels);
+
+      for (let i = 0; i < mixedAudioBuffer.numberOfChannels; i++) {
+        data.set(
+          mixedAudioBuffer.getChannelData(i),
+          i * mixedAudioBuffer.length,
+        );
+      }
+    } else {
+      // fill with blank placeholder data
+      data = new Float32Array(numberOfFrames * numberOfChannels).fill(0);
+    }
+
+    return new AudioData({
+      timestamp,
+      sampleRate,
+      numberOfChannels,
+      numberOfFrames,
+      data,
+      format: "f32-planar",
+    });
+  }
+
   public async handle(frameData: FrameData): Promise<void> {
     await this.initialized;
-
-    const videoFrame = new VideoFrame(frameData.imageSource, {
-      timestamp: frameData.timestamp * 1000,
+    const { timestamp, imageSource, audioBuffers } = frameData;
+    const videoFrame = new VideoFrame(imageSource, {
+      timestamp: timestamp * 1000,
     });
-    frameData.imageSource = videoFrame;
+    const transferList: Transferable[] = [videoFrame];
 
-    return this.getFromWorker(CompositorWorkerMessageType.SEND, frameData, [
-      frameData.imageSource,
-      ...(frameData.audioInfos?.map((item) => item.float32Array) ?? []),
-    ]) as Promise<void>;
+    let audioData: AudioData | undefined;
+
+    if (!this.options.disableAudio) {
+      audioData = await this.genAudioData(timestamp, audioBuffers);
+
+      transferList.push(audioData as unknown as Transferable);
+    }
+
+    return this.getFromWorker(
+      CompositorWorkerMessageType.SEND,
+      {
+        timestamp,
+        videoFrame,
+        audioData,
+      } as FrameData,
+      transferList,
+    ) as Promise<void>;
   }
 
   public async finish() {

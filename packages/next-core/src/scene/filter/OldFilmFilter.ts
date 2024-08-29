@@ -6,10 +6,10 @@ export class OldFilmFilter extends RawOldFilmFilter implements Filter {
   public label: string = "";
   public name = uuid();
 
-  public clone() {
+  public clone(exact = false) {
     const cloned = new OldFilmFilter();
 
-    copyTo(this, cloned);
+    copyTo(this, cloned, exact);
 
     return cloned;
   }

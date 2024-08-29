@@ -1,16 +1,19 @@
-import { Float32ArrayAudioInfo } from "../util";
-
 export interface ConnectorOptions {
   width: number;
   height: number;
   fps: number;
   disableAudio?: boolean;
+  videoConfig?: VideoEncoderConfig;
+  audioConfig?: AudioEncoderConfig;
 }
 
 export interface FrameData {
   timestamp: number;
   imageSource: CanvasImageSource;
-  audioInfos: Float32ArrayAudioInfo[];
+  audioBuffers: AudioBuffer[];
+  // videoFrame & audioData only used in the worker
+  videoFrame?: VideoFrame;
+  audioData?: AudioData;
 }
 
 export abstract class Connector {

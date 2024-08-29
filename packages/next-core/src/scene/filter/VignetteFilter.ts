@@ -13,10 +13,10 @@ export class VignetteFilter extends OldFilmFilter implements Filter {
     this.vignetting = 0.5;
   }
 
-  public clone() {
+  public clone(exact = false) {
     const cloned = new VignetteFilter();
 
-    copyTo(this, cloned);
+    copyTo(this, cloned, exact);
 
     return cloned;
   }

@@ -6,10 +6,10 @@ export class NoiseFilter extends PIXI.NoiseFilter implements Filter {
   public label: string = "";
   public name = uuid();
 
-  public clone() {
+  public clone(exact = false) {
     const cloned = new NoiseFilter();
 
-    copyTo(this, cloned);
+    copyTo(this, cloned, exact);
 
     return cloned;
   }

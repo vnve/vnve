@@ -1,37 +1,16 @@
 import * as PIXI from "pixi.js";
-import { BlackMaskFilter } from "./BlackMaskFilter";
-import { BlurFilter } from "./BlurFilter";
-import { NoiseFilter } from "./NoiseFilter";
-import { OldFilmFilter } from "./OldFilmFilter";
-import { VignetteFilter } from "./VignetteFilter";
-
-const FilterClassMap: ClassMap = {
-  BlackMaskFilter,
-  BlurFilter,
-  NoiseFilter,
-  OldFilmFilter,
-  VignetteFilter,
-};
-
-export function reviveFilters(json: AnyJSON) {
-  if (!json) {
-    return;
-  }
-
-  return json.map((item: AnyJSON) => {
-    return FilterClassMap[item.__type].fromJSON(item);
-  });
-}
-
 export abstract class Filter extends PIXI.Filter {
   public label: string = "";
   public name: string = "";
 
-  abstract clone(): Filter;
+  abstract clone(exact?: boolean): Filter;
   abstract toJSON(): AnyJSON;
 }
 
-export function copyTo(from: Filter, to: Filter) {
+export function copyTo(from: Filter, to: Filter, exact = false) {
+  if (exact) {
+    to.name = from.name;
+  }
   to.label = from.label;
 }
 

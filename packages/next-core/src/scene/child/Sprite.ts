@@ -24,10 +24,10 @@ export class Sprite extends PIXI.Sprite implements DisplayChild {
     }
   }
 
-  public clone() {
+  public clone(exact = false) {
     const cloned = new Sprite({ source: this.source });
 
-    copyTo(this, cloned);
+    copyTo(this, cloned, exact);
 
     return cloned;
   }
@@ -50,7 +50,7 @@ export class Sprite extends PIXI.Sprite implements DisplayChild {
     const source = await SourceStore.get(json.source);
     const img = new Sprite({ source });
 
-    copyFromJSON(json, img);
+    await copyFromJSON(json, img);
 
     return img;
   }

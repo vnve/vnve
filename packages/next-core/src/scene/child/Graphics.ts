@@ -10,10 +10,10 @@ export class Graphics extends PIXI.Graphics implements DisplayChild {
     // noop
   }
 
-  public clone() {
+  public clone(exact = false) {
     const cloned = new Graphics(super.clone().geometry);
 
-    copyTo(this, cloned);
+    copyTo(this, cloned, exact);
 
     return cloned;
   }
@@ -38,7 +38,7 @@ export class Graphics extends PIXI.Graphics implements DisplayChild {
     };
   }
 
-  static fromJSON(json: AnyJSON) {
+  static async fromJSON(json: AnyJSON) {
     const geometry = new PIXI.GraphicsGeometry();
     geometry.graphicsData = json.graphicsData.map((item: AnyJSON) => {
       const shape = new PIXI.Rectangle(); // hard code Rect
@@ -72,7 +72,7 @@ export class Graphics extends PIXI.Graphics implements DisplayChild {
     });
     const graphics = new Graphics(geometry);
 
-    copyFromJSON(json, graphics);
+    await copyFromJSON(json, graphics);
 
     return graphics;
   }

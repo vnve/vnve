@@ -12,10 +12,10 @@ export class BlackMaskFilter extends PIXI.ColorMatrixFilter implements Filter {
     this.brightness(0, true);
   }
 
-  public clone() {
+  public clone(exact = false) {
     const cloned = new BlackMaskFilter();
 
-    copyTo(this, cloned);
+    copyTo(this, cloned, exact);
 
     return cloned;
   }

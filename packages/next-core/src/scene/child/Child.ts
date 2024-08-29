@@ -6,21 +6,32 @@ import { Filter, reviveFilters } from "../filter";
 
 export abstract class DisplayChild {
   public label: string = "";
+  abstract clone(exact?: boolean): DisplayChild;
   abstract load(): Promise<void>;
   abstract toJSON(): AnyJSON;
 }
 
-export { Sprite, Text, Graphics };
 export type Child = Sprite | Text | Graphics;
 
-export function copyTo(from: Child, to: Child) {
+export function copyTo(
+  from: Child,
+  to: Child,
+  exact = false,
+  ignoreWH = false,
+) {
+  if (exact) {
+    to.name = from.name;
+  }
   to.label = from.label;
   to.visible = from.visible;
   to.alpha = from.alpha;
-  to.width = from.width; // TODO: Text should not clone ?
-  to.height = from.height;
+  if (!ignoreWH) {
+    to.width = from.width;
+    to.height = from.height;
+  }
   to.setTransform(...getTransformArray(from));
-  to.filters = from.filters?.map((item) => (item as Filter).clone()) || null;
+  to.filters =
+    from.filters?.map((item) => (item as Filter).clone(exact)) || null;
 }
 
 export function toJSON(child: Child) {
@@ -35,7 +46,7 @@ export function toJSON(child: Child) {
   };
 }
 
-export function copyFromJSON(from: AnyJSON, to: Child) {
+export async function copyFromJSON(from: AnyJSON, to: Child) {
   to.name = from.name;
   to.label = from.label;
   to.visible = from.visible;
@@ -43,7 +54,7 @@ export function copyFromJSON(from: AnyJSON, to: Child) {
   to.width = from.width;
   to.height = from.height;
   to.setTransform(from.transform);
-  to.filters = reviveFilters(from.filters);
+  to.filters = await reviveFilters(from.filters);
 }
 
 function getTransformArray(child: PIXI.DisplayObject) {
@@ -58,23 +69,4 @@ function getTransformArray(child: PIXI.DisplayObject) {
     child.pivot.x,
     child.pivot.y,
   ];
-}
-
-const ChildClassMap: ClassMap = {
-  Text,
-  Sprite,
-  Graphics,
-};
-
-export async function reviveChildren(childrenJSON: AnyJSON) {
-  const children = [];
-
-  for (const json of childrenJSON) {
-    const ChildClass = ChildClassMap[json.__type];
-    const child = await ChildClass.fromJSON(json);
-
-    children.push(child);
-  }
-
-  return children;
 }

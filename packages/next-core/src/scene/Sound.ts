@@ -1,5 +1,5 @@
 import { SourceStore } from "../assets";
-import { fetchUrlToAudiBuffer, uuid } from "../util";
+import { fetchAudioBuffer, reviveList, uuid } from "../util";
 
 export interface ISoundOption {
   source: string;
@@ -35,7 +35,7 @@ export class Sound {
   }
 
   public async load() {
-    this.buffer = await fetchUrlToAudiBuffer(this.source);
+    this.buffer = await fetchAudioBuffer(this.source);
 
     if (this.duration === 0) {
       this.duration = this.buffer.duration;
@@ -43,10 +43,10 @@ export class Sound {
     }
   }
 
-  public clone() {
+  public clone(exact = false) {
     const cloned = new Sound({ source: this.source });
 
-    copyTo(this, cloned);
+    copyTo(this, cloned, exact);
 
     return cloned;
   }
@@ -54,23 +54,20 @@ export class Sound {
   public toJSON() {
     const json = {};
 
-    copyTo(this, json as Sound);
+    copyTo(this, json as Sound, true);
 
     return {
       __type: "Sound",
       ...json,
-      name: this.name,
       source: SourceStore.get(this.source),
     };
   }
 
-  static async fromJSON(json: any) {
+  static async fromJSON(json: AnyJSON) {
     const source = await SourceStore.set(json.source);
     const sound = new Sound({ source });
 
-    sound.name = json.name;
-
-    copyTo(json as Sound, sound);
+    copyTo(json as Sound, sound, true);
 
     return sound;
   }
@@ -84,7 +81,10 @@ export class Sound {
   }
 }
 
-function copyTo(from: Sound, to: Sound) {
+function copyTo(from: Sound, to: Sound, exact = false) {
+  if (exact) {
+    to.name = from.name;
+  }
   to.label = from.label;
   to.start = from.start;
   to.duration = from.duration;
@@ -93,12 +93,6 @@ function copyTo(from: Sound, to: Sound) {
   to.untilEnd = from.untilEnd;
 }
 
-export async function reviveSounds(soundsJSON: AnyJSON) {
-  const sounds = [];
-
-  for (const sound of soundsJSON) {
-    sounds.push(await Sound.fromJSON(sound));
-  }
-
-  return sounds;
+export function reviveSounds(soundsJSON: AnyJSON): Promise<Sound[]> {
+  return reviveList({ Sound }, soundsJSON);
 }

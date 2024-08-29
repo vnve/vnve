@@ -2,7 +2,7 @@ import * as PIXI from "pixi.js";
 import { uuid } from "../util";
 import { reviveSounds, Sound } from "./Sound";
 import { Child, reviveChildren } from "./child";
-import { Filter } from "./filter";
+import { Filter, reviveFilters } from "./filter";
 import { reviveTransition, Transition } from "./transition";
 
 export interface SceneOption {
@@ -10,6 +10,7 @@ export interface SceneOption {
 }
 
 export class Scene extends PIXI.Container {
+  public name: string;
   public label: string;
   public sounds: Sound[];
   public transitions: Transition[];
@@ -22,6 +23,10 @@ export class Scene extends PIXI.Container {
     this.sounds = [];
     this.transitions = [];
     this.children = [];
+  }
+
+  public getSoundByName(name: string) {
+    return this.sounds.find((item) => item.name === name);
   }
 
   public addSound(sound: Sound) {
@@ -60,18 +65,22 @@ export class Scene extends PIXI.Container {
       this.filters = this.filters.filter((f) => f !== filter);
     }
   }
+
   public clone(): Scene {
+    // clone出来scene的name不一样，但子元素的name都是一样的
     const cloned = new Scene();
 
     cloned.label = this.label;
 
-    const children = this.children.map((item) => item.clone());
-    cloned.addChild(...children);
+    const children = this.children.map((item) => item.clone(true));
+    if (children.length > 0) {
+      cloned.addChild(...children);
+    }
 
-    cloned.sounds = this.sounds.map((item) => item.clone());
-    cloned.transitions = this.transitions.map((item) => item.clone());
+    cloned.sounds = this.sounds.map((item) => item.clone(true));
+    cloned.transitions = this.transitions.map((item) => item.clone(true));
     cloned.filters =
-      this.filters?.map((item) => (item as Filter).clone()) || null;
+      this.filters?.map((item) => (item as Filter).clone(true)) || null;
 
     return cloned;
   }
@@ -81,10 +90,10 @@ export class Scene extends PIXI.Container {
       __type: "Scene",
       name: this.name,
       label: this.label,
-      sounds: this.sounds,
-      transitions: this.transitions,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       children: this.children.filter((item: any) => !item.wireframe),
+      sounds: this.sounds,
+      transitions: this.transitions,
       filters: this.filters,
     };
   }
@@ -92,17 +101,23 @@ export class Scene extends PIXI.Container {
   static async fromJSON(json: AnyJSON) {
     const scene = new Scene();
 
+    scene.name = json.name;
     scene.label = json.label;
 
     // revive children
     const children = await reviveChildren(json.children);
-    scene.addChild(...children);
+    if (children.length > 0) {
+      scene.addChild(...children);
+    }
 
     // revive sounds
     scene.sounds = await reviveSounds(json.sounds);
 
     // revive transitions
-    scene.transitions = reviveTransition(json.transitions);
+    scene.transitions = await reviveTransition(json.transitions);
+
+    // revive filters
+    scene.filters = await reviveFilters(json.filters);
 
     return scene;
   }

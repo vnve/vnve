@@ -1,8 +1,13 @@
 import { Transition } from "./Transition";
 
 export class FadeInTransition extends Transition {
-  public clone() {
+  public clone(exact = false) {
     const cloned = new FadeInTransition();
+
+    if (exact) {
+      cloned.name = this.name;
+    }
+
     cloned.label = this.label;
 
     return cloned;

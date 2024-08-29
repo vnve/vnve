@@ -1,11 +1,10 @@
 import { uuid } from "../../util";
-import { FadeInTransition } from "./FadeInTransition";
 
 export abstract class Transition {
   public name: string = uuid();
   public label: string = "";
 
-  public abstract clone(): Transition;
+  public abstract clone(exact?: boolean): Transition;
 
   public toJSON() {
     return {
@@ -14,24 +13,4 @@ export abstract class Transition {
       name: this.name,
     };
   }
-}
-
-export { FadeInTransition };
-
-const TransitionClassMap: ClassMap = {
-  FadeInTransition,
-};
-
-export function reviveTransition(transitionsJSON: AnyJSON) {
-  const transitions = [];
-
-  for (const json of transitionsJSON) {
-    const TransitionClass = TransitionClassMap[json.__type];
-
-    const transition = TransitionClass.fromJSON(json);
-
-    transitions.push(transition);
-  }
-
-  return transitions;
 }

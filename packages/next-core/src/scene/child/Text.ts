@@ -10,10 +10,11 @@ export class Text extends PIXI.Text implements DisplayChild {
     // noop
   }
 
-  public clone() {
+  public clone(exact = false) {
     const cloned = new Text(this.text, this.style.clone());
 
-    copyTo(this, cloned);
+    // 文本元素不能复制宽、高
+    copyTo(this, cloned, exact, true);
 
     return cloned;
   }
@@ -36,10 +37,10 @@ export class Text extends PIXI.Text implements DisplayChild {
     };
   }
 
-  static fromJSON(json: AnyJSON) {
+  static async fromJSON(json: AnyJSON) {
     const text = new Text(json.text, json.style);
 
-    copyFromJSON(json, text);
+    await copyFromJSON(json, text);
 
     return text;
   }

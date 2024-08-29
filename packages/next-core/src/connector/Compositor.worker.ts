@@ -1,11 +1,5 @@
 import * as Mp4Muxer from "mp4-muxer";
-import {
-  DEFAULT_AUDIO_CONFIG,
-  DEFAULT_VIDEO_CONFIG,
-  float32ArrayToAudioBuffer,
-  log,
-  waitUntil,
-} from "../util";
+import { float32ArrayToAudioBuffer, log, waitUntil } from "../util";
 import { Connector, ConnectorOptions, FrameData } from "./Connector";
 import { CompositorWorkerMessageType } from "./Compositor";
 
@@ -26,22 +20,16 @@ export class Compositor extends Connector {
 
   constructor(options: ConnectorOptions) {
     super(options);
-    this.videoConfig = {
-      ...DEFAULT_VIDEO_CONFIG,
-    };
-    this.audioConfig = {
-      ...DEFAULT_AUDIO_CONFIG,
-    };
+    this.videoConfig = options.videoConfig!;
+    this.audioConfig = options.audioConfig!;
     this.createMuxerAndEncoder();
   }
 
   public async handle(frameData: FrameData): Promise<void> {
     // TODO: to promise and do errorReject
-    const { imageSource, audioInfos, timestamp } = frameData;
+    const { videoFrame, audioData, timestamp } = frameData;
     // video encode
-    if (imageSource) {
-      const videoFrame = imageSource as VideoFrame;
-
+    if (videoFrame) {
       // control encode speed
       if (
         this.videoEncoder?.encodeQueueSize &&
@@ -61,78 +49,10 @@ export class Compositor extends Connector {
     }
 
     // audio encode
-    if (!this.options.disableAudio) {
-      const audioBuffers = audioInfos.map(float32ArrayToAudioBuffer);
-      const audioData = await this.genAudioData(timestamp, audioBuffers);
-
+    if (audioData) {
       this.audioEncoder?.encode(audioData);
       audioData.close();
     }
-  }
-
-  private async genAudioData(
-    timestamp: number,
-    audioBuffers?: AudioBuffer[], // TODO: 直接使用audioInfo，避免重复转换
-  ): Promise<AudioData> {
-    const sampleRate = this.audioConfig.sampleRate;
-    const numberOfChannels = this.audioConfig.numberOfChannels;
-    const numberOfFrames = this.audioConfig.sampleRate * (1 / this.options.fps);
-    const offlineAudioContext = new OfflineAudioContext(
-      numberOfChannels,
-      numberOfFrames,
-      sampleRate,
-    );
-    const mixedAudioBuffer: AudioBuffer = offlineAudioContext.createBuffer(
-      numberOfChannels,
-      numberOfFrames,
-      sampleRate,
-    );
-    let data: Float32Array;
-
-    if (audioBuffers) {
-      // mixin multi audio channel data
-      audioBuffers.forEach((audioBuffer, bufferIndex) => {
-        for (let channel = 0; channel < numberOfChannels; channel++) {
-          // when some audioBuffer is single channel, fill with blank data
-          const channelData =
-            channel < audioBuffer.numberOfChannels
-              ? audioBuffer.getChannelData(channel)
-              : new Float32Array(numberOfFrames).fill(0);
-
-          const mixedChannelData = mixedAudioBuffer.getChannelData(channel);
-
-          if (bufferIndex === 0) {
-            mixedChannelData.set(channelData);
-          } else {
-            for (let i = 0; i < mixedChannelData.length; i++) {
-              mixedChannelData[i] += channelData[i];
-            }
-          }
-        }
-      });
-
-      // copy data from audioBuffer to adapt audioData
-      data = new Float32Array(numberOfFrames * numberOfChannels);
-
-      for (let i = 0; i < mixedAudioBuffer.numberOfChannels; i++) {
-        data.set(
-          mixedAudioBuffer.getChannelData(i),
-          i * mixedAudioBuffer.length,
-        );
-      }
-    } else {
-      // fill with blank placeholder data
-      data = new Float32Array(numberOfFrames * numberOfChannels).fill(0);
-    }
-
-    return new AudioData({
-      timestamp,
-      sampleRate,
-      numberOfChannels,
-      numberOfFrames,
-      data,
-      format: "f32-planar",
-    });
   }
 
   private createMuxerAndEncoder() {

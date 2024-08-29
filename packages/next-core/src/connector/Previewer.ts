@@ -16,7 +16,7 @@ export class Previewer extends Connector {
   }
 
   public async handle(frameData: FrameData) {
-    const { imageSource, audioInfos: audioBuffers } = frameData;
+    const { imageSource, audioBuffers: audioBuffers } = frameData;
 
     if (this.context && imageSource) {
       const now = Date.now();

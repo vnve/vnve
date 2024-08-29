@@ -4,7 +4,8 @@ import { PixiPlugin } from "gsap/PixiPlugin";
 import { TextPlugin } from "./lib/TextPlugin";
 import * as Directives from "./directives";
 import { Connector } from "../connector";
-import { Float32ArrayAudioInfo, log } from "../util";
+import { log } from "../util";
+import { soundController } from "./lib/SoundController";
 
 // register the plugin
 gsap.registerPlugin(PixiPlugin);
@@ -25,7 +26,16 @@ interface RendererOptions {
 }
 
 interface DirectiveItem {
-  directive: "Speak" | "Show" | "Hide" | "FadeIn" | "FadeOut" | "Wait";
+  directive:
+    | "Speak"
+    | "Show"
+    | "Hide"
+    | "FadeIn"
+    | "FadeOut"
+    | "Wait"
+    | "Play"
+    | "Pause"
+    | "Stop";
   params:
     | Directives.AnimationDirectiveOptions
     | Directives.SpeakDirectiveOptions
@@ -62,8 +72,9 @@ interface TickerExtend extends PIXI.Ticker {
   ctx: {
     scene?: PIXI.Container;
     imageSource?: CanvasImageSource;
-    audioInfos?: Float32ArrayAudioInfo[];
+    audioBuffers?: AudioBuffer[];
   };
+  asyncHandler: () => Promise<void>;
 }
 
 /**
@@ -253,6 +264,7 @@ export class Director {
       // TODO: 时间开闭区间问题
       if (time >= prevSceneDuration && time <= duration) {
         this.ticker.ctx.scene = scene;
+        // TODO: 切换音频
       }
 
       // TODO:待优化，当前场景结束后，可以清空当前场景注册的指令回调
@@ -289,6 +301,9 @@ export class Director {
     this.ticker.add(() => {
       const time = this.ticker.time;
 
+      // 更新声音控制器
+      soundController.update(time, this.rendererOptions.fps);
+
       // 动画ticker手动同步
       gsap.updateRoot(time);
 
@@ -298,6 +313,11 @@ export class Director {
         this.ticker.ctx.imageSource = this.renderer.view as CanvasImageSource;
       }
     });
+
+    // async logic
+    this.ticker.asyncHandler = async () => {
+      this.ticker.ctx.audioBuffers = await soundController.getAudioInfos();
+    };
   }
 
   private async run(duration: number) {
@@ -310,17 +330,18 @@ export class Director {
     for (let frameIndex = 0; frameIndex <= frameCount; frameIndex++) {
       const frameTimeMS = (frameIndex / fps) * 1000;
 
-      // TODO: await this.ticker.ctx.asyncData
-
       if (this.started) {
         this.ticker.time = frameTimeMS / 1000; // 拓展字段，记录当前tick的时间
         this.ticker.update(frameTimeMS); // 手动触发ticker更新
+
+        // 等待所有异步任务完成
+        await this.ticker.asyncHandler();
 
         if (this.connecter?.connection) {
           await this.connecter.handle({
             timestamp: frameTimeMS,
             imageSource: this.ticker.ctx.imageSource!,
-            audioInfos: this.ticker.ctx.audioInfos!,
+            audioBuffers: this.ticker.ctx.audioBuffers!,
           });
         }
       } else {

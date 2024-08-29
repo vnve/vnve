@@ -1,13 +1,21 @@
-import * as PIXI from "pixi.js";
+import { Scene, Sound } from "../../../scene";
 import { Directive, DirectiveOptions } from "./Directive";
 
-interface SoundDirectiveOptions extends DirectiveOptions {}
+interface SoundDirectiveOptions extends DirectiveOptions {
+  targetName: string;
+}
 
 export abstract class SoundDirective extends Directive {
-  // protected target: PIXI.DisplayObject; // TODO: sound
+  protected stage: Scene;
+  protected target: Sound;
 
-  constructor(options: SoundDirectiveOptions, stage: PIXI.Container) {
+  constructor(options: SoundDirectiveOptions, stage: Scene) {
     super(options, stage);
-    // this.target = this.stage.getChildByName(options.targetName)!;
+    this.stage = stage;
+    this.target = this.stage.getSoundByName(options.targetName)!;
+  }
+
+  public getDuration(): number {
+    return 0; // TODO sequence
   }
 }
