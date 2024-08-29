@@ -186,6 +186,9 @@ importers:
 
   packages/next-core:
     dependencies:
+      '@pixi/filter-old-film':
+        specifier: ^5.1.1
+        version: 5.1.1(@pixi/core@7.3.2)
       gsap:
         specifier: ^3.12.2
         version: 3.12.2
