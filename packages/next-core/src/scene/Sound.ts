@@ -3,44 +3,23 @@ import { fetchAudioBuffer, reviveList, uuid } from "../util";
 
 export interface ISoundOption {
   source: string;
-  start?: number;
-  duration?: number;
-  loop?: boolean;
-  volume?: number;
-  untilEnd?: boolean;
 }
 
 export class Sound {
   public name: string;
   public label: string;
   public source: string;
-  public start: number;
-  public duration: number;
-  public loop: boolean;
-  public volume: number;
-  public untilEnd: boolean;
 
   public buffer?: AudioBuffer;
-  public bufferDuration?: number;
 
   constructor(options: ISoundOption) {
     this.name = uuid();
     this.label = "";
     this.source = options.source;
-    this.start = options.start ?? 0;
-    this.duration = options.duration ?? 0;
-    this.loop = options.loop ?? false;
-    this.volume = options.volume ?? 1;
-    this.untilEnd = options.untilEnd ?? false;
   }
 
   public async load() {
     this.buffer = await fetchAudioBuffer(this.source);
-
-    if (this.duration === 0) {
-      this.duration = this.buffer.duration;
-      this.bufferDuration = this.duration;
-    }
   }
 
   public clone(exact = false) {
@@ -86,11 +65,6 @@ function copyTo(from: Sound, to: Sound, exact = false) {
     to.name = from.name;
   }
   to.label = from.label;
-  to.start = from.start;
-  to.duration = from.duration;
-  to.loop = from.loop;
-  to.volume = from.volume;
-  to.untilEnd = from.untilEnd;
 }
 
 export function reviveSounds(soundsJSON: AnyJSON): Promise<Sound[]> {

@@ -39,7 +39,9 @@ interface DirectiveItem {
   params:
     | Directives.AnimationDirectiveOptions
     | Directives.SpeakDirectiveOptions
-    | Directives.WaitDirectiveOptions;
+    | Directives.WaitDirectiveOptions
+    | Directives.SoundDirectiveOptions
+    | Directives.PlayDirectiveOptions;
 }
 
 interface Dialogue {
@@ -167,6 +169,7 @@ export class Director {
 
   public reset() {
     this.started = false;
+    soundController.reset();
     // hack ticker
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
@@ -257,14 +260,19 @@ export class Director {
       duration += sceneConfig.endInterval;
     }
 
-    // 切换场景
     this.ticker.add(() => {
       const time = this.ticker.time;
 
       // TODO: 时间开闭区间问题
-      if (time >= prevSceneDuration && time <= duration) {
+      if (
+        time >= prevSceneDuration &&
+        time <= duration &&
+        this.ticker.ctx.scene !== scene
+      ) {
+        // 切换场景
         this.ticker.ctx.scene = scene;
-        // TODO: 切换音频
+        // 切换场景音频
+        soundController.resetExceptUtilEnd();
       }
 
       // TODO:待优化，当前场景结束后，可以清空当前场景注册的指令回调
@@ -316,7 +324,7 @@ export class Director {
 
     // async logic
     this.ticker.asyncHandler = async () => {
-      this.ticker.ctx.audioBuffers = await soundController.getAudioInfos();
+      this.ticker.ctx.audioBuffers = await soundController.getAudioBuffers();
     };
   }
 

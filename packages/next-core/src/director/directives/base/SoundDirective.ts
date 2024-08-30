@@ -1,7 +1,7 @@
 import { Scene, Sound } from "../../../scene";
 import { Directive, DirectiveOptions } from "./Directive";
 
-interface SoundDirectiveOptions extends DirectiveOptions {
+export interface SoundDirectiveOptions extends DirectiveOptions {
   targetName: string;
 }
 

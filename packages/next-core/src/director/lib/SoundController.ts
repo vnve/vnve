@@ -1,31 +1,37 @@
 import { Sound } from "../../scene";
 import { sliceAudioBuffer } from "../../util";
+import { PlayDirectiveOptions } from "../directives";
 
 class SoundController {
-  public soundTaskList: Promise<AudioBuffer>[] = [];
+  public sliceTaskList: Promise<AudioBuffer>[] = [];
   private soundRecordMap: Map<
     string,
     {
       sound: Sound;
-      elapsedTime: number; // 记录已经播放的时间，用于暂停重播
       paused: boolean;
-      loop: boolean;
-      volume: number;
-    }
+      elapsedTime: number; // 记录已经播放的时间，用于暂停重播
+    } & Omit<Required<PlayDirectiveOptions>, "targetName">
   > = new Map();
 
-  public play(sound: Sound) {
+  public play(sound: Sound, options: PlayDirectiveOptions) {
     const record = this.soundRecordMap.get(sound.name);
 
     if (record) {
-      record.paused = false;
+      Object.assign(record, {
+        ...options,
+        paused: false,
+      });
     } else {
+      const { start, volume, loop, untilEnd } = options;
+
       this.soundRecordMap.set(sound.name, {
         sound,
-        elapsedTime: 0,
         paused: false,
-        loop: false, // TODO: more
-        volume: 1,
+        elapsedTime: 0,
+        start: start ?? 0,
+        volume: volume ?? 1,
+        loop: loop ?? false,
+        untilEnd: untilEnd ?? false,
       });
     }
   }
@@ -44,37 +50,55 @@ class SoundController {
 
   public update(time: number, fps: number) {
     for (const record of this.soundRecordMap.values()) {
-      if (record.paused) {
+      const { sound, paused, elapsedTime, start, loop, volume } = record;
+
+      if (paused) {
         continue;
       }
-      const sound = record.sound;
 
       if (sound.buffer) {
-        const soundTask = sliceAudioBuffer(
+        let startTime = elapsedTime;
+        const duration = sound.buffer.duration;
+
+        if (loop && startTime > duration - start) {
+          startTime = startTime % (duration - start);
+        }
+
+        const sliceTask = sliceAudioBuffer(
           sound.buffer,
-          record.elapsedTime,
+          startTime + start,
           1 / fps,
-          record.volume,
+          volume,
         );
 
-        this.soundTaskList.push(soundTask);
+        this.sliceTaskList.push(sliceTask);
       }
 
       record.elapsedTime = time;
     }
   }
 
-  public async getAudioInfos() {
-    const audioInfos = await Promise.all(this.soundTaskList);
+  public async getAudioBuffers() {
+    const audioBuffers = await Promise.all(this.sliceTaskList);
 
-    this.soundTaskList = [];
+    this.sliceTaskList = [];
 
-    return audioInfos;
+    return audioBuffers;
   }
 
-  public destroy() {
-    // TODO: 每个场景结束时，清空一次，仅保留需要持续播放的
-    this.soundTaskList = [];
+  public resetExceptUtilEnd() {
+    for (const [key, record] of this.soundRecordMap) {
+      if (record.untilEnd) {
+        continue;
+      } else {
+        this.soundRecordMap.delete(key);
+      }
+    }
+  }
+
+  public reset() {
+    this.sliceTaskList = [];
+    this.soundRecordMap.clear();
   }
 }
 
