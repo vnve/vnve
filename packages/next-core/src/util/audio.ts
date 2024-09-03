@@ -130,7 +130,7 @@ export async function fetchAudioBuffer(url: string) {
 //   return mixedBuffer;
 // }
 
-export function audioBuffersToFloat32Arrays(audioBuffers: AudioBuffer[]) {
+export function audioBuffersToFloat32Array2D(audioBuffers: AudioBuffer[]) {
   const outputs: Float32Array[][] = [];
 
   for (let i = 0; i < audioBuffers.length; i++) {

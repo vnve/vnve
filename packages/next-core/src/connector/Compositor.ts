@@ -1,10 +1,6 @@
 import { Connector, ConnectorOptions, FrameData } from "./Connector";
 import CompositorWorker from "./Compositor.worker?worker&inline";
-import {
-  DEFAULT_AUDIO_CONFIG,
-  DEFAULT_VIDEO_CONFIG,
-  float32ArrayToAudioBuffer,
-} from "../util";
+import { DEFAULT_AUDIO_CONFIG, DEFAULT_VIDEO_CONFIG } from "../util";
 
 export enum CompositorWorkerMessageType {
   LOADED = "loaded",
