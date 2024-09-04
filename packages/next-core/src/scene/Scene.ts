@@ -4,14 +4,21 @@ import { reviveSounds, Sound } from "./Sound";
 import { Child, reviveChildren } from "./child";
 import { Filter, reviveFilters } from "./filter";
 import { reviveTransition, Transition } from "./transition";
+import { cloneDeep } from "lodash-es";
 
 export interface SceneOption {
   label?: string;
 }
 
+export interface Dialogue {
+  speaker: string;
+  lines: any[]; // TODO: with plate.js
+}
+
 export class Scene extends PIXI.Container {
   public name: string;
   public label: string;
+  public dialogues: Dialogue[];
   public sounds: Sound[];
   public transitions: Transition[];
   public children: Child[];
@@ -20,6 +27,7 @@ export class Scene extends PIXI.Container {
     super();
     this.name = uuid();
     this.label = options?.label || "";
+    this.dialogues = [];
     this.sounds = [];
     this.transitions = [];
     this.children = [];
@@ -71,6 +79,7 @@ export class Scene extends PIXI.Container {
     const cloned = new Scene();
 
     cloned.label = this.label;
+    cloned.dialogues = cloneDeep(this.dialogues);
 
     const children = this.children.map((item) => item.clone(true));
     if (children.length > 0) {
@@ -90,8 +99,8 @@ export class Scene extends PIXI.Container {
       __type: "Scene",
       name: this.name,
       label: this.label,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      children: this.children.filter((item: any) => !item.wireframe),
+      dialogues: this.dialogues,
+      children: this.children,
       sounds: this.sounds,
       transitions: this.transitions,
       filters: this.filters,
@@ -103,6 +112,7 @@ export class Scene extends PIXI.Container {
 
     scene.name = json.name;
     scene.label = json.label;
+    scene.dialogues = json.dialogues;
 
     // revive children
     const children = await reviveChildren(json.children);

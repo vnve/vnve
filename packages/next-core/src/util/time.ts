@@ -15,3 +15,7 @@ export function waitUntil(condition: () => boolean): Promise<void> {
     check();
   });
 }
+
+export function approximatelyEqual(a: number, b: number, tolerance: number) {
+  return Math.abs(a - b) < tolerance;
+}

@@ -4,7 +4,7 @@ import { PixiPlugin } from "gsap/PixiPlugin";
 import { TextPlugin } from "./lib/TextPlugin";
 import * as Directives from "./directives";
 import { Connector } from "../connector";
-import { log } from "../util";
+import { log, approximatelyEqual } from "../util";
 import { soundController } from "./lib/SoundController";
 
 // register the plugin
@@ -25,7 +25,7 @@ interface RendererOptions {
   renderer?: PIXI.IRenderer;
 }
 
-interface DirectiveItem {
+export interface DirectiveConfig {
   directive:
     | "Speak"
     | "Show"
@@ -35,24 +35,20 @@ interface DirectiveItem {
     | "Wait"
     | "Play"
     | "Pause"
-    | "Stop";
+    | "Stop"
+    | "ChangeSource";
   params:
     | Directives.AnimationDirectiveOptions
     | Directives.SpeakDirectiveOptions
     | Directives.WaitDirectiveOptions
     | Directives.SoundDirectiveOptions
-    | Directives.PlayDirectiveOptions;
+    | Directives.PlayDirectiveOptions
+    | Directives.ChangeSourceDirectiveOptions;
 }
 
-interface Dialogue {
-  speaker: string;
-  lines: any[]; // TODO: with plate.js
-}
-
-interface SceneScript {
+export interface SceneScript {
   scene: string;
-  dialogues?: Dialogue[]; // TODO: dialogues => directives
-  directives: DirectiveItem[];
+  directives: DirectiveConfig[];
   config?: {
     speak?: {
       wordsPerMin?: number;
@@ -76,7 +72,7 @@ interface TickerExtend extends PIXI.Ticker {
     imageSource?: CanvasImageSource;
     audioBuffers?: AudioBuffer[];
   };
-  asyncHandler: () => Promise<void>;
+  asyncHandlers: Array<Promise<void>>;
 }
 
 /**
@@ -105,6 +101,7 @@ export class Director {
     // @ts-ignore
     this.ticker = PIXI.Ticker.shared; // 使用shared Ticker方便GIF,Video等插件共享
     this.ticker.ctx = {};
+    this.ticker.asyncHandlers = [];
     this.ticker.autoStart = false;
     this.ticker.stop();
     this.rendererOptions = Object.assign(
@@ -147,11 +144,10 @@ export class Director {
       return;
     }
     const now = performance.now();
-    // TODO: lastTime = -1为第一帧，可以做些初始化操作，清空画布元素的状态，比如清空文字等
     try {
       const duration = this.parseScreenplay(screenplay, scenes);
 
-      this.addCoreTickerCb();
+      this.registerUpdater();
 
       return await this.run(duration);
     } finally {
@@ -201,8 +197,8 @@ export class Director {
     scenes: PIXI.Container[],
     prevSceneDuration: number,
   ): number {
-    const { config: sceneConfig, scene: sceneName, dialogues } = sceneScript;
-    let { directives } = sceneScript;
+    const { config: sceneConfig, scene: sceneName } = sceneScript;
+    const { directives } = sceneScript;
     const scene = scenes.find((scene) => scene.name === sceneName)!;
     let duration = prevSceneDuration;
 
@@ -211,11 +207,6 @@ export class Director {
       child.visible = false;
     });
 
-    if (!directives) {
-      directives = this.parseDialogues(dialogues);
-    }
-
-    // 注册指令
     for (const item of directives) {
       const { directive: directiveName, params } = item;
       const Directive = Directives[directiveName as keyof typeof Directives];
@@ -236,19 +227,19 @@ export class Director {
 
         // TODO: 时间精度
         if (
-          this.approximatelyEqual(
+          approximatelyEqual(
             time,
             directive.executeTime,
             1 / (this.rendererOptions.fps * 2),
           )
         ) {
-          console.log(
+          log.debug(
             "execute directive:",
             directive,
             time,
             directive.executeTime,
           );
-          directive.execute();
+          this.ticker.asyncHandlers.push(directive.execute());
         }
       });
 
@@ -269,10 +260,13 @@ export class Director {
         time <= duration &&
         this.ticker.ctx.scene !== scene
       ) {
+        if (this.ticker.ctx.scene) {
+          // 之前存在场景时，需要切换场景音频
+          soundController.resetExceptUtilEnd();
+        }
+
         // 切换场景
         this.ticker.ctx.scene = scene;
-        // 切换场景音频
-        soundController.resetExceptUtilEnd();
       }
 
       // TODO:待优化，当前场景结束后，可以清空当前场景注册的指令回调
@@ -283,34 +277,16 @@ export class Director {
     return duration;
   }
 
-  private parseDialogues(dialogues?: Dialogue[]): DirectiveItem[] {
-    if (!dialogues) {
-      return [];
-    }
-
-    const directives: DirectiveItem[] = [];
-
-    for (const dialogue of dialogues) {
-      const { speaker, lines } = dialogue;
-
-      lines.forEach((line) => {
-        // TODO: line => directives
-      });
-    }
-
-    return [];
-  }
-
-  private approximatelyEqual(a: number, b: number, tolerance: number) {
-    return Math.abs(a - b) < tolerance;
-  }
-
-  private addCoreTickerCb() {
+  private registerUpdater() {
     this.ticker.add(() => {
       const time = this.ticker.time;
 
-      // 更新声音控制器
+      // 更新音频数据
       soundController.update(time, this.rendererOptions.fps);
+      const updateAudioBuffers = async () => {
+        this.ticker.ctx.audioBuffers = await soundController.getAudioBuffers();
+      };
+      this.ticker.asyncHandlers.push(updateAudioBuffers());
 
       // 动画ticker手动同步
       gsap.updateRoot(time);
@@ -321,11 +297,6 @@ export class Director {
         this.ticker.ctx.imageSource = this.renderer.view as CanvasImageSource;
       }
     });
-
-    // async logic
-    this.ticker.asyncHandler = async () => {
-      this.ticker.ctx.audioBuffers = await soundController.getAudioBuffers();
-    };
   }
 
   private async run(duration: number) {
@@ -342,8 +313,8 @@ export class Director {
         this.ticker.time = frameTimeMS / 1000; // 拓展字段，记录当前tick的时间
         this.ticker.update(frameTimeMS); // 手动触发ticker更新
 
-        // 等待所有异步任务完成
-        await this.ticker.asyncHandler();
+        // // 等待所有异步任务完成
+        await Promise.all(this.ticker.asyncHandlers);
 
         if (this.connecter?.connection) {
           await this.connecter.handle({

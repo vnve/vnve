@@ -186,12 +186,21 @@ importers:
 
   packages/next-core:
     dependencies:
+      '@pixi-essentials/transformer':
+        specifier: ^3.0.4
+        version: 3.0.4(@pixi/core@7.3.2)(@pixi/display@7.3.2)(@pixi/events@7.3.2)(@pixi/graphics@7.3.2)(@pixi/math@7.3.2)(@pixi/settings@7.3.2)(@pixi/ticker@7.3.2)
       '@pixi/filter-old-film':
         specifier: ^5.1.1
         version: 5.1.1(@pixi/core@7.3.2)
+      '@types/lodash-es':
+        specifier: ^4.17.10
+        version: 4.17.10
       gsap:
         specifier: ^3.12.2
         version: 3.12.2
+      lodash-es:
+        specifier: ^4.17.21
+        version: 4.17.21
       loglevel:
         specifier: ^1.8.1
         version: 1.8.1

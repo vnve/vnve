@@ -8,6 +8,7 @@ interface SpriteOptions {
 }
 
 export class Sprite extends PIXI.Sprite implements DisplayChild {
+  public name: string;
   public label: string;
   public source: string;
 

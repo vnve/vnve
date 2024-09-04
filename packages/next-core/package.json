@@ -38,8 +38,11 @@
   "author": "ForeverSc",
   "license": "MIT",
   "dependencies": {
+    "@pixi-essentials/transformer": "^3.0.4",
     "@pixi/filter-old-film": "^5.1.1",
+    "@types/lodash-es": "^4.17.10",
     "gsap": "^3.12.2",
+    "lodash-es": "^4.17.21",
     "loglevel": "^1.8.1",
     "mp4-muxer": "^2.2.2",
     "nanoid": "^5.0.5",
