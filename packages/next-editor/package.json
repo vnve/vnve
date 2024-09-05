@@ -13,7 +13,9 @@
   },
   "dependencies": {
     "@ariakit/react": "^0.4.10",
+    "@radix-ui/react-dialog": "^1.1.1",
     "@radix-ui/react-dropdown-menu": "^2.1.1",
+    "@radix-ui/react-popover": "^1.1.1",
     "@radix-ui/react-separator": "^1.1.0",
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-toolbar": "^1.1.0",
@@ -27,6 +29,7 @@
     "@udecode/plate-floating": "^37.0.0",
     "@udecode/plate-font": "^37.0.0",
     "@udecode/plate-heading": "^37.0.0",
+    "@udecode/plate-link": "^37.0.3",
     "@udecode/plate-mention": "^37.0.0",
     "@udecode/plate-node-id": "^37.0.0",
     "@udecode/plate-select": "^37.0.0",

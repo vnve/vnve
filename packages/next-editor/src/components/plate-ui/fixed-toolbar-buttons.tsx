@@ -1,17 +1,21 @@
 import React from "react";
 
-import { BoldPlugin, ItalicPlugin } from "@udecode/plate-basic-marks/react";
 import {
-  FontColorPlugin,
-  FontBackgroundColorPlugin,
-  FontSizePlugin,
-} from "@udecode/plate-font";
+  BoldPlugin,
+  CodePlugin,
+  ItalicPlugin,
+  StrikethroughPlugin,
+  UnderlinePlugin,
+} from "@udecode/plate-basic-marks/react";
 import { useEditorReadOnly } from "@udecode/plate-common/react";
 
 import { Icons } from "@/components/icons";
 
+import { InsertDropdownMenu } from "./insert-dropdown-menu";
 import { MarkToolbarButton } from "./mark-toolbar-button";
+import { ModeDropdownMenu } from "./mode-dropdown-menu";
 import { ToolbarGroup } from "./toolbar";
+import { TurnIntoDropdownMenu } from "./turn-into-dropdown-menu";
 
 export function FixedToolbarButtons() {
   const readOnly = useEditorReadOnly();
@@ -26,7 +30,11 @@ export function FixedToolbarButtons() {
       >
         {!readOnly && (
           <>
-            <ToolbarGroup>
+            <ToolbarGroup noSeparator>
+              <InsertDropdownMenu />
+            </ToolbarGroup>
+
+            {/* <ToolbarGroup>
               <MarkToolbarButton nodeType={BoldPlugin.key} tooltip="Bold (⌘+B)">
                 <Icons.bold />
               </MarkToolbarButton>
@@ -37,14 +45,30 @@ export function FixedToolbarButtons() {
                 <Icons.italic />
               </MarkToolbarButton>
               <MarkToolbarButton
-                nodeType={FontColorPlugin.key}
-                tooltip="Italic (⌘+I)"
+                nodeType={UnderlinePlugin.key}
+                tooltip="Underline (⌘+U)"
               >
-                <Icons.color />
+                <Icons.underline />
               </MarkToolbarButton>
-            </ToolbarGroup>
+
+              <MarkToolbarButton
+                nodeType={StrikethroughPlugin.key}
+                tooltip="Strikethrough (⌘+⇧+M)"
+              >
+                <Icons.strikethrough />
+              </MarkToolbarButton>
+              <MarkToolbarButton nodeType={CodePlugin.key} tooltip="Code (⌘+E)">
+                <Icons.code />
+              </MarkToolbarButton>
+            </ToolbarGroup> */}
           </>
         )}
+
+        {/* <div className="grow" />
+
+        <ToolbarGroup noSeparator>
+          <ModeDropdownMenu />
+        </ToolbarGroup> */}
       </div>
     </div>
   );

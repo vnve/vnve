@@ -19,15 +19,16 @@ import {
   useOpenState,
 } from "./dropdown-menu";
 import { ToolbarButton } from "./toolbar";
+import { LinkPlugin, triggerFloatingLink } from "@udecode/plate-link/react";
 
 const items = [
   {
     items: [
       {
-        description: "Paragraph",
-        icon: Icons.paragraph,
-        label: "Paragraph",
-        value: ParagraphPlugin.key,
+        description: "Link",
+        icon: Icons.link,
+        label: "Link",
+        value: LinkPlugin.key,
       },
       {
         description: "Heading 1",
@@ -189,11 +190,11 @@ export function InsertDropdownMenu(props: DropdownMenuProps) {
                       //
                       //   break;
                       // }
-                      // case LinkPlugin.key: {
-                      //   triggerFloatingLink(editor, { focused: true });
-                      //
-                      //   break;
-                      // }
+                      case LinkPlugin.key: {
+                        triggerFloatingLink(editor, { focused: true });
+
+                        break;
+                      }
                       default: {
                         insertEmptyElement(editor, type, {
                           nextBlock: true,
