@@ -24,6 +24,10 @@ export class Speak extends AnimationDirective<PIXI.Text> {
   }
 
   public execute(): void {
+    if (!this.target) {
+      return;
+    }
+
     const { text, append, effect } = this.options;
     let fromText = "";
     let toText = text;

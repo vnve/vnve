@@ -28,7 +28,7 @@ export class Sprite extends PIXI.Sprite implements DisplayChild {
   public clone(exact = false) {
     const cloned = new Sprite({ source: this.source });
 
-    copyTo(this, cloned, exact);
+    copyTo(this, cloned, exact); // TODO: 为什么复制宽高导致异常
 
     return cloned;
   }

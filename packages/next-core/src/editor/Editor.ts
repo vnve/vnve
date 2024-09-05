@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js";
 import { Transformer } from "@pixi-essentials/transformer";
-import { Scene, Child, Dialogue } from "../scene";
-import { log } from "../util";
+import { Scene, Child } from "../scene";
+import { log, wait } from "../util";
 import { DirectiveConfig, SceneScript, Screenplay } from "../director";
 
 export type EditorChildPosition =
@@ -270,65 +270,6 @@ export class Editor {
     }
   }
 
-  private genSceneScript(scene: Scene): SceneScript {
-    const dialogues = scene.dialogues;
-    const directives: DirectiveConfig[] = [];
-
-    for (const dialogue of dialogues) {
-      const { speaker, lines } = dialogue;
-
-      lines.forEach((line) => {
-        // TODO: line => directives
-      });
-    }
-
-    return;
-  }
-
-  public exportScreenplay(): Screenplay {
-    const scenes = this.exportScenes();
-    const sceneScripts = scenes.map(this.genSceneScript);
-
-    return {
-      config: {}, // TODO: 全局配置
-      scenes: sceneScripts,
-    };
-  }
-
-  public exportScenes() {
-    this.removeTransformer();
-
-    const now = performance.now();
-    const scenes = this.scenes.map((item) => item.clone());
-
-    log.info("editor export cost:", performance.now() - now);
-
-    return scenes;
-  }
-
-  public saveAsJSON() {
-    this.removeTransformer();
-
-    return JSON.stringify({
-      version: "2.0",
-      config: {},
-      scenes: this.scenes,
-    });
-  }
-
-  public async loadFromJSON(editorJSON: string) {
-    const editor = JSON.parse(editorJSON);
-    const scenes = [];
-
-    for (const sceneJSON of editor.scenes) {
-      const scene = await Scene.fromJSON(sceneJSON);
-
-      scenes.push(scene);
-    }
-
-    this.loadScenes(scenes);
-  }
-
   public stageAddChild(scene: Scene) {
     this.app.stage.addChild(scene);
   }
@@ -373,5 +314,128 @@ export class Editor {
       default:
         break;
     }
+  }
+
+  private genSceneScript(scene: Scene): SceneScript {
+    const { dialogues, config } = scene;
+    const speakTarget = config.speak?.target;
+    const directives: DirectiveConfig[] = [];
+
+    for (const dialogue of dialogues) {
+      const { speaker, lines } = dialogue;
+
+      if (speakTarget?.name) {
+        directives.push({
+          directive: "Speaker",
+          params: {
+            targetName: speakTarget.name,
+            name: speaker.label,
+            speakerTargetName: speaker.name,
+            autoShowSpeaker: "Show",
+          },
+        });
+      }
+
+      if (speakTarget?.dialog) {
+        directives.push({
+          directive: "Show",
+          params: {
+            targetName: speakTarget.dialog,
+          },
+        });
+      }
+
+      let shouldAppend = false; // 首次说话，不能append
+
+      lines.forEach((line) => {
+        if (line.type === "p") {
+          for (let index = 0; index < line.children.length; index++) {
+            const child = line.children[index];
+
+            if (child.type === "directive") {
+              // TODO: 生成其他指令
+              directives.push({
+                directive: child.directive,
+                params: child.params,
+              });
+            } else if (child.text && speakTarget?.text) {
+              let text = child.text;
+
+              if (index === line.children.length - 1) {
+                // 最后一个元素是文本，增加换行符
+                text += "\n";
+              }
+
+              // 默认speak指令, append
+              directives.push({
+                directive: "Speak",
+                params: {
+                  targetName: speakTarget.text,
+                  text,
+                  append: shouldAppend,
+                },
+              });
+
+              shouldAppend = true;
+            }
+          }
+        }
+      });
+    }
+
+    return {
+      scene,
+      config,
+      directives,
+    };
+  }
+
+  public async exportScreenplay(): Promise<Screenplay> {
+    const scenes = this.exportScenes();
+    const sceneScripts = scenes.map(this.genSceneScript);
+
+    // 预加载所有场景资源
+    for (const scene of scenes) {
+      await scene.load();
+    }
+
+    return {
+      config: {}, // TODO: 全局配置
+      scenes: sceneScripts,
+    };
+  }
+
+  public exportScenes() {
+    this.removeTransformer();
+
+    const now = performance.now();
+    const scenes = this.scenes.map((item) => item.clone());
+
+    log.info("editor export cost:", performance.now() - now);
+
+    return scenes;
+  }
+
+  public saveAsJSON() {
+    this.removeTransformer();
+
+    return JSON.stringify({
+      version: "2.0",
+      config: {}, // TODO: 编辑器全局配置
+      scenes: this.scenes,
+    });
+  }
+
+  public async loadFromJSON(editorJSON: string) {
+    const editor = JSON.parse(editorJSON);
+    const scenes = [];
+
+    for (const sceneJSON of editor.scenes) {
+      const scene = await Scene.fromJSON(sceneJSON);
+
+      scenes.push(scene);
+    }
+
+    this.loadScenes(scenes);
   }
 }

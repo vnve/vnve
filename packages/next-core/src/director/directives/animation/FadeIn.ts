@@ -12,7 +12,7 @@ export class FadeIn extends AnimationDirective {
       },
       toVars: {
         pixi: {
-          alpha: 1,
+          alpha: this.target.alpha ?? 1,
         },
         ease: "power1.in",
         duration: 0.5,

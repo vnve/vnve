@@ -41,6 +41,8 @@ export function toJSON(child: Child) {
     label: child.label,
     visible: child.visible,
     alpha: child.alpha,
+    width: child.width,
+    height: child.height,
     transform: getTransformArray(child),
     filters: child.filters?.map((item) => (item as Filter).toJSON()) || null,
   };

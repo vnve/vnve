@@ -78,6 +78,10 @@ export abstract class AnimationDirective<
   }
 
   public execute(): void {
+    if (!this.target) {
+      return;
+    }
+
     const { fromVars, toVars } = this.options;
 
     // 理论上所有动画指令都需要显示目标

@@ -28,6 +28,7 @@ interface RendererOptions {
 export interface DirectiveConfig {
   directive:
     | "Speak"
+    | "Speaker"
     | "Show"
     | "Hide"
     | "FadeIn"
@@ -40,23 +41,31 @@ export interface DirectiveConfig {
   params:
     | Directives.AnimationDirectiveOptions
     | Directives.SpeakDirectiveOptions
+    | Directives.SpeakerDirectiveOptions
     | Directives.WaitDirectiveOptions
     | Directives.SoundDirectiveOptions
     | Directives.PlayDirectiveOptions
     | Directives.ChangeSourceDirectiveOptions;
 }
 
-export interface SceneScript {
-  scene: string;
-  directives: DirectiveConfig[];
-  config?: {
-    speak?: {
-      wordsPerMin?: number;
-      interval?: number;
-      effect?: string; // 播放效果, 打字机效果等
+export interface SceneConfig {
+  speak?: {
+    target: {
+      name?: string;
+      text?: string;
+      dialog?: string;
     };
-    endInterval?: number;
-  }; // TODO: 场景配置
+    wordsPerMin?: number;
+    interval?: number;
+    effect?: string; // 播放效果, 打字机效果等
+  };
+  endInterval?: number;
+}
+
+export interface SceneScript {
+  scene: PIXI.Container;
+  directives: DirectiveConfig[];
+  config?: SceneConfig; // TODO: 场景配置
 }
 
 export interface Screenplay {
@@ -139,13 +148,13 @@ export class Director {
   }
 
   // action!
-  public async action(screenplay: Screenplay, scenes: PIXI.Container[]) {
+  public async action(screenplay: Screenplay) {
     if (this.started) {
       return;
     }
     const now = performance.now();
     try {
-      const duration = this.parseScreenplay(screenplay, scenes);
+      const duration = this.parseScreenplay(screenplay);
 
       this.registerUpdater();
 
@@ -178,15 +187,12 @@ export class Director {
     this.ticker.lastTime = -1;
   }
 
-  private parseScreenplay(
-    screenplay: Screenplay,
-    scenes: PIXI.Container[],
-  ): number {
+  private parseScreenplay(screenplay: Screenplay): number {
     let duration = 0;
     const { scenes: sceneScripts } = screenplay;
 
     for (const sceneScript of sceneScripts) {
-      duration = this.parseSceneScript(sceneScript, scenes, duration);
+      duration = this.parseSceneScript(sceneScript, duration);
     }
 
     return duration;
@@ -194,12 +200,10 @@ export class Director {
 
   private parseSceneScript(
     sceneScript: SceneScript,
-    scenes: PIXI.Container[],
     prevSceneDuration: number,
   ): number {
-    const { config: sceneConfig, scene: sceneName } = sceneScript;
+    const { config: sceneConfig, scene } = sceneScript;
     const { directives } = sceneScript;
-    const scene = scenes.find((scene) => scene.name === sceneName)!;
     let duration = prevSceneDuration;
 
     // 初始化时，默认隐藏所有子元素

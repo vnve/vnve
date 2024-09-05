@@ -1,5 +1,6 @@
 import { Connector, ConnectorOptions, FrameData } from "./Connector";
 import { wait } from "../util";
+import * as PIXI from "pixi.js";
 // import PreviewAudioProcessor from "./PreviewAudioProcessor?url";
 
 export interface PreviewerOptions extends ConnectorOptions {
@@ -18,10 +19,14 @@ export class Previewer extends Connector {
   constructor(options: PreviewerOptions) {
     super(options);
     this.options = options;
-    this.context = this.options.canvas.getContext("2d")!;
     this.audioContext = new AudioContext();
     this.audioPlayTime = 0;
     this.lastHandleTime = 0;
+
+    const { canvas, width, height } = this.options;
+    canvas.width = width;
+    canvas.height = height;
+    this.context = canvas.getContext("2d")!;
     // this.audioWorkletReady = new Promise(() => {});
     // this.initAudioWorklet(this.audioContext);
   }
@@ -61,8 +66,9 @@ export class Previewer extends Connector {
   }
 
   private playVideoFrame(imageSource: CanvasImageSource) {
-    const canvas = this.context.canvas;
-    this.context.drawImage(imageSource, 0, 0, canvas.width, canvas.height);
+    const { width, height } = this.options;
+
+    this.context.drawImage(imageSource, 0, 0, width, height);
   }
 
   private playAudioBuffers(buffers: AudioBuffer[]) {
