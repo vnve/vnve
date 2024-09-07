@@ -21,7 +21,7 @@ export class Text extends PIXI.Text implements DisplayChild {
 
   public toJSON() {
     return {
-      ...toJSON(this),
+      ...toJSON(this, true),
       text: this.text,
       style: {
         fontSize: this.style.fontSize,
@@ -40,7 +40,7 @@ export class Text extends PIXI.Text implements DisplayChild {
   static async fromJSON(json: AnyJSON) {
     const text = new Text(json.text, json.style);
 
-    await copyFromJSON(json, text);
+    await copyFromJSON(json, text, true);
 
     return text;
   }

@@ -19,6 +19,12 @@ export class Sprite extends PIXI.Sprite implements DisplayChild {
     this.source = options.source;
   }
 
+  private shouldUseCustomDimensions() {
+    return (
+      this.texture.width === this.width && this.texture.height === this.height
+    );
+  }
+
   public async load() {
     if (this.source) {
       this.texture = await Assets.load(this.source);
@@ -28,7 +34,9 @@ export class Sprite extends PIXI.Sprite implements DisplayChild {
   public clone(exact = false) {
     const cloned = new Sprite({ source: this.source });
 
-    copyTo(this, cloned, exact); // TODO: 为什么复制宽高导致异常
+    // 当与texture宽高一致时，说明没有自定义宽高，不复制宽高
+    // 因为texture默认宽高为1,1，统一复制宽高会导致还原异常
+    copyTo(this, cloned, exact, this.shouldUseCustomDimensions());
 
     return cloned;
   }
@@ -42,7 +50,7 @@ export class Sprite extends PIXI.Sprite implements DisplayChild {
 
   public toJSON() {
     return {
-      ...toJSON(this),
+      ...toJSON(this, this.shouldUseCustomDimensions()),
       source: SourceStore.set(this.source),
     };
   }

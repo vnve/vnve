@@ -1,3 +1,5 @@
+export * from "./Directive";
 export * from "./AnimationDirective";
 export * from "./SoundDirective";
-export * from "./Directive";
+export * from "./TransitionDirective";
+export * from "./FilterDirective";

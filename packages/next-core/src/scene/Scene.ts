@@ -3,7 +3,6 @@ import { uuid } from "../util";
 import { reviveSounds, Sound } from "./Sound";
 import { Child, reviveChildren } from "./child";
 import { Filter, reviveFilters } from "./filter";
-import { reviveTransition, Transition } from "./transition";
 import { cloneDeep } from "lodash-es";
 import { SceneConfig } from "../director";
 
@@ -26,7 +25,6 @@ export class Scene extends PIXI.Container {
   public config: SceneConfig;
   public dialogues: Dialogue[];
   public sounds: Sound[];
-  public transitions: Transition[];
   public children: Child[];
 
   constructor(options?: SceneOption) {
@@ -36,7 +34,6 @@ export class Scene extends PIXI.Container {
     this.config = {};
     this.dialogues = [];
     this.sounds = [];
-    this.transitions = [];
     this.children = [];
   }
 
@@ -57,14 +54,6 @@ export class Scene extends PIXI.Container {
 
       return true;
     });
-  }
-
-  public addTransition(transition: Transition) {
-    this.transitions.push(transition);
-  }
-
-  public removeTransition(transition: Transition) {
-    this.transitions = this.transitions.filter((t) => t !== transition);
   }
 
   public addFilter(filter: Filter) {
@@ -95,7 +84,6 @@ export class Scene extends PIXI.Container {
     }
 
     cloned.sounds = this.sounds.map((item) => item.clone(true));
-    cloned.transitions = this.transitions.map((item) => item.clone(true));
     cloned.filters =
       this.filters?.map((item) => (item as Filter).clone(true)) || null;
 
@@ -111,7 +99,6 @@ export class Scene extends PIXI.Container {
       dialogues: this.dialogues,
       children: this.children,
       sounds: this.sounds,
-      transitions: this.transitions,
       filters: this.filters,
     };
   }
@@ -132,9 +119,6 @@ export class Scene extends PIXI.Container {
 
     // revive sounds
     scene.sounds = await reviveSounds(json.sounds);
-
-    // revive transitions
-    scene.transitions = await reviveTransition(json.transitions);
 
     // revive filters
     scene.filters = await reviveFilters(json.filters);

@@ -37,7 +37,10 @@ export interface DirectiveConfig {
     | "Play"
     | "Pause"
     | "Stop"
-    | "ChangeSource";
+    | "ChangeSource"
+    | "FadeInTransition"
+    | "AddFilter"
+    | "RemoveFilter";
   params:
     | Directives.AnimationDirectiveOptions
     | Directives.SpeakDirectiveOptions
@@ -45,7 +48,10 @@ export interface DirectiveConfig {
     | Directives.WaitDirectiveOptions
     | Directives.SoundDirectiveOptions
     | Directives.PlayDirectiveOptions
-    | Directives.ChangeSourceDirectiveOptions;
+    | Directives.ChangeSourceDirectiveOptions
+    | Directives.TransitionDirective
+    | Directives.FilterDirectiveOptions
+    | Directives.AddFilterDirectiveOptions;
 }
 
 export interface SceneConfig {
@@ -224,10 +230,14 @@ export class Director {
       // @ts-ignore
       const directive = new Directive(params, scene, sceneConfig); // TODO: 增加场景默认配置
 
+      // 指令执行时机
       directive.executeTime = duration;
 
       this.ticker.add(() => {
         const time = this.ticker.time;
+
+        // 当前时间
+        directive.currentTime = time;
 
         // TODO: 时间精度
         if (

@@ -16,6 +16,6 @@ export abstract class SoundDirective extends Directive {
   }
 
   public getDuration(): number {
-    return 0; // TODO sequence
+    return 0;
   }
 }

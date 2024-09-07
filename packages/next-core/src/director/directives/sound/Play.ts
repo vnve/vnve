@@ -19,4 +19,8 @@ export class Play extends SoundDirective {
   execute(): void {
     soundController.play(this.target, this.options);
   }
+
+  public getDuration(): number {
+    return this.options.sequential ? this.target.buffer?.duration ?? 0 : 0;
+  }
 }

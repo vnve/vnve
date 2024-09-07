@@ -1,9 +1,9 @@
 import * as PIXI from "pixi.js";
-import { AnimationDirective, AnimationDirectiveOptions } from "../base";
+import { TransitionDirective, TransitionDirectiveOptions } from "../base";
 import { merge } from "lodash-es";
 
-export class FadeIn extends AnimationDirective {
-  constructor(options: AnimationDirectiveOptions, stage: PIXI.Container) {
+export class FadeInTransition extends TransitionDirective {
+  constructor(options: TransitionDirectiveOptions, stage: PIXI.Container) {
     super(options, stage);
     this.options = merge(
       {
@@ -14,10 +14,10 @@ export class FadeIn extends AnimationDirective {
         },
         toVars: {
           pixi: {
-            alpha: this.target.alpha ?? 1,
+            alpha: 1,
           },
           ease: "power1.in",
-          duration: 0.5,
+          duration: 0.3,
         },
       },
       options,

@@ -10,7 +10,7 @@ class SoundController {
       sound: Sound;
       paused: boolean;
       elapsedTime: number; // 记录已经播放的时间，用于暂停重播
-    } & Omit<Required<PlayDirectiveOptions>, "targetName">
+    } & Omit<Required<PlayDirectiveOptions>, "targetName" | "sequential">
   > = new Map();
 
   public play(sound: Sound, options: PlayDirectiveOptions) {

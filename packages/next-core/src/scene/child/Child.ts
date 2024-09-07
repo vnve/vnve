@@ -34,27 +34,41 @@ export function copyTo(
     from.filters?.map((item) => (item as Filter).clone(exact)) || null;
 }
 
-export function toJSON(child: Child) {
-  return {
+export function toJSON(child: Child, ignoreWH = false) {
+  let json: AnyJSON = {
     __type: child.constructor.name,
     name: child.name,
     label: child.label,
     visible: child.visible,
     alpha: child.alpha,
-    width: child.width,
-    height: child.height,
     transform: getTransformArray(child),
     filters: child.filters?.map((item) => (item as Filter).toJSON()) || null,
   };
+
+  if (!ignoreWH) {
+    json = {
+      ...json,
+      width: child.width,
+      height: child.height,
+    };
+  }
+
+  return json;
 }
 
-export async function copyFromJSON(from: AnyJSON, to: Child) {
+export async function copyFromJSON(from: AnyJSON, to: Child, ignoreWH = false) {
   to.name = from.name;
   to.label = from.label;
   to.visible = from.visible;
   to.alpha = from.alpha;
-  to.width = from.width;
-  to.height = from.height;
+  if (!ignoreWH) {
+    if (typeof from.width === "number") {
+      to.width = from.width;
+    }
+    if (typeof from.height === "number") {
+      to.height = from.height;
+    }
+  }
   to.setTransform(from.transform);
   to.filters = await reviveFilters(from.filters);
 }
