@@ -81,12 +81,15 @@ export function useFloatingDirectiveInsert({
     // move the selection after the element
     moveSelection(editor, { unit: "offset" });
 
-    api.floatingDirective.show("hide", editor.id);
-    focusEditor(editor, editor.selection!);
+    api.floatingDirective.hide();
+    // ??
+    setTimeout(() => {
+      focusEditor(editor, editor.selection!);
+    }, 0);
   };
 
   const onCancel = () => {
-    api.floatingDirective.show("hide", editor.id);
+    api.floatingDirective.hide();
     focusEditor(editor, editor.selection!);
   };
 
