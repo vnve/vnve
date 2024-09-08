@@ -2,10 +2,10 @@ import React from "react";
 
 import type { DropdownMenuProps } from "@radix-ui/react-dropdown-menu";
 
-import { BlockquotePlugin } from "@udecode/plate-block-quote/react";
-import { ParagraphPlugin, insertEmptyElement } from "@udecode/plate-common";
+// import { BlockquotePlugin } from "@udecode/plate-block-quote/react";
+// import { ParagraphPlugin, insertEmptyElement } from "@udecode/plate-common";
 import { focusEditor, useEditorRef } from "@udecode/plate-common/react";
-import { HEADING_KEYS } from "@udecode/plate-heading";
+// import { HEADING_KEYS } from "@udecode/plate-heading";
 
 import { Icons } from "@/components/icons";
 
@@ -19,41 +19,38 @@ import {
   useOpenState,
 } from "./dropdown-menu";
 import { ToolbarButton } from "./toolbar";
-import { LinkPlugin, triggerFloatingLink } from "@udecode/plate-link/react";
+import { getDirectiveOnSelectItem } from "../plugin/getDirectiveOnSelectItem";
+import { DirectivePlugin } from "../plugin/DirectivePlugin";
+
+const addDirective = getDirectiveOnSelectItem();
 
 const items = [
   {
     items: [
       {
-        description: "Link",
-        icon: Icons.link,
-        label: "Link",
-        value: LinkPlugin.key,
+        description: "指令",
+        icon: Icons.add,
+        label: "指令",
+        value: DirectivePlugin.key,
       },
-      {
-        description: "Heading 1",
-        icon: Icons.h1,
-        label: "Heading 1",
-        value: HEADING_KEYS.h1,
-      },
-      {
-        description: "Heading 2",
-        icon: Icons.h2,
-        label: "Heading 2",
-        value: HEADING_KEYS.h2,
-      },
-      {
-        description: "Heading 3",
-        icon: Icons.h3,
-        label: "Heading 3",
-        value: HEADING_KEYS.h3,
-      },
-      {
-        description: "Quote (⌘+⇧+.)",
-        icon: Icons.blockquote,
-        label: "Quote",
-        value: BlockquotePlugin.key,
-      },
+      // {
+      //   description: "Heading 1",
+      //   icon: Icons.h1,
+      //   label: "Heading 1",
+      //   value: HEADING_KEYS.h1,
+      // },
+      // {
+      //   description: "Heading 2",
+      //   icon: Icons.h2,
+      //   label: "Heading 2",
+      //   value: HEADING_KEYS.h2,
+      // },
+      // {
+      //   description: "Heading 3",
+      //   icon: Icons.h3,
+      //   label: "Heading 3",
+      //   value: HEADING_KEYS.h3,
+      // },
       // {
       //   value: TablePlugin.key,
       //   label: 'Table',
@@ -190,15 +187,14 @@ export function InsertDropdownMenu(props: DropdownMenuProps) {
                       //
                       //   break;
                       // }
-                      case LinkPlugin.key: {
-                        triggerFloatingLink(editor, { focused: true });
+                      // case LinkPlugin.key: {
+                      //   triggerFloatingLink(editor, { focused: true });
 
-                        break;
-                      }
+                      //   break;
+                      // }
                       default: {
-                        insertEmptyElement(editor, type, {
-                          nextBlock: true,
-                          select: true,
+                        addDirective(editor, {
+                          value: { directive: "Show", params: {} },
                         });
                       }
                     }
