@@ -1,16 +1,24 @@
 import React from "react";
 
-import type { TDirectiveElement } from "../plugin/DirectivePlugin";
+import {
+  DirectivePlugin,
+  type TDirectiveElement,
+} from "../plugin/directive/DirectivePlugin";
 
 import { cn, withRef } from "@udecode/cn";
 import { getHandler } from "@udecode/plate-common";
-import { PlateElement, useElement } from "@udecode/plate-common/react";
+import {
+  PlateElement,
+  useEditorPlugin,
+  useElement,
+} from "@udecode/plate-common/react";
 import { useFocused, useSelected } from "slate-react";
+import { triggerFloatingDirective } from "../plugin/directive";
 
 export const DirectiveElement = withRef<
   typeof PlateElement,
   {
-    onClick?: (directiveNode: any) => void;
+    onClick?: (directiveNode: TDirectiveElement) => void;
     prefix?: string;
     renderLabel?: (directiveElement: TDirectiveElement) => string;
   }
@@ -18,6 +26,12 @@ export const DirectiveElement = withRef<
   const element = useElement<TDirectiveElement>();
   const selected = useSelected();
   const focused = useFocused();
+  const { editor } = useEditorPlugin(DirectivePlugin);
+  const onClickElement = () => {
+    triggerFloatingDirective(editor, {
+      directiveElement: element,
+    });
+  };
 
   return (
     <PlateElement
@@ -30,7 +44,7 @@ export const DirectiveElement = withRef<
         className,
       )}
       contentEditable={false}
-      onClick={getHandler(onClick, element)}
+      onClick={onClickElement}
       ref={ref}
       {...props}
     >

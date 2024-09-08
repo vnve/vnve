@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import type { DropdownMenuProps } from "@radix-ui/react-dropdown-menu";
 
@@ -19,10 +19,7 @@ import {
   useOpenState,
 } from "./dropdown-menu";
 import { ToolbarButton } from "./toolbar";
-import { getDirectiveOnSelectItem } from "../plugin/getDirectiveOnSelectItem";
-import { DirectivePlugin } from "../plugin/DirectivePlugin";
-
-const addDirective = getDirectiveOnSelectItem();
+import { DirectivePlugin, triggerFloatingDirective } from "../plugin/directive";
 
 const items = [
   {
@@ -193,9 +190,7 @@ export function InsertDropdownMenu(props: DropdownMenuProps) {
                       //   break;
                       // }
                       default: {
-                        addDirective(editor, {
-                          value: { directive: "Show", params: {} },
-                        });
+                        triggerFloatingDirective(editor);
                       }
                     }
 

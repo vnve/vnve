@@ -28,19 +28,24 @@ import { FixedToolbarButtons } from "@/components/plate-ui/fixed-toolbar-buttons
 import { withPlaceholders } from "@/components/plate-ui/placeholder";
 import { LinkFloatingToolbar } from "@/components/plate-ui/link-floating-toolbar";
 import { LinkElement } from "@/components/plate-ui/link-element";
-import { DirectivePlugin } from "./plugin/DirectivePlugin";
+import { DirectivePlugin } from "./plugin/directive/DirectivePlugin";
 import { DirectiveElement } from "@/components/plate-ui/directive-element";
+import { DirectiveFloatingToolbar } from "./plate-ui/directive-floating-toolbar";
 
 const editor = createPlateEditor({
   plugins: [
     ParagraphPlugin,
-    DirectivePlugin,
+    DirectivePlugin.extend({
+      render: {
+        afterEditable: () => <DirectiveFloatingToolbar />,
+      },
+    }),
     // BoldPlugin,
     // ItalicPlugin,
     // FontColorPlugin,
     // FontBackgroundColorPlugin,
     // FontSizePlugin,
-    // NodeIdPlugin,
+    NodeIdPlugin,
     DeletePlugin,
   ],
   override: {
