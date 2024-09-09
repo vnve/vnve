@@ -1,6 +1,9 @@
 import * as PIXI from "pixi.js";
 import gsap from "gsap";
 import { AnimationDirective, AnimationDirectiveOptions } from "../base";
+import { Speaker, SpeakerDirectiveOptions } from "./Speaker";
+import { Voice, VoiceDirectiveOptions } from "../sound";
+import { Scene } from "../../../scene";
 
 export interface SpeakDirectiveOptions extends AnimationDirectiveOptions {
   text: string;
@@ -8,10 +11,15 @@ export interface SpeakDirectiveOptions extends AnimationDirectiveOptions {
   interval?: number;
   append?: boolean;
   effect?: "typewriter" | "fadeIn";
+  alignWithVoice?: boolean;
+  speaker?: SpeakerDirectiveOptions;
+  voice?: VoiceDirectiveOptions;
 }
 
 export class Speak extends AnimationDirective<PIXI.Text> {
   protected options: SpeakDirectiveOptions;
+  private speakerDirective?: Speaker;
+  private voiceDirective?: Voice;
 
   constructor(options: SpeakDirectiveOptions, stage: PIXI.Container) {
     super(options, stage);
@@ -21,6 +29,15 @@ export class Speak extends AnimationDirective<PIXI.Text> {
       effect: "typewriter",
       ...options,
     };
+    const { speaker, voice } = this.options;
+
+    if (speaker) {
+      this.speakerDirective = new Speaker(speaker, stage);
+    }
+
+    if (voice) {
+      this.voiceDirective = new Voice(voice, this.stage as Scene);
+    }
   }
 
   public execute(): void {
@@ -47,6 +64,9 @@ export class Speak extends AnimationDirective<PIXI.Text> {
         this.fadeIn(fromText, toText);
         break;
     }
+
+    this.speakerDirective?.execute();
+    this.voiceDirective?.execute();
   }
 
   private typewriter(fromText: string, toText: string) {
@@ -95,14 +115,20 @@ export class Speak extends AnimationDirective<PIXI.Text> {
   }
 
   public getDuration(): number {
-    const { sequential, text, wordsPerMin, interval } = this.options;
+    const { sequential, text, wordsPerMin, interval, alignWithVoice } =
+      this.options;
+    let duration = this.readingTime(text, wordsPerMin) + (interval ?? 0);
 
-    return sequential
-      ? this.readingTime(text, wordsPerMin) + (interval ?? 0)
-      : 0;
+    if (alignWithVoice) {
+      const voiceDuration = this.voiceDirective?.getDuration() ?? 0;
+
+      duration = Math.max(duration, voiceDuration);
+    }
+
+    return sequential ? duration : 0;
   }
 
-  readingTime(text: string, wordsPerMin = 600) {
+  private readingTime(text: string, wordsPerMin = 600) {
     if (!text) {
       return 0;
     }

@@ -14,12 +14,10 @@ const InAnimationDirectiveClassMap = {
 export interface SpeakerDirectiveOptions extends AnimationDirectiveOptions {
   name: string;
   speakerTargetName?: string;
-  autoShowSpeaker?: boolean;
-  autoShowSpeakerOptions?: AnimationDirectiveOptions & {
+  autoShowSpeaker?: AnimationDirectiveOptions & {
     inEffect?: "Show" | "FadeIn";
   };
-  autoMaskOtherSpeakers?: boolean;
-  autoMaskOtherSpeakersOptions?: {
+  autoMaskOtherSpeakers?: {
     alpha?: number;
   };
 }
@@ -32,12 +30,10 @@ export class Speaker extends AnimationDirective<PIXI.Text> {
     super(options, stage);
     this.options = merge(
       {
-        autoShowSpeaker: true,
-        autoShowSpeakerOptions: {
+        autoShowSpeaker: {
           inEffect: "Show",
         },
-        autoMaskOtherSpeakers: true,
-        autoMaskOtherSpeakersOptions: {
+        autoMaskOtherSpeakers: {
           alpha: 0.5,
         },
       },
@@ -51,13 +47,7 @@ export class Speaker extends AnimationDirective<PIXI.Text> {
   }
 
   public execute() {
-    const {
-      name,
-      autoShowSpeaker,
-      autoShowSpeakerOptions,
-      autoMaskOtherSpeakers,
-      autoMaskOtherSpeakersOptions,
-    } = this.options;
+    const { name, autoShowSpeaker, autoMaskOtherSpeakers } = this.options;
 
     if (this.target) {
       this.target.visible = true;
@@ -66,13 +56,13 @@ export class Speaker extends AnimationDirective<PIXI.Text> {
 
     // 如果已经展示，则无需重复执行入场动画
     if (autoShowSpeaker && this.speakerTarget && !this.speakerTarget.visible) {
-      const { inEffect = "Show" } = autoShowSpeakerOptions || {};
+      const { inEffect = "Show" } = autoShowSpeaker;
       const InDirectiveClass = InAnimationDirectiveClassMap[inEffect];
 
       new InDirectiveClass(
         {
+          ...autoShowSpeaker,
           targetName: this.speakerTarget.name!,
-          ...(autoShowSpeakerOptions || {}),
         },
         this.stage,
       ).execute();
@@ -82,7 +72,7 @@ export class Speaker extends AnimationDirective<PIXI.Text> {
     // 1. 假如Speaker存在遮罩，去除Speaker的遮罩
     // 2. 假如其他元素没有遮罩，自动加上遮罩
     if (autoMaskOtherSpeakers) {
-      const { alpha = 0.5 } = autoMaskOtherSpeakersOptions || {};
+      const { alpha = 0.5 } = autoMaskOtherSpeakers;
 
       if (this.speakerTarget && this.checkMaskFilter(this.speakerTarget)) {
         this.removeMaskFilter(this.speakerTarget);

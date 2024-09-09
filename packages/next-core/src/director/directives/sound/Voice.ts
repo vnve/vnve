@@ -2,21 +2,18 @@ import { Scene } from "../../../scene";
 import { soundController } from "../../lib/SoundController";
 import { SoundDirective, SoundDirectiveOptions } from "../base";
 
-export interface PlayDirectiveOptions extends SoundDirectiveOptions {
-  start?: number;
+export interface VoiceDirectiveOptions extends SoundDirectiveOptions {
   volume?: number;
-  loop?: boolean;
-  untilEnd?: boolean;
 }
 
-export class Play extends SoundDirective {
-  protected options: PlayDirectiveOptions;
-  constructor(options: PlayDirectiveOptions, stage: Scene) {
+export class Voice extends SoundDirective {
+  protected options: VoiceDirectiveOptions;
+  constructor(options: VoiceDirectiveOptions, stage: Scene) {
     super(options, stage);
     this.options = options;
   }
 
-  public execute(): void {
+  public execute() {
     soundController.play(this.target, this.options);
   }
 
