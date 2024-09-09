@@ -19,7 +19,8 @@ import { buttonVariants } from "./button";
 import { inputVariants } from "./input";
 import { popoverVariants } from "./popover";
 import { Separator } from "./separator";
-import { useFloatingDirectiveInsert } from "../plugin/directive";
+import { DirectivePlugin, useFloatingDirective } from "../plugin/directive";
+import { DirectiveForm } from "./directive-form";
 
 const floatingOptions: UseVirtualFloatingOptions = {
   middleware: [
@@ -36,43 +37,17 @@ export function DirectiveFloatingToolbar() {
   const inputProps = useFormInputProps({
     preventDefaultOnEnterKeydown: true,
   });
+  const { useOption } = useEditorPlugin(DirectivePlugin);
+  const editingDirective = useOption("editingDirective");
   const {
     ref: insertRef,
     props: insertProps,
-    onInsert,
-  } = useFloatingDirectiveInsert({
+    onSubmit,
+    onCancel,
+  } = useFloatingDirective({
     floatingOptions,
     triggerFloatingLinkHotkeys: "mod+k", // TODO: change to mod+d
   });
-
-  const input = (
-    <div className="flex w-[330px] flex-col" {...inputProps}>
-      <div className="flex items-center">
-        <div className="flex items-center pl-3 text-muted-foreground">
-          <Icons.link className="size-4" />
-        </div>
-      </div>
-      <Separator />
-      <div className="flex items-center">
-        <div className="flex items-center pl-3 text-muted-foreground">
-          <Icons.text className="size-4" />
-        </div>
-        <input
-          className={inputVariants({ h: "sm", variant: "ghost" })}
-          placeholder="Text to display"
-        />
-        <button
-          onClick={(e) => {
-            onInsert({ value: { directive: "Show", params: {} } });
-            e.stopPropagation();
-            e.preventDefault();
-          }}
-        >
-          加入
-        </button>
-      </div>
-    </div>
-  );
 
   return (
     <div
@@ -80,7 +55,12 @@ export function DirectiveFloatingToolbar() {
       {...insertProps}
       ref={insertRef}
     >
-      {input}
+      <div className="flex w-[330px] flex-col p-2" {...inputProps}>
+        <DirectiveForm
+          editingDirective={editingDirective}
+          onSubmitDirective={onSubmit}
+        ></DirectiveForm>
+      </div>
     </div>
   );
 }

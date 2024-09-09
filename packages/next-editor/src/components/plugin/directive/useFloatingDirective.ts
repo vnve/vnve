@@ -1,5 +1,5 @@
 import React from "react";
-import { moveSelection } from "@udecode/plate-common";
+import { findNode, moveSelection } from "@udecode/plate-common";
 import {
   focusEditor,
   useComposedRef,
@@ -13,9 +13,13 @@ import {
   getSelectionBoundingClientRect,
 } from "@udecode/plate-floating";
 import { useFocused } from "slate-react";
-import { DirectivePlugin, TDirectiveElementBase } from "./DirectivePlugin";
+import {
+  DirectivePlugin,
+  TDirectiveElement,
+  TDirectiveValue,
+} from "./DirectivePlugin";
 
-export function useFloatingDirectiveInsert({
+export function useFloatingDirective({
   triggerFloatingLinkHotkeys,
   floatingOptions,
 }: {
@@ -26,10 +30,11 @@ export function useFloatingDirectiveInsert({
     useEditorPlugin(DirectivePlugin);
   const mode = useOption("mode");
   const isOpen = useOption("isOpen", editor.id);
+  const editingDirective = useOption("editingDirective");
   const floating = useVirtualFloating({
     onOpenChange: (open) => setOption("openEditorId", open ? editor.id : null),
     getBoundingClientRect: getSelectionBoundingClientRect,
-    open: isOpen && mode === "insert",
+    open: isOpen && ["insert", "edit"].includes(mode),
     whileElementsMounted: () => {},
     ...floatingOptions,
   });
@@ -37,7 +42,7 @@ export function useFloatingDirectiveInsert({
 
   const ref = useOnClickOutside(
     () => {
-      if (getOptions().mode === "insert") {
+      if (["insert", "edit"].includes(getOptions().mode)) {
         api.floatingDirective.hide();
         focusEditor(editor, editor.selection!);
       }
@@ -75,8 +80,8 @@ export function useFloatingDirectiveInsert({
   // TODO: do quick escape
   // useFloatingLinkEscape();
 
-  const onInsert = (item: TDirectiveElementBase) => {
-    tf.insert.directive({ value: item.value });
+  const onInsert = (value: TDirectiveValue) => {
+    tf.insert.directive({ value });
 
     // move the selection after the element
     moveSelection(editor, { unit: "offset" });
@@ -86,6 +91,28 @@ export function useFloatingDirectiveInsert({
     setTimeout(() => {
       focusEditor(editor, editor.selection!);
     }, 0);
+  };
+
+  const onEdit = (value: TDirectiveValue) => {
+    const at = editor.selection;
+    const [, hitPath] = findNode<TDirectiveElement>(editor, {
+      at,
+      match: { type: editor.getType(DirectivePlugin), id: editingDirective.id },
+    });
+    tf.edit.directive({
+      value,
+      at: hitPath,
+    });
+
+    api.floatingDirective.hide();
+  };
+
+  const onSubmit = (value: TDirectiveValue) => {
+    if (editingDirective) {
+      onEdit(value);
+    } else {
+      onInsert(value);
+    }
   };
 
   const onCancel = () => {
@@ -101,7 +128,7 @@ export function useFloatingDirectiveInsert({
       },
     },
     ref: useComposedRef<HTMLDivElement>(floating.refs.setFloating, ref),
-    onInsert,
+    onSubmit,
     onCancel,
   };
 }

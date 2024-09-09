@@ -29,11 +29,16 @@ export type DirectiveConfig = PluginConfig<
     openEditorId: string | null;
     isEditing: boolean;
     mode: FloatingDirectiveMode;
+    editingDirective: TDirectiveElement | null;
   },
   {
     floatingDirective: {
       hide: () => void;
-      show: (mode: FloatingDirectiveMode, editorId: string) => void;
+      show: (
+        mode: FloatingDirectiveMode,
+        editorId: string,
+        editingDirective: TDirectiveElement | null,
+      ) => void;
     };
   },
   {
@@ -59,6 +64,7 @@ export const DirectivePlugin = toPlatePlugin(
       openEditorId: null,
       isEditing: false,
       mode: "",
+      editingDirective: null,
     },
   })
     .extendOptions(({ getOptions }) => ({
@@ -71,13 +77,19 @@ export const DirectivePlugin = toPlatePlugin(
             isEditing: false,
             mode: "",
             openEditorId: null,
+            editingDirective: null,
           });
         },
-        show: (mode: FloatingDirectiveMode, editorId: string) => {
+        show: (
+          mode: FloatingDirectiveMode,
+          editorId: string,
+          editingDirective: TDirectiveElement | null,
+        ) => {
           setOptions({
             isEditing: false,
             mode,
             openEditorId: editorId,
+            editingDirective,
           });
         },
       },

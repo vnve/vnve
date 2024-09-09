@@ -1,8 +1,4 @@
-import {
-  type SlateEditor,
-  findNode,
-  getEditorPlugin,
-} from "@udecode/plate-common";
+import { type SlateEditor, getEditorPlugin } from "@udecode/plate-common";
 import { DirectivePlugin, TDirectiveElement } from "./DirectivePlugin";
 
 export const triggerFloatingDirective = (
@@ -13,22 +9,10 @@ export const triggerFloatingDirective = (
     directiveElement?: TDirectiveElement;
   } = {},
 ) => {
-  const { api, tf } = getEditorPlugin(editor, DirectivePlugin);
-  const at = editor.selection;
+  const { api } = getEditorPlugin(editor, DirectivePlugin);
 
   if (directiveElement) {
-    const [, hitPath] = findNode<TDirectiveElement>(editor, {
-      at,
-      match: { type: editor.getType(DirectivePlugin), id: directiveElement.id },
-    });
-    // TODO: show edit value
-    tf.edit.directive({
-      value: {
-        directive: "Fade",
-        params: {},
-      },
-      at: hitPath,
-    });
+    api.floatingDirective.show("edit", editor.id, directiveElement);
   } else {
     api.floatingDirective.show("insert", editor.id);
   }
