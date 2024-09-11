@@ -3,6 +3,7 @@ import { Transformer } from "@pixi-essentials/transformer";
 import { Scene, Child } from "../scene";
 import { log, wait } from "../util";
 import { DirectiveConfig, SceneScript, Screenplay } from "../director";
+import { LayerZIndex } from "./constant";
 
 export type EditorChildPosition =
   | "top"
@@ -19,6 +20,7 @@ interface EditorOption {
   background: number;
   onChangeActiveChild: (child?: Child) => void;
   onChangeActiveScene: (scene: Scene) => void;
+  onChangeScenes: (scenes: Scene[]) => void;
 }
 
 export class Editor {
@@ -28,6 +30,7 @@ export class Editor {
     background: 0x000000,
     onChangeActiveChild: () => {},
     onChangeActiveScene: () => {},
+    onChangeScenes: () => {},
   };
   public options: Required<EditorOption>;
   public app: PIXI.Application;
@@ -136,12 +139,16 @@ export class Editor {
     for (const child of scene.children) {
       traverseChild(child);
     }
+
+    this.options.onChangeScenes(this.scenes);
   }
 
   public loadScenes(scenes: Scene[]) {
     scenes.forEach((scene) => {
       this.addScene(scene);
     });
+
+    this.options.onChangeScenes(this.scenes);
   }
 
   public removeScene(scene: Scene) {
@@ -151,6 +158,8 @@ export class Editor {
       this.activeScene.destroy();
       this.activeScene = undefined;
     }
+
+    this.options.onChangeScenes(this.scenes);
   }
 
   public removeSceneByIndex(index: number) {
@@ -174,7 +183,7 @@ export class Editor {
     [this.scenes[a], this.scenes[b]] = [this.scenes[b], this.scenes[a]];
   }
 
-  public renderScene(scene: Scene) {
+  public setActiveScene(scene: Scene) {
     if (this.activeScene) {
       this.stageRemoveChild(this.activeScene);
       this.removeTransformer();
@@ -186,8 +195,8 @@ export class Editor {
     this.options.onChangeActiveScene(scene);
   }
 
-  public renderSceneByIndex(index: number) {
-    this.renderScene(this.scenes[index]);
+  public setActiveSceneByIndex(index: number) {
+    this.setActiveScene(this.scenes[index]);
   }
 
   public addChild(child: Child, targetScene?: Scene) {
@@ -196,6 +205,10 @@ export class Editor {
     if (scene) {
       this.addChildTransformListener(child);
       scene.addChild(child);
+
+      if (!targetScene) {
+        this.options.onChangeActiveScene(scene);
+      }
     }
   }
 
@@ -206,6 +219,10 @@ export class Editor {
       this.removeChildTransformListener(child);
       scene.removeChild(child);
       child.destroy();
+
+      if (!targetScene) {
+        this.options.onChangeActiveScene(scene);
+      }
     }
   }
 
@@ -221,10 +238,19 @@ export class Editor {
     this.activeScene?.swapChildren(child1, child2);
   }
 
+  public moveChildTo(zIndex: LayerZIndex, child?: Child) {
+    const targetChild = child ?? this.activeChild;
+
+    if (targetChild) {
+      targetChild.zIndex = zIndex;
+    }
+  }
+
   public moveChildToTop(child?: Child) {
     const targetChild = child ?? this.activeChild;
 
     if (this.activeScene && targetChild) {
+      targetChild.zIndex = LayerZIndex.Text;
       this.activeScene.setChildIndex(
         targetChild,
         this.activeScene.children.length - 1,
@@ -236,6 +262,7 @@ export class Editor {
     const targetChild = child ?? this.activeChild;
 
     if (this.activeScene && targetChild) {
+      targetChild.zIndex = LayerZIndex.Background;
       this.activeScene?.setChildIndex(targetChild, 0);
     }
   }
@@ -247,10 +274,14 @@ export class Editor {
       const index = this.activeScene.children.indexOf(targetChild);
 
       if (index < this.activeScene.children.length - 1) {
-        this.swapChildren(
-          targetChild,
-          this.activeScene.children[index + 1] as Child,
-        );
+        const higherChild = this.activeScene.children[index + 1];
+
+        // 同步调整zIndex
+        if (higherChild.zIndex > targetChild.zIndex) {
+          targetChild.zIndex = higherChild.zIndex;
+        }
+
+        this.swapChildren(targetChild, higherChild);
       }
     }
   }
@@ -262,10 +293,13 @@ export class Editor {
       const index = this.activeScene.children.indexOf(targetChild);
 
       if (index > 0) {
-        this.swapChildren(
-          targetChild,
-          this.activeScene.children[index - 1] as Child,
-        );
+        const lowerChild = this.activeScene.children[index - 1];
+
+        if (lowerChild.zIndex < targetChild.zIndex) {
+          targetChild.zIndex = lowerChild.zIndex;
+        }
+
+        this.swapChildren(targetChild, lowerChild);
       }
     }
   }
@@ -331,7 +365,6 @@ export class Editor {
             targetName: speakTarget.name,
             name: speaker.label,
             speakerTargetName: speaker.name,
-            autoShowSpeaker: "Show",
           },
         });
       }

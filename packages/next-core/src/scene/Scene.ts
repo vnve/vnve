@@ -35,6 +35,7 @@ export class Scene extends PIXI.Container {
     this.dialogues = [];
     this.sounds = [];
     this.children = [];
+    this.sortableChildren = true;
   }
 
   public getSoundByName(name: string) {

@@ -1,3 +1,4 @@
+import { LayerZIndex } from "../editor";
 import { Scene, Graphics, Text } from "../scene";
 
 export function createMonologueScene() {
@@ -9,6 +10,7 @@ export function createMonologueScene() {
   maskRect.endFill();
   maskRect.x = 0;
   maskRect.y = 0;
+  maskRect.zIndex = LayerZIndex.Dialog;
 
   const lineText = new Text("独白台词", {
     fill: 0xffffff,
@@ -21,6 +23,7 @@ export function createMonologueScene() {
 
   lineText.x = 160;
   lineText.y = 160;
+  lineText.zIndex = LayerZIndex.Text;
 
   scene.addChild(maskRect);
   scene.addChild(lineText);

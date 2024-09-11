@@ -25,6 +25,7 @@ export function copyTo(
   to.label = from.label;
   to.visible = from.visible;
   to.alpha = from.alpha;
+  to.zIndex = from.zIndex;
   if (!ignoreWH) {
     to.width = from.width;
     to.height = from.height;
@@ -41,6 +42,7 @@ export function toJSON(child: Child, ignoreWH = false) {
     label: child.label,
     visible: child.visible,
     alpha: child.alpha,
+    zIndex: child.zIndex,
     transform: getTransformArray(child),
     filters: child.filters?.map((item) => (item as Filter).toJSON()) || null,
   };
@@ -61,6 +63,7 @@ export async function copyFromJSON(from: AnyJSON, to: Child, ignoreWH = false) {
   to.label = from.label;
   to.visible = from.visible;
   to.alpha = from.alpha;
+  to.zIndex = from.zIndex;
   if (!ignoreWH) {
     if (typeof from.width === "number") {
       to.width = from.width;

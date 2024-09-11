@@ -1,3 +1,4 @@
+import { LayerZIndex } from "../editor";
 import { Scene, Text } from "../scene";
 
 export function createTitleScene() {
@@ -12,6 +13,7 @@ export function createTitleScene() {
 
   titleText.x = 1920 / 2 - titleText.width / 2;
   titleText.y = 1080 / 2 - 200;
+  titleText.zIndex = LayerZIndex.Text;
 
   const subtitleText = new Text("副标题", {
     fill: 0xffffff,
@@ -21,6 +23,7 @@ export function createTitleScene() {
 
   subtitleText.x = 1920 / 2 - subtitleText.width / 2;
   subtitleText.y = 1080 / 2 - 40;
+  subtitleText.zIndex = LayerZIndex.Text;
 
   scene.addChild(titleText);
   scene.addChild(subtitleText);

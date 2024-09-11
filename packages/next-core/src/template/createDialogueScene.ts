@@ -1,3 +1,4 @@
+import { LayerZIndex } from "../editor";
 import { Scene, Graphics, Text } from "../scene";
 
 export function createDialogueScene() {
@@ -10,6 +11,7 @@ export function createDialogueScene() {
   dialogRect.endFill();
   dialogRect.x = 0;
   dialogRect.y = 680;
+  dialogRect.zIndex = LayerZIndex.Dialog;
 
   const nameText = new Text("Name", {
     fill: 0xffffff,
@@ -18,6 +20,7 @@ export function createDialogueScene() {
   });
   nameText.x = 160;
   nameText.y = 700;
+  nameText.zIndex = LayerZIndex.Text;
 
   const dialogText = new Text("Text: 一段话一段话", {
     fill: 0xffffff,
@@ -29,6 +32,7 @@ export function createDialogueScene() {
   });
   dialogText.x = 160;
   dialogText.y = 770;
+  dialogText.zIndex = LayerZIndex.Text;
 
   scene.addChild(dialogRect);
   scene.addChild(nameText);
