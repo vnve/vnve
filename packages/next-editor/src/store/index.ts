@@ -3,8 +3,10 @@ import { Child, Editor, Scene } from "@vnve/next-core";
 import { immer } from "zustand/middleware/immer";
 import { immerable } from "immer";
 
-Editor[immerable] = true;
-Scene[immerable] = true;
+// TODO: immerable ?
+// Editor[immerable] = true;
+// Scene[immerable] = true;
+// Child[immerable] = true;
 
 export const useEditorStore = create<{
   editor: Editor;
@@ -15,11 +17,11 @@ export const useEditorStore = create<{
   updateActiveChild(fn: (child: Child) => void): void;
   updateActiveScene(fn: (scene: Scene) => void): void;
 }>()(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   immer<any>((set) => {
-    console.log("create once");
     let editor: Editor;
 
-    // editor中所有需要在视图中展示的属性需要同步维护在store中
+    // editor中所有需要在视图中展示的属性需要同步维护在store中，方便实现视图状态更新
     // editor中，activeChild和activeScene内部属性的更新，必须通过update方法来更新，直接修改editor中的属性无法完成视图状态更新
     return {
       editor: null, // editor仅提供方法调用，内部属性不用作状态同步
@@ -32,20 +34,18 @@ export const useEditorStore = create<{
           view,
           onChangeActiveChild(child) {
             set((state) => {
-              state.activeChild = child;
+              state.activeChild = { ...child };
             });
           },
           onChangeActiveScene(scene) {
             set((state) => {
-              state.editor.activeScene = scene;
+              state.activeScene = { ...scene };
             });
           },
           onChangeScenes(scenes) {
             set((state) => {
-              // 此时传入的scenes和editor.scenes是同一个引用，所以不需要没法更新
-              // 1. 除非强制覆盖？
-              // 2. 或者把editor内部的更新方式都改了
-              state.editor.scenes = scenes;
+              // 此时传入的scenes和editor.scenes是同一个引用，需要重新解构赋值，触发视图更新
+              state.scenes = [...scenes];
             });
           },
         });
@@ -53,24 +53,6 @@ export const useEditorStore = create<{
         set((state) => {
           state.editor = editor;
         });
-      },
-      updateActiveChild(fn: (child: Child) => void) {
-        set((state) => {
-          if (state.activeChild) {
-            fn(state.activeChild);
-          }
-        });
-
-        fn(editor.activeChild);
-      },
-      updateActiveScene(fn: (scene: Scene) => void) {
-        set((state) => {
-          if (state.editor.activeScene) {
-            fn(state.editor.activeScene);
-          }
-        });
-
-        fn(editor.activeScene);
       },
     };
   }),

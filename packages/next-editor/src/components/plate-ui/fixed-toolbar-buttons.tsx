@@ -16,10 +16,17 @@ import { MarkToolbarButton } from "./mark-toolbar-button";
 import { ModeDropdownMenu } from "./mode-dropdown-menu";
 import { ToolbarGroup } from "./toolbar";
 import { TurnIntoDropdownMenu } from "./turn-into-dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export function FixedToolbarButtons() {
-  const readOnly = useEditorReadOnly();
-
   return (
     <div className="w-full overflow-hidden">
       <div
@@ -28,8 +35,24 @@ export function FixedToolbarButtons() {
           transform: "translateX(calc(-1px))",
         }}
       >
-        {!readOnly && (
+        {
           <>
+            <ToolbarGroup noSeparator>
+              <Select>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select a fruit" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="apple">Apple</SelectItem>
+                    <SelectItem value="banana">Banana</SelectItem>
+                    <SelectItem value="blueberry">Blueberry</SelectItem>
+                    <SelectItem value="grapes">Grapes</SelectItem>
+                    <SelectItem value="pineapple">Pineapple</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </ToolbarGroup>
             <ToolbarGroup noSeparator>
               <InsertDropdownMenu />
             </ToolbarGroup>
@@ -62,7 +85,7 @@ export function FixedToolbarButtons() {
               </MarkToolbarButton>
             </ToolbarGroup> */}
           </>
-        )}
+        }
 
         {/* <div className="grow" />
 

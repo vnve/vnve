@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js";
 import { Transformer } from "@pixi-essentials/transformer";
 import { Scene, Child } from "../scene";
-import { log, wait } from "../util";
+import { log } from "../util";
 import { DirectiveConfig, SceneScript, Screenplay } from "../director";
 import { LayerZIndex } from "./constant";
 
@@ -114,6 +114,14 @@ export class Editor {
     this.options.onChangeActiveChild(child);
   }
 
+  public updateActiveChild(fn: (child: Child) => void) {
+    if (this.activeChild) {
+      fn(this.activeChild);
+
+      this.options.onChangeActiveChild(this.activeChild);
+    }
+  }
+
   public removeChildTransformListener(child: Child) {
     child.removeAllListeners("click");
   }
@@ -181,6 +189,8 @@ export class Editor {
 
   public swapScene(a: number, b: number) {
     [this.scenes[a], this.scenes[b]] = [this.scenes[b], this.scenes[a]];
+
+    this.options.onChangeScenes(this.scenes);
   }
 
   public setActiveScene(scene: Scene) {
@@ -197,6 +207,14 @@ export class Editor {
 
   public setActiveSceneByIndex(index: number) {
     this.setActiveScene(this.scenes[index]);
+  }
+
+  public updateActiveScene(fn: (scene: Scene) => void) {
+    if (this.activeScene) {
+      fn(this.activeScene);
+
+      this.options.onChangeActiveScene(this.activeScene);
+    }
   }
 
   public addChild(child: Child, targetScene?: Scene) {
