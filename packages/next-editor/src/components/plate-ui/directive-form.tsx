@@ -12,23 +12,43 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { TDirectiveElement, TDirectiveValue } from "../plugin/directive";
 import { useEffect } from "react";
+import {
+  AnimationDirectiveNameList,
+  DirectiveNameOptionGroups,
+} from "@/config";
+import { DirectiveAnimationFormFields } from "@/components/plate-ui/directive-animation-form-fields";
+import { DirectiveName } from "@vnve/next-core";
+import { Switch } from "@/components/ui/switch";
 
 const formSchema = z.object({
-  directive: z.string().min(2, {
-    message: "Username must be at least 2 characters.",
+  directive: z.string().min(1, {
+    message: "指令必选",
   }),
-  params: z.object({}),
+  params: z.object({
+    targetName: z.string().optional(),
+    sequential: z.boolean().optional(),
+  }),
 });
 
 export function DirectiveForm({
   editingDirective,
   onSubmitDirective,
+  onCancel,
 }: {
   editingDirective: TDirectiveElement | null;
   onSubmitDirective: (value: TDirectiveValue) => void;
+  onCancel: () => void;
 }) {
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -52,7 +72,7 @@ export function DirectiveForm({
   function onSubmit(values: z.infer<typeof formSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    console.log(values);
+    console.log("values", JSON.stringify(values, null, 2));
     onSubmitDirective(values);
   }
 
@@ -64,18 +84,59 @@ export function DirectiveForm({
           name="directive"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Directive</FormLabel>
+              <FormLabel>指令</FormLabel>
               <FormControl>
-                <Input placeholder="directive" {...field} />
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="请选择指令" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {DirectiveNameOptionGroups.map((group) => (
+                      <SelectGroup key={group.name}>
+                        <SelectLabel>{group.name}</SelectLabel>
+                        {group.options.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.name}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    ))}
+                  </SelectContent>
+                </Select>
               </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        {AnimationDirectiveNameList.includes(
+          form.getValues("directive") as DirectiveName,
+        ) && (
+          <DirectiveAnimationFormFields
+            form={form}
+          ></DirectiveAnimationFormFields>
+        )}
+        {form.getValues("directive") && (
+          <FormField
+            control={form.control}
+            name="params.sequential"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>串行</FormLabel>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+        <Button size="sm" type="submit">
+          确定
+        </Button>
+        <Button onClick={onCancel}>取消</Button>
       </form>
     </Form>
   );

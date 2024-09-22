@@ -42,10 +42,11 @@ export function useFloatingDirective({
 
   const ref = useOnClickOutside(
     () => {
-      if (["insert", "edit"].includes(getOptions().mode)) {
-        api.floatingDirective.hide();
-        focusEditor(editor, editor.selection!);
-      }
+      // TODO: 与select选择存在冲突，暂时禁用
+      // if (["insert", "edit"].includes(getOptions().mode)) {
+      //   api.floatingDirective.hide();
+      //   focusEditor(editor, editor.selection!);
+      // }
     },
     {
       disabled: !isOpen,

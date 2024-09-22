@@ -26,7 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export function FixedToolbarButtons() {
+export function FixedToolbarButtons({ speaker, onChangeSpeaker }) {
   return (
     <div className="w-full overflow-hidden">
       <div
@@ -38,9 +38,9 @@ export function FixedToolbarButtons() {
         {
           <>
             <ToolbarGroup noSeparator>
-              <Select>
+              <Select value={speaker.name} onValueChange={onChangeSpeaker}>
                 <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select a fruit" />
+                  <SelectValue placeholder="请选择角色" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>

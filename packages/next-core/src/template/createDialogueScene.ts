@@ -12,6 +12,7 @@ export function createDialogueScene() {
   dialogRect.x = 0;
   dialogRect.y = 680;
   dialogRect.zIndex = LayerZIndex.Dialog;
+  dialogRect.label = "对话框";
 
   const nameText = new Text("Name", {
     fill: 0xffffff,
@@ -21,6 +22,7 @@ export function createDialogueScene() {
   nameText.x = 160;
   nameText.y = 700;
   nameText.zIndex = LayerZIndex.Text;
+  nameText.label = "角色名";
 
   const dialogText = new Text("Text: 一段话一段话", {
     fill: 0xffffff,
@@ -33,6 +35,7 @@ export function createDialogueScene() {
   dialogText.x = 160;
   dialogText.y = 770;
   dialogText.zIndex = LayerZIndex.Text;
+  dialogText.label = "对话框文本";
 
   scene.addChild(dialogRect);
   scene.addChild(nameText);

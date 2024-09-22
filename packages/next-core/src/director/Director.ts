@@ -25,33 +25,37 @@ interface RendererOptions {
   renderer?: PIXI.IRenderer;
 }
 
+export type DirectiveName =
+  | "Speak"
+  | "Speaker"
+  | "Show"
+  | "Hide"
+  | "FadeIn"
+  | "FadeOut"
+  | "Wait"
+  | "Play"
+  | "Pause"
+  | "Stop"
+  | "ChangeSource"
+  | "FadeInTransition"
+  | "AddFilter"
+  | "RemoveFilter";
+
+export type DirectiveParams =
+  | Directives.AnimationDirectiveOptions
+  | Directives.SpeakDirectiveOptions
+  | Directives.SpeakerDirectiveOptions
+  | Directives.WaitDirectiveOptions
+  | Directives.SoundDirectiveOptions
+  | Directives.PlayDirectiveOptions
+  | Directives.ChangeSourceDirectiveOptions
+  | Directives.TransitionDirective
+  | Directives.FilterDirectiveOptions
+  | Directives.AddFilterDirectiveOptions;
+
 export interface DirectiveConfig {
-  directive:
-    | "Speak"
-    | "Speaker"
-    | "Show"
-    | "Hide"
-    | "FadeIn"
-    | "FadeOut"
-    | "Wait"
-    | "Play"
-    | "Pause"
-    | "Stop"
-    | "ChangeSource"
-    | "FadeInTransition"
-    | "AddFilter"
-    | "RemoveFilter";
-  params:
-    | Directives.AnimationDirectiveOptions
-    | Directives.SpeakDirectiveOptions
-    | Directives.SpeakerDirectiveOptions
-    | Directives.WaitDirectiveOptions
-    | Directives.SoundDirectiveOptions
-    | Directives.PlayDirectiveOptions
-    | Directives.ChangeSourceDirectiveOptions
-    | Directives.TransitionDirective
-    | Directives.FilterDirectiveOptions
-    | Directives.AddFilterDirectiveOptions;
+  directive: DirectiveName;
+  params: DirectiveParams;
 }
 
 export interface SceneConfig {

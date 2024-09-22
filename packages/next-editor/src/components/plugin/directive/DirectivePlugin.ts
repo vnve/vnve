@@ -7,11 +7,9 @@ import {
   setNodes,
 } from "@udecode/plate-common";
 import { type Location } from "slate";
+import { DirectiveConfig } from "@vnve/next-core";
 
-export interface TDirectiveValue {
-  directive: string;
-  params: any;
-}
+export type TDirectiveValue = DirectiveConfig;
 
 export interface TDirectiveElementBase {
   value: TDirectiveValue;
@@ -23,7 +21,7 @@ export interface TDirectiveElement extends TElement {
 
 export type FloatingDirectiveMode = "" | "insert" | "edit";
 
-export type DirectiveConfig = PluginConfig<
+export type DirectivePluginConfig = PluginConfig<
   "directive",
   {
     openEditorId: string | null;
@@ -70,31 +68,33 @@ export const DirectivePlugin = toPlatePlugin(
     .extendOptions(({ getOptions }) => ({
       isOpen: (editorId: string) => getOptions().openEditorId === editorId,
     }))
-    .extendEditorApi<Partial<DirectiveConfig["api"]>>(({ setOptions }) => ({
-      floatingDirective: {
-        hide: () => {
-          setOptions({
-            isEditing: false,
-            mode: "",
-            openEditorId: null,
-            editingDirective: null,
-          });
+    .extendEditorApi<Partial<DirectivePluginConfig["api"]>>(
+      ({ setOptions }) => ({
+        floatingDirective: {
+          hide: () => {
+            setOptions({
+              isEditing: false,
+              mode: "",
+              openEditorId: null,
+              editingDirective: null,
+            });
+          },
+          show: (
+            mode: FloatingDirectiveMode,
+            editorId: string,
+            editingDirective: TDirectiveElement | null,
+          ) => {
+            setOptions({
+              isEditing: false,
+              mode,
+              openEditorId: editorId,
+              editingDirective,
+            });
+          },
         },
-        show: (
-          mode: FloatingDirectiveMode,
-          editorId: string,
-          editingDirective: TDirectiveElement | null,
-        ) => {
-          setOptions({
-            isEditing: false,
-            mode,
-            openEditorId: editorId,
-            editingDirective,
-          });
-        },
-      },
-    }))
-    .extendEditorTransforms<DirectiveConfig["transforms"]>(
+      }),
+    )
+    .extendEditorTransforms<DirectivePluginConfig["transforms"]>(
       ({ editor, type }) => ({
         insert: {
           directive: ({ value }) => {

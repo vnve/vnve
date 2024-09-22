@@ -1,7 +1,22 @@
-import { Director, Screenplay } from "./src/Director/Director";
-import { Compositor, Previewer } from "./src/connector";
-import { Scene, Text, Graphics, Sound } from "./src";
-// import bgm from "./bgm.mp3";
+import {
+  Compositor,
+  Previewer,
+  Editor,
+  Director,
+  Screenplay,
+  Scene,
+  Text,
+  Graphics,
+  Sound,
+  Sprite,
+  createDialogueScene,
+} from "./src";
+
+const editor = new Editor({
+  view: document.getElementById("canvas") as HTMLCanvasElement,
+  width: 1920,
+  height: 1080,
+});
 
 // const app = new PIXI.Application({
 //   view: document.getElementById("canvas") as HTMLCanvasElement,
@@ -11,137 +26,164 @@ import { Scene, Text, Graphics, Sound } from "./src";
 // });
 const director = new Director({
   // renderer: app.renderer,
+  background: 0xcccccc,
 });
 
-const scene1 = new Scene();
-
-// 创建一个文字
-const text = new Text("哈哈哈哈哈这是", {
+const scene1 = createDialogueScene();
+const sprite = new Sprite({ source: img2 });
+const text = new Text("123123123123", {
+  fontSize: 100,
   fill: 0xffffff,
-  fontFamily: "Arial",
-  fontSize: 30,
-  fontWeight: "bold",
 });
+const sprite2 = new Sprite({ source: img });
 
-text.name = "text";
+sprite2.width = 100;
+sprite2.height = 100;
+sprite2.x = 1000;
 
-const rect = new Graphics();
-rect.name = "rect";
-rect.beginFill(0xff0000);
-rect.drawRect(50, 50, 100, 100);
-rect.endFill();
-
-// const sound = new Sound({ source: bgm });
-
-scene1.addChild(rect);
 scene1.addChild(text);
-// scene1.addSound(sound);
+scene1.addChild(sprite);
+scene1.addChild(sprite2);
 
-const scene2 = scene1.clone();
-
-function genScreenplay() {
-  const screenplay: Screenplay = {
-    scenes: [
+scene1.dialogues = [] || [
+  {
+    speaker: {
+      label: "speaker1",
+      name: sprite.name,
+    },
+    lines: [
       {
-        scene: scene1.name,
-        directives: [
-          {
-            directive: "Wait",
-            params: {
-              duration: 0.1,
-            },
-          },
-          {
-            directive: "FadeIn",
-            params: {
-              targetName: "rect",
-              sequential: true,
-            },
-          },
-          {
-            directive: "Speak",
-            params: {
-              targetName: "text",
-              text: "哈哈哈，这是一段话段话段话段话段话段话",
-              wordsPerMin: 888,
-            },
-          },
-          {
-            directive: "Speak",
-            params: {
-              targetName: "text",
-              text: "暂停，这是一段话段话段话段话段话段话",
-              wordsPerMin: 888,
-            },
-          },
-          {
-            directive: "Wait",
-            params: {
-              duration: 5,
-            },
-          },
+        type: "p",
+        children: [
           // {
-          //   directive: "Speak",
+          //   type: "directive",
+          //   directive: "FadeInTransition",
           //   params: {
-          //     targetName: "text",
-          //     text: "这是增加的话",
-          //     wordsPerMin: 888,
-          //     append: true,
+          //     targetName: sprite.name,
           //   },
           // },
-          // {
-          //   directive: "FadeIn",
-          //   params: {
-          //     targetName: "rect",
-          //   },
-          // },
-          // {
-          //   directive: "Wait",
-          //   params: {
-          //     duration: 3,
-          //   },
-          // },
-          // {
-          //   directive: "Speak",
-          //   params: {
-          //     targetName: "text",
-          //     text: "这是第二句话，哈哈哈，",
-          //     wordsPerMin: 500,
-          //   },
-          // },
-          // {
-          //   directive: "Hide",
-          //   params: {
-          //     targetName: "rect",
-          //   },
-          // },
+          {
+            text: "123123 哈哈哈哈哈哈哈",
+          },
+          {
+            text: "12313123123123",
+          },
         ],
       },
-      // {
-      //   scene: scene2.name,
-      //   directives: [
-      //     {
-      //       directive: "Speak",
-      //       params: {
-      //         targetName: "text",
-      //         text: "哈哈哈，这是第二个场景",
-      //         wordsPerMin: 888,
-      //       },
-      //     },
-      //   ],
-      // },
+      {
+        type: "p",
+        children: [
+          {
+            text: "这事第二 ",
+          },
+          {
+            type: "directive",
+            directive: "AddFilter",
+            params: {
+              targetName: sprite.name,
+              filterName: "OldFilmFilter",
+              // source: img,
+            },
+          },
+          {
+            text: "这事第二这事第二这事第二这事第二",
+          },
+          {
+            type: "directive",
+            directive: "RemoveFilter",
+            params: {
+              targetName: sprite.name,
+              filterName: "OldFilmFilter",
+              // source: img,
+            },
+          },
+          {
+            text: "这事第二这事第二这事第二这事第二",
+          },
+        ],
+      },
     ],
-  };
+  },
+  {
+    speaker: {
+      label: "speaker2",
+      name: sprite2.name,
+    },
+    lines: [
+      {
+        type: "p",
+        children: [
+          // {
+          //   type: "directive",
+          //   directive: "FadeInTransition",
+          //   params: {
+          //     targetName: sprite.name,
+          //   },
+          // },
+          {
+            text: "123123 哈哈哈哈哈哈哈",
+          },
+          {
+            text: "12313123123123",
+          },
+        ],
+      },
+      {
+        type: "p",
+        children: [
+          {
+            text: "这事第二 ",
+          },
+          {
+            type: "directive",
+            directive: "AddFilter",
+            params: {
+              targetName: sprite.name,
+              filterName: "OldFilmFilter",
+              // source: img,
+            },
+          },
+          {
+            text: "这事第二这事第二这事第二这事第二",
+          },
+          // {
+          //   type: "directive",
+          //   directive: "RemoveFilter",
+          //   params: {
+          //     targetName: sprite.name,
+          //     filterName: "OldFilmFilter",
+          //     // source: img,
+          //   },
+          // },
+          {
+            text: "这事第二这事第二这事第二这事第二",
+          },
+        ],
+      },
+    ],
+  },
+];
 
-  return screenplay;
-}
+editor.loadScenes([scene1]);
+editor.setActiveScene(scene1);
+
+document.getElementById("up")?.addEventListener("click", () => {
+  editor.moveUpChild();
+});
+document.getElementById("down")?.addEventListener("click", () => {
+  editor.moveDownChild();
+});
+document.getElementById("top")?.addEventListener("click", () => {
+  editor.moveChildToTop();
+});
+document.getElementById("bottom")?.addEventListener("click", () => {
+  editor.moveChildToBottom();
+});
 
 document
   .getElementById("action-compose")
   ?.addEventListener("click", async () => {
-    await scene1.load();
-
-    const screenplay = genScreenplay();
+    const screenplay = await editor.exportScreenplay();
     const compositor = new Compositor({
       width: 1920,
       height: 1080,
@@ -150,7 +192,7 @@ document
     });
 
     director.connect(compositor);
-    director.action(screenplay, [scene1, scene2]).then((res) => {
+    director.action(screenplay).then((res) => {
       const videoSrc = URL.createObjectURL(res);
       console.log("finish", videoSrc);
       const video = document.createElement("video");
@@ -165,7 +207,7 @@ document
 document
   .getElementById("action-preview")
   ?.addEventListener("click", async () => {
-    const screenplay = genScreenplay();
+    const screenplay = await editor.exportScreenplay();
     const previewer = new Previewer({
       width: 1920,
       height: 1080,
@@ -175,7 +217,7 @@ document
     });
 
     director.connect(previewer);
-    director.action(screenplay, [scene1, scene2]);
+    director.action(screenplay);
   });
 
 document.getElementById("cut")?.addEventListener("click", () => {

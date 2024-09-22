@@ -59,6 +59,7 @@ export function DirectiveFloatingToolbar() {
         <DirectiveForm
           editingDirective={editingDirective}
           onSubmitDirective={onSubmit}
+          onCancel={onCancel}
         ></DirectiveForm>
       </div>
     </div>

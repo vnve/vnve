@@ -1,6 +1,6 @@
 import * as PIXI from "pixi.js";
 import { Transformer } from "@pixi-essentials/transformer";
-import { Scene, Child } from "../scene";
+import { Scene, Child, Dialogue } from "../scene";
 import { log } from "../util";
 import { DirectiveConfig, SceneScript, Screenplay } from "../director";
 import { LayerZIndex } from "./constant";
@@ -252,6 +252,37 @@ export class Editor {
     }
   }
 
+  public addDialogue(dialogue: Dialogue, targetScene?: Scene) {
+    const scene = targetScene ?? this.activeScene;
+
+    if (scene) {
+      scene.addDialogue(dialogue);
+      this.options.onChangeActiveScene(scene);
+    }
+  }
+
+  public updateDialogue(
+    index: number,
+    dialogue: Dialogue,
+    targetScene?: Scene,
+  ) {
+    const scene = targetScene ?? this.activeScene;
+
+    if (scene) {
+      scene.updateDialogue(index, dialogue);
+      this.options.onChangeActiveScene(scene);
+    }
+  }
+
+  public removeDialogue(dialogue: Dialogue, targetScene?: Scene) {
+    const scene = targetScene ?? this.activeScene;
+
+    if (scene) {
+      scene.removeDialogue(dialogue);
+      this.options.onChangeActiveScene(scene);
+    }
+  }
+
   public swapChildren(child1: Child, child2: Child) {
     this.activeScene?.swapChildren(child1, child2);
   }
@@ -404,11 +435,7 @@ export class Editor {
             const child = line.children[index];
 
             if (child.type === "directive") {
-              // TODO: 生成其他指令
-              directives.push({
-                directive: child.directive,
-                params: child.params,
-              });
+              directives.push(child.value);
             } else if (child.text && speakTarget?.text) {
               let text = child.text;
 

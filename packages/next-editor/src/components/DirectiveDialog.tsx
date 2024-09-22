@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-export default function DirectiveDialog({
+export function DirectiveDialog({
   isOpen,
   onClose,
   onSubmit,

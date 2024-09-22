@@ -39,7 +39,7 @@ export const withPlaceholders = (components: any) =>
     {
       hideOnBlur: true,
       key: ParagraphPlugin.key,
-      placeholder: "Type a paragraph",
+      placeholder: "请输入对白",
       query: {
         maxLevel: 1,
       },

@@ -71,6 +71,21 @@ export class Scene extends PIXI.Container {
     }
   }
 
+  public addDialogue(dialogue: Dialogue) {
+    this.dialogues.push(dialogue);
+  }
+
+  public updateDialogue(index: number, dialogue: Dialogue) {
+    this.dialogues[index] = {
+      ...this.dialogues[index],
+      ...dialogue,
+    };
+  }
+
+  public removeDialogue(dialogue: Dialogue) {
+    this.dialogues = this.dialogues.filter((item) => item !== dialogue);
+  }
+
   public clone(): Scene {
     // clone出来scene的name不一样，但子元素的name都是一样的
     const cloned = new Scene();
