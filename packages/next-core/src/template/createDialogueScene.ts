@@ -24,7 +24,7 @@ export function createDialogueScene() {
   nameText.zIndex = LayerZIndex.Text;
   nameText.label = "角色名";
 
-  const dialogText = new Text("Text: 一段话一段话", {
+  const dialogText = new Text("角色台词", {
     fill: 0xffffff,
     wordWrap: true,
     breakWords: true,
@@ -35,7 +35,7 @@ export function createDialogueScene() {
   dialogText.x = 160;
   dialogText.y = 770;
   dialogText.zIndex = LayerZIndex.Text;
-  dialogText.label = "对话框文本";
+  dialogText.label = "角色台词";
 
   scene.addChild(dialogRect);
   scene.addChild(nameText);

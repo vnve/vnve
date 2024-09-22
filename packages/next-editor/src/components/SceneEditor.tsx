@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { useEditorStore } from "@/store";
-import { Text } from "@vnve/next-core";
 import { useEffect } from "react";
 
 export function SceneEditor() {
@@ -13,20 +12,23 @@ export function SceneEditor() {
     initEditor(document.getElementById("editor") as HTMLCanvasElement);
   }, [initEditor]);
 
-  function addText() {
-    const text = new Text("123123123123123", {
-      fill: 0xffffff,
-    });
-    text.label = "文字";
-    text.x = 100;
-    editor.addChild(text);
+  function addCharacter() {
+    //
+  }
+
+  function addBackground() {
+    //
+  }
+
+  function addThing() {
+    //
   }
 
   return (
     <>
       {activeScene && (
         <div>
-          <Button onClick={addText}>增加文字</Button>
+          <Button onClick={addCharacter}>增加角色</Button>
           <div>
             activeChild:
             <div>

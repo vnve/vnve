@@ -11,6 +11,7 @@ export function createMonologueScene() {
   maskRect.x = 0;
   maskRect.y = 0;
   maskRect.zIndex = LayerZIndex.Dialog;
+  maskRect.label = "独白遮罩";
 
   const lineText = new Text("独白台词", {
     fill: 0xffffff,
@@ -24,6 +25,7 @@ export function createMonologueScene() {
   lineText.x = 160;
   lineText.y = 160;
   lineText.zIndex = LayerZIndex.Text;
+  lineText.label = "独白台词";
 
   scene.addChild(maskRect);
   scene.addChild(lineText);
