@@ -21,7 +21,6 @@ export interface DBAsset {
   name: string;
   type: DBAssetType;
   states: IndexableType[];
-  defaultState: number;
 }
 
 export interface DBTemplate {
