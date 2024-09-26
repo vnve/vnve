@@ -1,48 +1,34 @@
-import { IndexableType } from "dexie";
-import { db, DBAssetSource, VNVEDexie } from "./db";
+import { createObjectURL } from "@/lib/utils";
+import { db, DBAssetSource, VNVEDexie } from "@/db";
 
 /**
- * 所有的blob资源统一通过 AssetSourceDB 进行管理
+ * 只给AssetLibrary使用的AssetSource缓存访问
  *
  * 提供缓存能力，避免重复创建 ObjectURL
  */
-class AssetSourceDB {
-  private cacheMap: Map<IndexableType, DBAssetSource> = new Map();
+class AssetLibraryCache {
+  private cacheMap: Map<number, DBAssetSource> = new Map();
   private db: VNVEDexie;
 
   constructor(db: VNVEDexie) {
     this.db = db;
   }
 
-  public createObjectURL(id: IndexableType, blob: Blob) {
-    return `${URL.createObjectURL(blob)}#id=${id}`;
-  }
-
-  public getIdFromObjectURL(url: string): IndexableType {
-    const id = url.match(/#id=(\d+)/);
-
-    if (id) {
-      return parseInt(id[1]);
-    }
-
-    return -1;
-  }
-
-  public async get(id: IndexableType) {
+  public async get(id: number) {
     if (this.cacheMap.has(id)) {
       return this.cacheMap.get(id);
     }
 
     const assetSource = await this.db.assetSource.get(id);
 
-    assetSource.url = this.createObjectURL(id, assetSource.blob);
+    assetSource.url = createObjectURL(assetSource.blob, id);
 
     this.cacheMap.set(id, assetSource);
 
     return assetSource;
   }
 
-  public update(id: IndexableType, assetSource: DBAssetSource) {
+  public update(id: number, assetSource: DBAssetSource) {
     if (this.cacheMap.has(id)) {
       const cacheSource = this.cacheMap.get(id);
 
@@ -50,7 +36,7 @@ class AssetSourceDB {
         URL.revokeObjectURL(cacheSource.url);
       }
 
-      assetSource.url = this.createObjectURL(id, assetSource.blob);
+      assetSource.url = createObjectURL(assetSource.blob, id);
 
       this.cacheMap.set(id, assetSource);
     }
@@ -62,7 +48,7 @@ class AssetSourceDB {
     return this.db.assetSource.add(assetSource);
   }
 
-  public delete(id: IndexableType) {
+  public delete(id: number) {
     if (this.cacheMap.has(id)) {
       const cacheSource = this.cacheMap.get(id);
 
@@ -75,6 +61,15 @@ class AssetSourceDB {
 
     return this.db.assetSource.delete(id);
   }
+
+  public clearCache() {
+    this.cacheMap.forEach((assetSource) => {
+      if (assetSource.url) {
+        URL.revokeObjectURL(assetSource.url);
+      }
+    });
+    this.cacheMap.clear();
+  }
 }
 
-export const assetSourceDB = new AssetSourceDB(db);
+export const assetLibraryCache = new AssetLibraryCache(db);

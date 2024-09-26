@@ -1,23 +1,29 @@
 export class SourceStore {
   static register({
-    get,
-    set,
+    getURL,
+    getID,
+    destroy,
   }: {
-    get: (source: string) => Promise<string>;
-    set: (source: unknown) => string;
+    getURL: (sourceID: string) => Promise<string>;
+    getID: (sourceURL: string) => string;
+    destroy: (sourceURL: string) => void;
   }) {
-    SourceStore.get = get;
-    SourceStore.set = set;
+    SourceStore.getURL = getURL;
+    SourceStore.getID = getID;
+    SourceStore.destroy = destroy;
   }
 
-  // string source => raw source
-  static async get(source: string) {
-    return source;
+  // source id => source url
+  static async getURL(sourceID: string) {
+    return sourceID;
   }
 
-  // raw source => string source
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static set(source: any) {
-    return source;
+  // source url => source id
+  static getID(sourceURL: string) {
+    return sourceURL;
+  }
+
+  static destroy(sourceURL: string) {
+    return;
   }
 }

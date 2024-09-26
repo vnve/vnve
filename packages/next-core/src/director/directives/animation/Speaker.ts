@@ -2,7 +2,7 @@ import * as PIXI from "pixi.js";
 import { AnimationDirective, AnimationDirectiveOptions } from "../base";
 import { Show } from "./Show";
 import { FadeIn } from "./FadeIn";
-import { BlackMaskFilter, Filter } from "../../../scene";
+import { BlackMaskFilter, Filter, Sprite } from "../../../scene";
 import { merge } from "lodash-es";
 
 const AUTO_MASK_FILTER_NAME = "AutoMaskFilter";
@@ -79,10 +79,9 @@ export class Speaker extends AnimationDirective<PIXI.Text> {
       }
 
       this.stage.children.forEach((child) => {
-        // TODO: 需要按照元素类型处理，只有角色才需要加上遮罩
         if (
           child !== this.speakerTarget &&
-          child instanceof PIXI.DisplayObject
+          (child as Sprite).assetType === "Character"
         ) {
           if (!this.checkMaskFilter(child)) {
             this.addMaskFilter(child, alpha);

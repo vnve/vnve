@@ -3,7 +3,7 @@ import { useEditorStore } from "@/store";
 import { useEffect } from "react";
 import { useAssetLibrary } from "@/hooks";
 import { DBAssetType } from "@/db";
-import { Sprite } from "@vnve/next-core";
+import { createSprite } from "@/lib/core";
 
 export function SceneEditor() {
   const initEditor = useEditorStore((state) => state.initEditor);
@@ -20,11 +20,8 @@ export function SceneEditor() {
     const asset = await selectAsset(DBAssetType.Character);
 
     if (asset) {
-      const character = new Sprite({
-        source: asset.states[0].url,
-      });
+      const character = await createSprite(asset);
 
-      character.load();
       editor.addChild(character);
     }
   }

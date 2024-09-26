@@ -1,6 +1,7 @@
 import * as PIXI from "pixi.js";
 import gsap from "gsap";
 import { AnimationDirective, AnimationDirectiveOptions } from "../base";
+import { Sprite } from "../../../scene";
 
 export interface ChangeSourceDirectiveOptions
   extends AnimationDirectiveOptions {
@@ -8,9 +9,7 @@ export interface ChangeSourceDirectiveOptions
   immediate?: boolean;
 }
 
-export class ChangeSource extends AnimationDirective<
-  PIXI.Sprite & { source: string; load: () => Promise<void> }
-> {
+export class ChangeSource extends AnimationDirective<Sprite> {
   protected options: ChangeSourceDirectiveOptions;
 
   constructor(options: ChangeSourceDirectiveOptions, stage: PIXI.Container) {
@@ -23,7 +22,8 @@ export class ChangeSource extends AnimationDirective<
 
   public async execute() {
     const { source, immediate } = this.options;
-    this.target.source = source;
+
+    this.target.changeSource(source);
 
     if (immediate) {
       await this.target.load();

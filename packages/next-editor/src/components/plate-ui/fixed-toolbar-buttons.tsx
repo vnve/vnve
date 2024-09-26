@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 
 import {
   BoldPlugin,
@@ -25,8 +25,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useEditorStore } from "@/store";
+import { Sprite } from "@vnve/next-core";
+import { DBAssetType } from "@/db";
 
 export function FixedToolbarButtons({ speaker, onChangeSpeaker }) {
+  const activeScene = useEditorStore((state) => state.activeScene);
+  const characters = useMemo(() => {
+    if (!activeScene) {
+      return [];
+    }
+
+    return activeScene.children.filter(
+      (child: Sprite) => child.assetType === DBAssetType.Character,
+    );
+  }, [activeScene]);
+
+  const handleSelectCharacter = (name: string) => {
+    onChangeSpeaker(characters.find((character) => character.name === name));
+  };
+
   return (
     <div className="w-full overflow-hidden">
       <div
@@ -38,17 +56,20 @@ export function FixedToolbarButtons({ speaker, onChangeSpeaker }) {
         {
           <>
             <ToolbarGroup noSeparator>
-              <Select value={speaker.name} onValueChange={onChangeSpeaker}>
+              <Select
+                value={speaker.name}
+                onValueChange={handleSelectCharacter}
+              >
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="请选择角色" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectItem value="apple">Apple</SelectItem>
-                    <SelectItem value="banana">Banana</SelectItem>
-                    <SelectItem value="blueberry">Blueberry</SelectItem>
-                    <SelectItem value="grapes">Grapes</SelectItem>
-                    <SelectItem value="pineapple">Pineapple</SelectItem>
+                    {characters.map((character) => (
+                      <SelectItem key={character.name} value={character.name}>
+                        {character.label}
+                      </SelectItem>
+                    ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>

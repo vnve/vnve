@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Compositor, Director, createDialogueScene } from "@vnve/next-core";
 import { useEditorStore } from "@/store";
+import { useAssetLibrary } from "@/hooks";
 
 export function SceneList() {
   const editor = useEditorStore((state) => state.editor);
@@ -49,8 +50,19 @@ export function SceneList() {
     });
   }
 
+  const { selectAsset } = useAssetLibrary();
+
   return (
     <>
+      <Button
+        onClick={() => {
+          selectAsset().then((res) => {
+            console.log("res", res);
+          });
+        }}
+      >
+        打开
+      </Button>
       <Button variant="outline" onClick={addScene}>
         新增场景
       </Button>

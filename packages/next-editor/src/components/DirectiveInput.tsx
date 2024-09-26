@@ -76,12 +76,12 @@ export function DirectiveInput({ value, onChange }) {
         <FixedToolbar>
           <FixedToolbarButtons
             speaker={value.speaker}
-            onChangeSpeaker={(speakerName) => {
+            onChangeSpeaker={(speaker) => {
               onChange({
                 ...value,
                 speaker: {
-                  label: speakerName, // TODO: 根据name获取label
-                  name: speakerName,
+                  label: speaker.label,
+                  name: speaker.name,
                 },
               });
             }}
