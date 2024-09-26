@@ -18,26 +18,30 @@ export function SceneDetail() {
 
   return (
     <>
-      <Button onClick={addDialogue}>新增对白</Button>
-      {activeScene?.dialogues.map((dialogue, index) => {
-        return (
-          <div key={index}>
-            <DirectiveInput
-              value={dialogue}
-              onChange={(value) => {
-                editor.updateDialogue(index, value);
-              }}
-            ></DirectiveInput>
-            <Button
-              onClick={() => {
-                editor.removeDialogue(dialogue);
-              }}
-            >
-              删除
-            </Button>
-          </div>
-        );
-      })}
+      {activeScene && (
+        <>
+          {activeScene?.dialogues.map((dialogue, index) => {
+            return (
+              <div key={index}>
+                <DirectiveInput
+                  value={dialogue}
+                  onChange={(value) => {
+                    editor.updateDialogue(index, value);
+                  }}
+                ></DirectiveInput>
+                <Button
+                  onClick={() => {
+                    editor.removeDialogue(dialogue);
+                  }}
+                >
+                  删除
+                </Button>
+              </div>
+            );
+          })}
+          <Button onClick={addDialogue}>新增对白</Button>
+        </>
+      )}
     </>
   );
 }

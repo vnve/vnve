@@ -4,6 +4,15 @@ import { Button } from "@/components/ui/button";
 import { assetDB, DBAsset, DBAssetType } from "@/db";
 import { useAssetStore } from "@/store";
 import { assetLibraryCache } from "./AssetLibraryCache";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export function AssetLibrary() {
   const isOpen = useAssetStore((state) => state.isOpen);
@@ -97,62 +106,83 @@ export function AssetLibrary() {
   };
 
   return (
-    isOpen && (
-      <div className="fixed top-0 left-0 w-full h-full bg-gray-200">
-        AssetLibrary <Button onClick={handleClose}>关闭</Button>
-        <input
-          type="text"
-          value={assetName}
-          onChange={(e) => setAssetName(e.target.value)}
-        />
-        <Button onClick={handleAddAsset}>add Asset</Button>
-        <ul>
-          {assetList?.map((asset) => {
-            return (
-              <li key={asset.id}>
-                <p onClick={() => confirm(asset)}>
-                  {asset.id} {asset.name}
-                </p>
-                <Button onClick={() => handleDeleteAsset(asset)}>delete</Button>
-
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent className="min-w-[90vw] min-h-[90vh]">
+        <DialogHeader>
+          <DialogTitle>素材库</DialogTitle>
+          <DialogDescription></DialogDescription>
+          <Tabs defaultValue={DBAssetType.Character} className="w-full">
+            <TabsList>
+              <TabsTrigger value={DBAssetType.Character}>角色</TabsTrigger>
+              <TabsTrigger value={DBAssetType.Background}>背景</TabsTrigger>
+              <TabsTrigger value={DBAssetType.Thing}>物品</TabsTrigger>
+              <TabsTrigger value={DBAssetType.Audio}>音频</TabsTrigger>
+              {/* <TabsTrigger value={DBAssetType.Video}>视频</TabsTrigger> */}
+            </TabsList>
+            <TabsContent value={DBAssetType.Character}>
+              <ScrollArea className="h-[500px]">
+                <input
+                  type="text"
+                  value={assetName}
+                  onChange={(e) => setAssetName(e.target.value)}
+                />
+                <Button onClick={handleAddAsset}>add Asset</Button>
                 <ul>
-                  {asset.states.map((state) => {
+                  {assetList?.map((asset) => {
                     return (
-                      <li key={state.id}>
-                        <b>{state.name}</b>
-                        <img
-                          className="w-[160px] h-[90px]"
-                          src={state.url}
-                          alt={state.name}
-                        />
-                        <Button
-                          onClick={() =>
-                            handleDeleteAssetState(asset, state.id)
-                          }
-                        >
-                          delete AssetState
+                      <li key={asset.id}>
+                        <p onClick={() => confirm(asset)}>
+                          {asset.id} {asset.name}
+                        </p>
+                        <Button onClick={() => handleDeleteAsset(asset)}>
+                          delete
                         </Button>
+
+                        <ul>
+                          {asset.states.map((state) => {
+                            return (
+                              <li key={state.id}>
+                                <b>{state.name}</b>
+                                <img
+                                  className="w-[160px] h-[90px]"
+                                  src={state.url}
+                                  alt={state.name}
+                                />
+                                <Button
+                                  onClick={() =>
+                                    handleDeleteAssetState(asset, state.id)
+                                  }
+                                >
+                                  delete AssetState
+                                </Button>
+                              </li>
+                            );
+                          })}
+
+                          <li>
+                            <input
+                              type="text"
+                              value={assetStateName}
+                              onChange={(e) =>
+                                setAssetStateName(e.target.value)
+                              }
+                            />
+                            <input type="file" ref={fileInputRef} />
+                            <Button onClick={() => handleAddAssetState(asset)}>
+                              add AssetState
+                            </Button>
+                          </li>
+                        </ul>
                       </li>
                     );
                   })}
-
-                  <li>
-                    <input
-                      type="text"
-                      value={assetStateName}
-                      onChange={(e) => setAssetStateName(e.target.value)}
-                    />
-                    <input type="file" ref={fileInputRef} />
-                    <Button onClick={() => handleAddAssetState(asset)}>
-                      add AssetState
-                    </Button>
-                  </li>
                 </ul>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-    )
+              </ScrollArea>
+            </TabsContent>
+            <TabsContent value={DBAssetType.Background}></TabsContent>
+          </Tabs>
+        </DialogHeader>
+      </DialogContent>
+    </Dialog>
   );
 }
