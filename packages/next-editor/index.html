@@ -45,6 +45,25 @@
       s.parentNode.insertBefore(hm, s);
     })();
     </script>
+    <script>
+      // 注册sw.js
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker.register("/sw.js").then(
+            function (registration) {
+              // TODO: 需要确保注册成功
+              console.log(
+                "ServiceWorker registration successful with scope: ",
+                registration.scope,
+              );
+            },
+            function (err) {
+              console.log("ServiceWorker registration failed: ", err);
+            },
+          );
+        });
+      }
+    </script>
   </head>
   <body>
     <div id="loader">

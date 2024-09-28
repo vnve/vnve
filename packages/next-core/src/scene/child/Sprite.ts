@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js";
 import { uuid } from "../../util";
 import { DisplayChild, copyFromJSON, copyTo, toJSON } from "./Child";
-import { Assets, SourceStore } from "../../assets";
+import { Assets } from "../../assets";
 
 interface SpriteOptions {
   source: string;
@@ -24,7 +24,6 @@ export class Sprite extends PIXI.Sprite implements DisplayChild {
   }
 
   public changeSource(source: string) {
-    SourceStore.destroy(this.source);
     this.source = source;
   }
 
@@ -53,23 +52,17 @@ export class Sprite extends PIXI.Sprite implements DisplayChild {
     return cloned;
   }
 
-  public destroy() {
-    SourceStore.destroy(this.source);
-    super.destroy();
-  }
-
   public toJSON() {
     return {
       ...toJSON(this, this.shouldUseCustomDimensions()),
-      source: SourceStore.getID(this.source),
+      source: this.source,
       assetID: this.assetID,
       assetType: this.assetType,
     };
   }
 
   static async fromJSON(json: AnyJSON) {
-    const source = await SourceStore.getURL(json.source);
-    const img = new Sprite({ source });
+    const img = new Sprite({ source: json.source });
 
     img.assetID = json.assetID;
     img.assetType = json.assetType;

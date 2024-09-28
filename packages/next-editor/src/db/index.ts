@@ -1,4 +1,3 @@
-import { createObjectURL } from "@/lib/utils";
 import Dexie, { Table } from "dexie";
 
 export enum DBAssetType {
@@ -13,14 +12,13 @@ export interface DBAssetSource {
   id?: number;
   mime: string;
   blob: Blob;
-  url?: string;
+  ext: string;
 }
 
 export interface DBAssetState {
   id: number;
   name: string;
-  url?: string;
-  type?: "remote" | "local";
+  ext: string;
 }
 
 export interface DBAsset {
@@ -54,7 +52,7 @@ export class VNVEDexie extends Dexie {
     super("vnve2");
     this.version(1).stores({
       asset: "++id, name, type, states",
-      assetSource: "++id, mime, blob",
+      assetSource: "++id, mime, blob, ext",
       template: "++id, name, type, content",
       draft: "++id, name, time, content",
     });
@@ -67,8 +65,6 @@ export const assetSourceDB = db.assetSource;
 export const templateDB = db.template;
 export const draftDB = db.draft;
 
-export const getAssetSourceURL = async (id: number) => {
-  const assetSource = await assetSourceDB.get(id);
-
-  return createObjectURL(assetSource.blob, id);
+export const getAssetSourceURL = (id: number, extension: string) => {
+  return `https://s/${id}.${extension}`;
 };

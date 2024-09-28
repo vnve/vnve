@@ -1,4 +1,3 @@
-import { SourceStore } from "../assets";
 import { fetchAudioBuffer, reviveList, uuid } from "../util";
 
 export interface ISoundOption {
@@ -23,7 +22,6 @@ export class Sound {
   }
 
   public changeSource(source: string) {
-    SourceStore.destroy(this.source);
     this.source = source;
   }
 
@@ -47,15 +45,14 @@ export class Sound {
     return {
       __type: "Sound",
       ...json,
-      source: SourceStore.getID(this.source),
+      source: this.source,
       assetID: this.assetID,
       assetType: this.assetType,
     };
   }
 
   static async fromJSON(json: AnyJSON) {
-    const source = await SourceStore.getURL(json.source);
-    const sound = new Sound({ source });
+    const sound = new Sound({ source: json.source });
 
     copyTo(json as Sound, sound, true);
 
@@ -63,7 +60,6 @@ export class Sound {
   }
 
   public destroy() {
-    SourceStore.destroy(this.source);
     this.buffer = undefined;
   }
 }
