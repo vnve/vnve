@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,7 @@ const formSchema = z.object({
   }),
   params: z.object({
     targetName: z.string().optional(),
+    source: z.string().optional(),
     sequential: z.boolean().optional(),
   }),
 });
@@ -57,6 +58,10 @@ export function DirectiveForm({
       directive: "",
       params: {},
     },
+  });
+  const directive = useWatch({
+    control: form.control,
+    name: "directive",
   });
 
   useEffect(() => {
@@ -108,14 +113,12 @@ export function DirectiveForm({
             </FormItem>
           )}
         />
-        {AnimationDirectiveNameList.includes(
-          form.getValues("directive") as DirectiveName,
-        ) && (
+        {AnimationDirectiveNameList.includes(directive as DirectiveName) && (
           <DirectiveAnimationFormFields
             form={form}
           ></DirectiveAnimationFormFields>
         )}
-        {form.getValues("directive") && (
+        {directive && (
           <FormField
             control={form.control}
             name="params.sequential"
@@ -136,7 +139,9 @@ export function DirectiveForm({
         <Button size="sm" type="submit">
           确定
         </Button>
-        <Button onClick={onCancel}>取消</Button>
+        <Button size="sm" onClick={onCancel}>
+          取消
+        </Button>
       </form>
     </Form>
   );

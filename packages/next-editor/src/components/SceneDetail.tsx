@@ -1,12 +1,14 @@
 import { DirectiveInput } from "@/components/DirectiveInput";
 import { Button } from "@/components/ui/button";
 import { useEditorStore } from "@/store";
+import { Input } from "@/components/ui/input";
+import { Label } from "./ui/label";
 
 export function SceneDetail() {
   const editor = useEditorStore((state) => state.editor);
   const activeScene = useEditorStore((state) => state.activeScene);
 
-  function addDialogue() {
+  function handleAddDialogue() {
     editor.addDialogue({
       speaker: {
         name: "",
@@ -16,11 +18,27 @@ export function SceneDetail() {
     });
   }
 
+  function handleChangeSceneName(value: string) {
+    editor.updateActiveScene((scene) => {
+      scene.label = value;
+    });
+  }
+
   return (
     <>
       {activeScene && (
         <>
-          {activeScene?.dialogues.map((dialogue, index) => {
+          <div className="grid w-full max-w-sm items-center gap-1.5">
+            <Label htmlFor="sceneName">场景名称</Label>
+            <Input
+              type="text"
+              id="sceneName"
+              placeholder="请输入场景名称"
+              value={activeScene.label}
+              onChange={(event) => handleChangeSceneName(event.target.value)}
+            />
+          </div>
+          {activeScene.dialogues.map((dialogue, index) => {
             return (
               <div key={index}>
                 <DirectiveInput
@@ -39,7 +57,7 @@ export function SceneDetail() {
               </div>
             );
           })}
-          <Button onClick={addDialogue}>新增对白</Button>
+          <Button onClick={handleAddDialogue}>新增对白</Button>
         </>
       )}
     </>

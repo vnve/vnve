@@ -9,6 +9,7 @@ import {
   getAssetSourceURL,
   DBAssetTypeOptions,
   DBAssetState,
+  DBAssetTypeNameMap,
 } from "@/db";
 import { useAssetStore } from "@/store";
 import {
@@ -167,7 +168,7 @@ export function AssetLibrary() {
                 </TabsList>
               </Tabs>
               <Button size="sm" onClick={handleAddAsset}>
-                新增
+                新增{DBAssetTypeNameMap[assetType]}
               </Button>
             </div>
             <ScrollArea className="flex-grow">

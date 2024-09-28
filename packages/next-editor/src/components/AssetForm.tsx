@@ -22,7 +22,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { DBAssetForm } from "./AssetLibrary";
 
 const formSchema = z.object({
   id: z.number().optional(),
@@ -37,7 +36,7 @@ const formSchema = z.object({
       z.object({
         id: z.number().optional(),
         name: z.string().min(1, {
-          message: "名称必填",
+          message: "状态名称必填",
         }),
         ext: z.string().optional(),
         file: z.any().optional(),
@@ -54,7 +53,7 @@ export function AssetForm({
   onCancel,
 }: {
   asset: DBAsset;
-  onSubmit: (asset: DBAssetForm) => void;
+  onSubmit: (asset: any) => void;
   onCancel: () => void;
 }) {
   const assetTypeName = useMemo(
@@ -114,32 +113,45 @@ export function AssetForm({
             <FormControl>
               <div>
                 {fields.length > 0 && (
-                  <ScrollArea className="w-96 whitespace-nowrap rounded-md border">
+                  <ScrollArea className="w-full whitespace-nowrap rounded-md border">
                     <div className="flex w-max space-x-4 p-4">
                       {fields.map((field, index) => (
                         <figure key={index} className="shrink-0">
                           <div className="overflow-hidden rounded-md">
-                            <img
-                              src={
-                                asset.states[index]?.id
-                                  ? getAssetSourceURL(
-                                      asset.states[index].id,
-                                      asset.states[index].ext,
-                                    )
-                                  : ""
-                              }
-                              className="aspect-[9/16] h-[160px] w-[90px] object-cover"
-                            />
+                            <div
+                              className="aspect-[9/16] h-[160px] w-[90px] bg-[length:20px_20px]"
+                              style={{
+                                backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><rect width="10" height="10" fill="%23ccc"/><rect x="10" y="10" width="10" height="10" fill="%23ccc"/></svg>')`,
+                              }}
+                            >
+                              <img
+                                src={
+                                  asset.states[index]?.id
+                                    ? getAssetSourceURL(
+                                        asset.states[index].id,
+                                        asset.states[index].ext,
+                                      )
+                                    : ""
+                                }
+                                className="h-full w-full object-cover"
+                              />
+                            </div>
                           </div>
                           <figcaption className="pt-2 text-xs text-muted-foreground">
                             <FormField
                               control={form.control}
                               name={`states.${index}.name`}
                               render={({ field }) => (
-                                <Input
-                                  placeholder={`请输入${assetTypeName}状态名`}
-                                  {...field}
-                                />
+                                <FormItem>
+                                  <FormLabel>{assetTypeName}状态名</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      placeholder={`请输入${assetTypeName}状态名`}
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
                               )}
                             />
                             <FormField
@@ -171,7 +183,6 @@ export function AssetForm({
                 )}
                 <Button
                   size="sm"
-                  type="button"
                   onClick={() => append({ name: "" })}
                   className="self-end"
                 >

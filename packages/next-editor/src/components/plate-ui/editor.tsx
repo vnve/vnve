@@ -10,7 +10,7 @@ import { cva } from "class-variance-authority";
 const editorVariants = cva(
   cn(
     "relative overflow-x-auto whitespace-pre-wrap break-words",
-    "min-h-[80px] w-full rounded-md bg-background px-6 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none",
+    "min-h-[80px] w-full rounded-md bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none",
     "[&_[data-slate-placeholder]]:text-muted-foreground [&_[data-slate-placeholder]]:!opacity-100",
     "[&_[data-slate-placeholder]]:top-[auto_!important]",
     "[&_strong]:font-bold",
@@ -27,10 +27,10 @@ const editorVariants = cva(
       },
       focusRing: {
         false: "",
-        true: "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+        true: "focus-visible:ring-1 focus-visible:ring-ring",
       },
       focused: {
-        true: "ring-2 ring-ring ring-offset-2",
+        true: "ring-1 ring-ring",
       },
       size: {
         md: "text-base",
