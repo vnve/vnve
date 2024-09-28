@@ -7,6 +7,8 @@ import {
   DBAsset,
   DBAssetType,
   getAssetSourceURL,
+  DBAssetTypeOptions,
+  DBAssetState,
 } from "@/db";
 import { useAssetStore } from "@/store";
 import {
@@ -20,29 +22,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { AssetForm } from "./AssetForm";
 
-const TabNameList = [
-  {
-    name: "角色",
-    value: DBAssetType.Character,
-  },
-  {
-    name: "背景",
-    value: DBAssetType.Background,
-  },
-  {
-    name: "物品",
-    value: DBAssetType.Thing,
-  },
-  {
-    name: "音频",
-    value: DBAssetType.Audio,
-  },
-  // {
-  //   name: "视频",
-  //   value: DBAssetType.Video,
-  // },
-];
+export type DBAssetForm = DBAsset & {
+  states: (DBAssetState & { file?: File })[];
+};
 
 export function AssetLibrary() {
   const isOpen = useAssetStore((state) => state.isOpen);
@@ -51,8 +35,7 @@ export function AssetLibrary() {
   const defaultType = useAssetStore((state) => state.type);
   const [assetType, setAssetType] = useState(defaultType);
   const [assetName, setAssetName] = useState("");
-  const [assetStateName, setAssetStateName] = useState("");
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [editingAsset, setEditingAsset] = useState<DBAsset | null>(null);
   const assets = useLiveQuery(
     () =>
       assetType
@@ -66,11 +49,15 @@ export function AssetLibrary() {
   };
 
   const handleAddAsset = () => {
-    assetDB.add({
-      name: assetName,
-      type: DBAssetType.Character,
+    setEditingAsset({
+      name: "",
+      type: assetType,
       states: [],
     });
+  };
+
+  const handleEditAsset = (asset: DBAsset) => {
+    setEditingAsset(asset);
   };
 
   const handleDeleteAsset = (asset: DBAsset) => {
@@ -81,40 +68,61 @@ export function AssetLibrary() {
     assetDB.delete(asset.id);
   };
 
-  const handleAddAssetState = async (asset: DBAsset) => {
-    if (fileInputRef.current && fileInputRef.current.files) {
-      const file = fileInputRef.current.files[0];
-      const ext = file.name.split(".").pop() || "";
+  const handleClose = () => {
+    cancel();
+    setEditingAsset(null);
+  };
 
-      if (file) {
+  const addAssetToDB = async (asset: DBAssetForm) => {
+    for (const state of asset.states) {
+      const ext = state.file.name.split(".").pop() || "";
+      const id = await assetSourceDB.add({
+        mime: state.file.type,
+        blob: state.file,
+        ext,
+      });
+
+      state.id = id;
+      state.ext = ext;
+
+      delete state.file;
+    }
+
+    await assetDB.add(asset as unknown as DBAsset);
+  };
+
+  const updateAssetToDB = async (asset: DBAssetForm) => {
+    for (const state of asset.states) {
+      if (state.file) {
+        // delete old asset source
+        if (state.id) {
+          await assetSourceDB.delete(state.id);
+        }
+
+        const ext = state.file.name.split(".").pop() || "";
         const id = await assetSourceDB.add({
-          mime: file.type,
-          blob: file,
+          mime: state.file.type,
+          blob: state.file,
           ext,
         });
 
-        assetDB
-          .where("id")
-          .equals(asset.id)
-          .modify((item) =>
-            item.states.push({ id, name: assetStateName, ext }),
-          );
+        state.id = id;
+        state.ext = ext;
       }
+
+      delete state.file;
     }
+
+    await assetDB.update(asset.id, asset as unknown as DBAsset);
   };
 
-  const handleDeleteAssetState = (asset: DBAsset, id: number) => {
-    assetSourceDB.delete(id);
-    assetDB
-      .where("id")
-      .equals(asset.id)
-      .modify((item) => {
-        item.states = item.states.filter((state) => state.id !== id);
-      });
-  };
-
-  const handleClose = () => {
-    cancel();
+  const handleSubmitAddAsset = async (asset: DBAssetForm) => {
+    if (asset.id) {
+      updateAssetToDB(asset);
+    } else {
+      addAssetToDB(asset);
+    }
+    setEditingAsset(null);
   };
 
   useEffect(() => {
@@ -132,84 +140,68 @@ export function AssetLibrary() {
           <DialogTitle>素材库</DialogTitle>
           <DialogDescription></DialogDescription>
         </DialogHeader>
-        <div className="flex justify-between items-center">
-          <Tabs value={assetType} onValueChange={handleChangeAssetType}>
-            <TabsList>
-              {TabNameList.map((tab) => {
-                return (
-                  <TabsTrigger
-                    key={tab.value}
-                    value={tab.value}
-                    disabled={defaultType && defaultType !== tab.value}
-                  >
-                    {tab.name}
-                  </TabsTrigger>
-                );
-              })}
-            </TabsList>
-          </Tabs>
-          <Button size="sm">新增</Button>
-        </div>
-        <ScrollArea className="flex-grow">
-          <div className="grid w-full lg:max-w-sm items-center gap-1.5">
-            <Label htmlFor="picture">Picture</Label>
-            <Input id="picture" type="file" />
-          </div>
-          <input
-            type="text"
-            value={assetName}
-            onChange={(e) => setAssetName(e.target.value)}
+        {editingAsset ? (
+          <AssetForm
+            asset={editingAsset}
+            onSubmit={handleSubmitAddAsset}
+            onCancel={() => {
+              setEditingAsset(null);
+            }}
           />
-          <Button onClick={handleAddAsset}>add Asset</Button>
-          <ul>
-            {assets?.map((asset) => {
-              return (
-                <li key={asset.id}>
-                  <p onClick={() => confirm(asset)}>
-                    {asset.id} {asset.name}
-                  </p>
-                  <Button onClick={() => handleDeleteAsset(asset)}>
-                    delete
-                  </Button>
-
-                  <ul>
-                    {asset.states.map((state) => {
-                      return (
-                        <li key={state.id}>
-                          <b>{state.name}</b>
-                          <img
-                            className="w-[160px] h-[90px]"
-                            src={getAssetSourceURL(state.id, state.ext)}
-                            alt={state.name}
-                          />
-                          <Button
-                            onClick={() =>
-                              handleDeleteAssetState(asset, state.id)
-                            }
-                          >
-                            delete AssetState
-                          </Button>
-                        </li>
-                      );
-                    })}
-
-                    <li>
-                      <input
-                        type="text"
-                        value={assetStateName}
-                        onChange={(e) => setAssetStateName(e.target.value)}
+        ) : (
+          <>
+            <div className="flex justify-between items-center">
+              <Tabs value={assetType} onValueChange={handleChangeAssetType}>
+                <TabsList>
+                  {DBAssetTypeOptions.map((tab) => {
+                    return (
+                      <TabsTrigger
+                        key={tab.value}
+                        value={tab.value}
+                        disabled={defaultType && defaultType !== tab.value}
+                      >
+                        {tab.name}
+                      </TabsTrigger>
+                    );
+                  })}
+                </TabsList>
+              </Tabs>
+              <Button size="sm" onClick={handleAddAsset}>
+                新增
+              </Button>
+            </div>
+            <ScrollArea className="flex-grow">
+              <ul>
+                {assets?.map((asset) => {
+                  return (
+                    <li key={asset.id}>
+                      <img
+                        onClick={() => confirm(asset)}
+                        className="w-[160px] h-[90px]"
+                        src={getAssetSourceURL(
+                          asset.states[0].id,
+                          asset.states[0].ext,
+                        )}
                       />
-                      <input type="file" ref={fileInputRef} />
-                      <Button onClick={() => handleAddAssetState(asset)}>
-                        add AssetState
+                      <p>
+                        {asset.id} {asset.name}
+                      </p>
+                      <Button size="sm" onClick={() => handleEditAsset(asset)}>
+                        编辑
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => handleDeleteAsset(asset)}
+                      >
+                        删除
                       </Button>
                     </li>
-                  </ul>
-                </li>
-              );
-            })}
-          </ul>
-        </ScrollArea>
+                  );
+                })}
+              </ul>
+            </ScrollArea>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );

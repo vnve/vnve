@@ -5,8 +5,35 @@ export enum DBAssetType {
   Background = "Background",
   Thing = "Thing",
   Audio = "Audio",
-  Video = "Video",
+  // Video = "Video",
 }
+
+export const DBAssetTypeOptions = [
+  {
+    name: "角色",
+    value: DBAssetType.Character,
+  },
+  {
+    name: "背景",
+    value: DBAssetType.Background,
+  },
+  {
+    name: "物品",
+    value: DBAssetType.Thing,
+  },
+  {
+    name: "音频",
+    value: DBAssetType.Audio,
+  },
+];
+
+export const DBAssetTypeNameMap = DBAssetTypeOptions.reduce(
+  (acc, { name, value }) => {
+    acc[value] = name;
+    return acc;
+  },
+  {} as Record<DBAssetType, string>,
+);
 
 export interface DBAssetSource {
   id?: number;
