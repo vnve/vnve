@@ -28,6 +28,11 @@ import {
 import { useEditorStore } from "@/store";
 import { Sprite } from "@vnve/next-core";
 import { DBAssetType } from "@/db";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 export function FixedToolbarButtons({ speaker, onChangeSpeaker }) {
   const activeScene = useEditorStore((state) => state.activeScene);
@@ -64,16 +69,30 @@ export function FixedToolbarButtons({ speaker, onChangeSpeaker }) {
                   <SelectValue placeholder="请选择角色" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectGroup>
-                    {characters.map((character) => (
-                      <SelectItem key={character.name} value={character.name}>
-                        {character.label}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
+                  {characters.map((character) => (
+                    <SelectItem key={character.name} value={character.name}>
+                      {character.label}
+                    </SelectItem>
+                  ))}
+                  {characters.length === 0 && (
+                    <div className="select-none py-1.5 pl-2 pr-8 text-sm opacity-50">
+                      请先在画布中添加角色
+                    </div>
+                  )}
                 </SelectContent>
               </Select>
             </ToolbarGroup>
+
+            <ToolbarGroup noSeparator>
+              <Popover>
+                <PopoverTrigger>配置</PopoverTrigger>
+                <PopoverContent>
+                  语速 停顿 效果 自动显示发言 自动隐藏 Place content for the
+                  popover here.
+                </PopoverContent>
+              </Popover>
+            </ToolbarGroup>
+
             <ToolbarGroup noSeparator>
               <InsertDropdownMenu />
             </ToolbarGroup>

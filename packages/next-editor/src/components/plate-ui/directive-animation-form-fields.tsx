@@ -159,11 +159,11 @@ export const DirectiveAnimationFormFields = forwardRef<
         name="params.targetName"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>目标元素</FormLabel>
+            <FormLabel>动画对象</FormLabel>
             <FormControl>
               <Select onValueChange={field.onChange} value={field.value}>
                 <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="请选择目标元素" />
+                  <SelectValue placeholder="请选择动画对象" />
                 </SelectTrigger>
                 <SelectContent>
                   {optionGroups.map(
@@ -220,30 +220,32 @@ export const DirectiveAnimationFormFields = forwardRef<
             )}
           />
         )}
-      <FormField
-        control={form.control}
-        name="params.duration"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>动画时长(秒)</FormLabel>
-            <FormControl>
-              <Input
-                type="number"
-                min={0}
-                step={0.1}
-                placeholder="请输入动画时长"
-                value={field.value ?? ""}
-                onChange={(e) => {
-                  const value = Number(e.target.value);
+      {formDirective !== DirectiveName.ChangeSource && (
+        <FormField
+          control={form.control}
+          name="params.duration"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>动画时长(秒)</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  min={0}
+                  step={0.1}
+                  placeholder="请输入动画时长"
+                  value={field.value ?? ""}
+                  onChange={(e) => {
+                    const value = Number(e.target.value);
 
-                  field.onChange(value);
-                }}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+                    field.onChange(value);
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      )}
     </>
   );
 });

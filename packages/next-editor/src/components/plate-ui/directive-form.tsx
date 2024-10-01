@@ -50,7 +50,7 @@ const formSchema = z.discriminatedUnion("directive", [
     directive: z.literal(AnimationDirectiveNameList[0]),
     params: z.object({
       targetName: z.string({
-        message: "请选择目标元素",
+        message: "请选择动画对象",
       }),
       source: z.string({
         message: "请选择目标状态",
@@ -64,7 +64,7 @@ const formSchema = z.discriminatedUnion("directive", [
       directive: z.literal(name),
       params: z.object({
         targetName: z.string({
-          message: "请选择目标元素",
+          message: "请选择动画对象",
         }),
         duration: z.number().optional(),
         sequential: z.boolean().optional(),
@@ -82,7 +82,7 @@ const formSchema = z.discriminatedUnion("directive", [
     directive: z.literal(DirectiveName.Play),
     params: z.object({
       targetName: z.string({
-        message: "请选择目标音频",
+        message: "请选择音频对象",
       }),
       start: z.number().optional(),
       volume: z.number().optional(),
@@ -95,7 +95,7 @@ const formSchema = z.discriminatedUnion("directive", [
       directive: z.literal(name),
       params: z.object({
         targetName: z.string({
-          message: "请选择目标音频",
+          message: "请选择音频对象",
         }),
       }),
     });

@@ -12,16 +12,18 @@ export async function createSprite(asset: DBAsset, editor: Editor) {
   sprite.assetID = asset.id;
   sprite.assetType = asset.type;
 
+  await sprite.load();
+
   // 默认设置（大小，层级，位置）
   if (asset.type === DBAssetType.Character) {
     sprite.zIndex = LayerZIndex.Character;
+    sprite.x = editor.options.width / 2 - sprite.width / 2;
+    sprite.y = editor.options.height - sprite.height;
   } else if (asset.type === DBAssetType.Background) {
     sprite.zIndex = LayerZIndex.Background;
     sprite.width = editor.options.width;
     sprite.height = editor.options.height;
   }
-
-  await sprite.load();
 
   return sprite;
 }

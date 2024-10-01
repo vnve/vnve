@@ -24,11 +24,6 @@ import { DirectivePlugin } from "@/components/plugin/directive/DirectivePlugin";
 import { DirectiveElement } from "@/components/plate-ui/directive-element";
 import { DirectiveFloatingToolbar } from "@/components/plate-ui/directive-floating-toolbar";
 import { useEffect, useState } from "react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 
 export function DirectiveInput({ value, onChange }) {
   const editor: PlateEditor = usePlateEditor({
@@ -79,11 +74,6 @@ export function DirectiveInput({ value, onChange }) {
         }}
       >
         <FixedToolbar>
-          <Popover>
-            <PopoverTrigger>Open</PopoverTrigger>
-            <PopoverContent>Place content for the popover here.</PopoverContent>
-          </Popover>
-
           <FixedToolbarButtons
             speaker={value.speaker}
             onChangeSpeaker={(speaker) => {

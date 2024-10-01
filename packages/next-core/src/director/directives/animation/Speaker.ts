@@ -10,16 +10,19 @@ const InAnimationDirectiveClassMap = {
   Show,
   FadeIn,
 };
+export interface AutoShowSpeakerOptions extends AnimationDirectiveOptions {
+  inEffect?: "Show" | "FadeIn";
+}
+
+export interface AutoMaskOtherSpeakersOptions {
+  alpha?: number;
+}
 
 export interface SpeakerDirectiveOptions extends AnimationDirectiveOptions {
   name: string;
   speakerTargetName?: string;
-  autoShowSpeaker?: AnimationDirectiveOptions & {
-    inEffect?: "Show" | "FadeIn";
-  };
-  autoMaskOtherSpeakers?: {
-    alpha?: number;
-  };
+  autoShowSpeaker?: AutoShowSpeakerOptions;
+  autoMaskOtherSpeakers?: AutoMaskOtherSpeakersOptions;
 }
 
 export class Speaker extends AnimationDirective<PIXI.Text> {

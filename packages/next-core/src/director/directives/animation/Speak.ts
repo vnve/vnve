@@ -5,12 +5,14 @@ import { Speaker, SpeakerDirectiveOptions } from "./Speaker";
 import { Voice, VoiceDirectiveOptions } from "../sound";
 import { Scene } from "../../../scene";
 
+export type SpeakDirectiveEffect = "typewriter" | "fadeIn";
+
 export interface SpeakDirectiveOptions extends AnimationDirectiveOptions {
   text: string;
   wordsPerMin?: number;
   interval?: number;
   append?: boolean;
-  effect?: "typewriter" | "fadeIn";
+  effect?: SpeakDirectiveEffect;
   alignWithVoice?: boolean;
   speaker?: SpeakerDirectiveOptions;
   voice?: VoiceDirectiveOptions;

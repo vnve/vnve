@@ -4,7 +4,11 @@ import { reviveSounds, Sound } from "./Sound";
 import { Child, reviveChildren } from "./child";
 import { Filter, reviveFilters } from "./filter";
 import { cloneDeep } from "lodash-es";
-import { SceneConfig } from "../director";
+import {
+  SceneConfig,
+  SpeakDirectiveOptions,
+  SpeakerDirectiveOptions,
+} from "../director";
 
 export interface SceneOption {
   label?: string;
@@ -14,7 +18,8 @@ export interface Dialogue {
   speaker: {
     name: string;
     label: string;
-  };
+  } & Omit<SpeakDirectiveOptions, "text" | "targetName"> &
+    Omit<SpeakerDirectiveOptions, "name" | "targetName">;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   lines: any[]; // 同plate.js的value
 }
