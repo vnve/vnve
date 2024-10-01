@@ -14,7 +14,7 @@ export function createDialogueScene() {
   dialogRect.zIndex = LayerZIndex.Dialog;
   dialogRect.label = "对话框";
 
-  const nameText = new Text("Name", {
+  const nameText = new Text("角色名", {
     fill: 0xffffff,
     fontSize: 44,
     fontWeight: "bold",

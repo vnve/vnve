@@ -18,28 +18,51 @@ import {
 } from "@/components/ui/select";
 import { assetDB, DBAssetType, getAssetSourceURL } from "@/db";
 import { useEditorStore } from "@/store";
-import { Sprite } from "@vnve/next-core";
-import { useEffect, useState } from "react";
-import { useWatch } from "react-hook-form";
+import { DirectiveName, Sprite } from "@vnve/next-core";
+import {
+  useEffect,
+  useImperativeHandle,
+  useState,
+  ForwardedRef,
+  forwardRef,
+} from "react";
+import { UseFormReturn, useWatch } from "react-hook-form";
+import { Input } from "../ui/input";
+import { DirectiveNameMap } from "@/config";
 
-export function DirectiveAnimationFormFields({ form }) {
+export interface DirectiveAnimationFormFieldsHandle {
+  getDirectiveLabel: () => string;
+}
+
+interface DirectiveAnimationFormFieldsProps {
+  form: UseFormReturn;
+}
+
+export const DirectiveAnimationFormFields = forwardRef<
+  DirectiveAnimationFormFieldsHandle,
+  DirectiveAnimationFormFieldsProps
+>(({ form }, ref) => {
   const activeScene = useEditorStore((state) => state.activeScene);
   const [optionGroups, setOptionGroups] = useState([]);
   const [stateOptions, setStateOptions] = useState([]);
-  const directive = useWatch({
+  const formDirective = useWatch({
     control: form.control,
     name: "directive",
   });
-  const targetName = useWatch({
+  const formTargetName = useWatch({
     control: form.control,
     name: "params.targetName",
+  });
+  const formSource = useWatch({
+    control: form.control,
+    name: "params.source",
   });
 
   useEffect(() => {
     if (activeScene) {
       const newCharacterOptions = [];
       const newBackgroundOptions = [];
-      const newOtherOptions = [];
+      let newOtherOptions = [];
 
       for (const child of activeScene.children) {
         const newOption = { value: child.name, label: child.label };
@@ -50,6 +73,10 @@ export function DirectiveAnimationFormFields({ form }) {
         } else if (child.name) {
           newOtherOptions.push(newOption);
         }
+      }
+
+      if (formDirective === DirectiveName.ChangeSource) {
+        newOtherOptions = newOtherOptions.filter((item) => item.assetID);
       }
 
       setOptionGroups([
@@ -67,27 +94,63 @@ export function DirectiveAnimationFormFields({ form }) {
         },
       ]);
     }
-  }, [activeScene]);
+  }, [activeScene, formDirective]);
 
   useEffect(() => {
-    if (activeScene && directive === "ChangeSource" && targetName) {
-      const targetChild: Sprite = activeScene.children.find(
-        (item) => item.name === targetName,
+    if (
+      activeScene &&
+      formDirective === DirectiveName.ChangeSource &&
+      formTargetName
+    ) {
+      const targetChild = activeScene.children.find(
+        (item) => item.name === formTargetName,
       ) as Sprite;
 
-      if (targetChild.assetID) {
+      if (targetChild?.assetID) {
         assetDB.get(targetChild.assetID).then((asset) => {
           const options = asset.states.map((state) => {
             return {
-              value: getAssetSourceURL(state.id, state.ext),
+              value: getAssetSourceURL(state),
               label: state.name,
             };
           });
           setStateOptions(options);
         });
+      } else {
+        setStateOptions([]);
       }
     }
-  }, [activeScene, directive, targetName]);
+
+    form.setValue("params.source", ""); // targetName变化时，需要清空source
+  }, [activeScene, formDirective, formTargetName, form]);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      getDirectiveLabel: () => {
+        if (activeScene && formDirective && formTargetName) {
+          const directiveName = DirectiveNameMap[formDirective];
+          const targetName =
+            activeScene.children.find((item) => item.name === formTargetName)
+              ?.label || "";
+          const nameList = [directiveName, targetName];
+
+          if (formDirective === DirectiveName.ChangeSource && formSource) {
+            const stateName =
+              stateOptions.find((item) => item.value === formSource)?.label ||
+              "";
+
+            nameList.push(stateName);
+          }
+
+          return nameList.join(":");
+        }
+
+        return "";
+      },
+    }),
+    [activeScene, formDirective, formTargetName, formSource, stateOptions],
+  );
 
   return (
     <>
@@ -116,6 +179,13 @@ export function DirectiveAnimationFormFields({ form }) {
                         </SelectGroup>
                       ),
                   )}
+                  {optionGroups.every(
+                    (group) => group.options.length === 0,
+                  ) && (
+                    <div className="select-none py-1.5 pl-2 pr-8 text-sm opacity-50">
+                      请先在画布中添加角色、背景等元素
+                    </div>
+                  )}
                 </SelectContent>
               </Select>
             </FormControl>
@@ -123,32 +193,57 @@ export function DirectiveAnimationFormFields({ form }) {
           </FormItem>
         )}
       />
-      {form.getValues("directive") === "ChangeSource" && (
-        <FormField
-          control={form.control}
-          name="params.source"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>目标状态</FormLabel>
-              <FormControl>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="请选择目标状态" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {stateOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      )}
+      {formDirective === DirectiveName.ChangeSource &&
+        stateOptions.length > 0 && (
+          <FormField
+            control={form.control}
+            name="params.source"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>目标状态</FormLabel>
+                <FormControl>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="请选择目标状态" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {stateOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+      <FormField
+        control={form.control}
+        name="params.duration"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>动画时长(秒)</FormLabel>
+            <FormControl>
+              <Input
+                type="number"
+                min={0}
+                step={0.1}
+                placeholder="请输入动画时长"
+                value={field.value ?? ""}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+
+                  field.onChange(value);
+                }}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
     </>
   );
-}
+});

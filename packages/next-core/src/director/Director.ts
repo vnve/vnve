@@ -25,21 +25,22 @@ interface RendererOptions {
   renderer?: PIXI.IRenderer;
 }
 
-export type DirectiveName =
-  | "Speak"
-  | "Speaker"
-  | "Show"
-  | "Hide"
-  | "FadeIn"
-  | "FadeOut"
-  | "Wait"
-  | "Play"
-  | "Pause"
-  | "Stop"
-  | "ChangeSource"
-  | "FadeInTransition"
-  | "AddFilter"
-  | "RemoveFilter";
+export enum DirectiveName {
+  Speak = "Speak",
+  Speaker = "Speaker",
+  Show = "Show",
+  Hide = "Hide",
+  FadeIn = "FadeIn",
+  FadeOut = "FadeOut",
+  Wait = "Wait",
+  Play = "Play",
+  Pause = "Pause",
+  Stop = "Stop",
+  ChangeSource = "ChangeSource",
+  FadeInTransition = "FadeInTransition",
+  AddFilter = "AddFilter",
+  RemoveFilter = "RemoveFilter",
+}
 
 export type DirectiveParams =
   | Directives.AnimationDirectiveOptions

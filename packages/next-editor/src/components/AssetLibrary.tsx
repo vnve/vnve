@@ -24,6 +24,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { AssetForm } from "./AssetForm";
+import { AssetStateList } from "./AssetStateList";
 
 export type DBAssetForm = DBAsset & {
   states: (DBAssetState & { file?: File })[];
@@ -35,8 +36,8 @@ export function AssetLibrary() {
   const cancel = useAssetStore((state) => state.cancel);
   const defaultType = useAssetStore((state) => state.type);
   const [assetType, setAssetType] = useState(defaultType);
-  const [assetName, setAssetName] = useState("");
   const [editingAsset, setEditingAsset] = useState<DBAsset | null>(null);
+  const [selectingAsset, setSelectingAsset] = useState<DBAsset | null>(null);
   const assets = useLiveQuery(
     () =>
       assetType
@@ -72,6 +73,7 @@ export function AssetLibrary() {
   const handleClose = () => {
     cancel();
     setEditingAsset(null);
+    setSelectingAsset(null);
   };
 
   const addAssetToDB = async (asset: DBAssetForm) => {
@@ -126,6 +128,22 @@ export function AssetLibrary() {
     setEditingAsset(null);
   };
 
+  const handleCancelAddAsset = () => {
+    setEditingAsset(null);
+  };
+
+  const handleSelectAssetState = (state: DBAssetState) => {
+    confirm({
+      ...selectingAsset,
+      stateId: state.id,
+    });
+    setSelectingAsset(null);
+  };
+
+  const handleCancelSelectAssetState = () => {
+    setSelectingAsset(null);
+  };
+
   useEffect(() => {
     if (defaultType) {
       setAssetType(defaultType);
@@ -134,6 +152,76 @@ export function AssetLibrary() {
     }
   }, [defaultType]);
 
+  const renderContent = () => {
+    if (editingAsset) {
+      return (
+        <AssetForm
+          asset={editingAsset}
+          onSubmit={handleSubmitAddAsset}
+          onCancel={handleCancelAddAsset}
+        />
+      );
+    } else if (selectingAsset) {
+      return (
+        <AssetStateList
+          asset={selectingAsset}
+          onSelectState={handleSelectAssetState}
+          onCancel={handleCancelSelectAssetState}
+        />
+      );
+    } else {
+      return (
+        <>
+          <div className="flex justify-between items-center">
+            <Tabs value={assetType} onValueChange={handleChangeAssetType}>
+              <TabsList>
+                {DBAssetTypeOptions.map((tab) => {
+                  return (
+                    <TabsTrigger
+                      key={tab.value}
+                      value={tab.value}
+                      disabled={defaultType && defaultType !== tab.value}
+                    >
+                      {tab.name}
+                    </TabsTrigger>
+                  );
+                })}
+              </TabsList>
+            </Tabs>
+            <Button size="sm" onClick={handleAddAsset}>
+              新增{DBAssetTypeNameMap[assetType]}
+            </Button>
+          </div>
+          <ScrollArea className="flex-grow">
+            <ul>
+              {assets?.map((asset) => {
+                return (
+                  <li key={asset.id}>
+                    <div onClick={() => setSelectingAsset(asset)}>
+                      <img
+                        className="w-[160px] h-[90px]"
+                        src={getAssetSourceURL(asset.states[0])}
+                      />
+                      <p>
+                        {asset.id} {asset.name}
+                      </p>
+                    </div>
+                    <Button size="sm" onClick={() => handleEditAsset(asset)}>
+                      编辑
+                    </Button>
+                    <Button size="sm" onClick={() => handleDeleteAsset(asset)}>
+                      删除
+                    </Button>
+                  </li>
+                );
+              })}
+            </ul>
+          </ScrollArea>
+        </>
+      );
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="min-w-[90vw] h-[90vh] flex flex-col">
@@ -141,68 +229,7 @@ export function AssetLibrary() {
           <DialogTitle>素材库</DialogTitle>
           <DialogDescription></DialogDescription>
         </DialogHeader>
-        {editingAsset ? (
-          <AssetForm
-            asset={editingAsset}
-            onSubmit={handleSubmitAddAsset}
-            onCancel={() => {
-              setEditingAsset(null);
-            }}
-          />
-        ) : (
-          <>
-            <div className="flex justify-between items-center">
-              <Tabs value={assetType} onValueChange={handleChangeAssetType}>
-                <TabsList>
-                  {DBAssetTypeOptions.map((tab) => {
-                    return (
-                      <TabsTrigger
-                        key={tab.value}
-                        value={tab.value}
-                        disabled={defaultType && defaultType !== tab.value}
-                      >
-                        {tab.name}
-                      </TabsTrigger>
-                    );
-                  })}
-                </TabsList>
-              </Tabs>
-              <Button size="sm" onClick={handleAddAsset}>
-                新增{DBAssetTypeNameMap[assetType]}
-              </Button>
-            </div>
-            <ScrollArea className="flex-grow">
-              <ul>
-                {assets?.map((asset) => {
-                  return (
-                    <li key={asset.id}>
-                      <img
-                        onClick={() => confirm(asset)}
-                        className="w-[160px] h-[90px]"
-                        src={getAssetSourceURL(
-                          asset.states[0].id,
-                          asset.states[0].ext,
-                        )}
-                      />
-                      <p>
-                        {asset.id} {asset.name}
-                      </p>
-                      <Button size="sm" onClick={() => handleEditAsset(asset)}>
-                        编辑
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={() => handleDeleteAsset(asset)}
-                      >
-                        删除
-                      </Button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </ScrollArea>
-          </>
-        )}
+        {renderContent()}
       </DialogContent>
     </Dialog>
   );

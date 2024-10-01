@@ -53,6 +53,7 @@ export interface DBAsset {
   name: string;
   type: DBAssetType;
   states: DBAssetState[];
+  stateId?: number;
 }
 
 export interface DBTemplate {
@@ -92,6 +93,6 @@ export const assetSourceDB = db.assetSource;
 export const templateDB = db.template;
 export const draftDB = db.draft;
 
-export const getAssetSourceURL = (id: number, extension: string) => {
-  return `https://s/${id}.${extension}`;
+export const getAssetSourceURL = (assetState: DBAssetState) => {
+  return `https://s/${assetState.id}.${assetState.ext}`;
 };

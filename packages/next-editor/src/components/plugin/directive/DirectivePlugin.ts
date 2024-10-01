@@ -8,8 +8,9 @@ import {
 } from "@udecode/plate-common";
 import { type Location } from "slate";
 import { DirectiveConfig } from "@vnve/next-core";
+import { DirectiveType } from "@/config";
 
-export type TDirectiveValue = DirectiveConfig;
+export type TDirectiveValue = DirectiveConfig & { label: string };
 
 export interface TDirectiveElementBase {
   value: TDirectiveValue;
@@ -25,9 +26,9 @@ export type DirectivePluginConfig = PluginConfig<
   "directive",
   {
     openEditorId: string | null;
-    isEditing: boolean;
     mode: FloatingDirectiveMode;
     editingDirective: TDirectiveElement | null;
+    directiveType: DirectiveType | null;
   },
   {
     floatingDirective: {
@@ -36,6 +37,7 @@ export type DirectivePluginConfig = PluginConfig<
         mode: FloatingDirectiveMode,
         editorId: string,
         editingDirective: TDirectiveElement | null,
+        directiveType: DirectiveType | null,
       ) => void;
     };
   },
@@ -60,9 +62,9 @@ export const DirectivePlugin = toPlatePlugin(
     },
     options: {
       openEditorId: null,
-      isEditing: false,
       mode: "",
       editingDirective: null,
+      directiveType: null,
     },
   })
     .extendOptions(({ getOptions }) => ({
@@ -73,22 +75,23 @@ export const DirectivePlugin = toPlatePlugin(
         floatingDirective: {
           hide: () => {
             setOptions({
-              isEditing: false,
               mode: "",
               openEditorId: null,
               editingDirective: null,
+              directiveType: null,
             });
           },
           show: (
             mode: FloatingDirectiveMode,
             editorId: string,
             editingDirective: TDirectiveElement | null,
+            directiveType: DirectiveType | null,
           ) => {
             setOptions({
-              isEditing: false,
               mode,
               openEditorId: editorId,
               editingDirective,
+              directiveType,
             });
           },
         },

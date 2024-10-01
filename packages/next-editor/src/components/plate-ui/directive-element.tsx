@@ -20,9 +20,8 @@ export const DirectiveElement = withRef<
   {
     onClick?: (directiveNode: TDirectiveElement) => void;
     prefix?: string;
-    renderLabel?: (directiveElement: TDirectiveElement) => string;
   }
->(({ children, className, onClick, prefix, renderLabel, ...props }, ref) => {
+>(({ children, className, onClick, prefix, ...props }, ref) => {
   const element = useElement<TDirectiveElement>();
   const selected = useSelected();
   const focused = useFocused();
@@ -36,7 +35,7 @@ export const DirectiveElement = withRef<
   return (
     <PlateElement
       className={cn(
-        "inline-block cursor-pointer rounded-md bg-muted px-1.5 py-0.5 align-baseline text-sm font-medium",
+        "inline-block cursor-pointer rounded-md bg-muted px-1.5 py-0.5 align-baseline text-sm font-medium select-none",
         selected && focused && "ring-2 ring-ring",
         element.children[0].bold === true && "font-bold",
         element.children[0].italic === true && "italic",
@@ -49,7 +48,7 @@ export const DirectiveElement = withRef<
       {...props}
     >
       {prefix}
-      {renderLabel ? renderLabel(element) : element.value.directive}
+      {element.value.label || ""}
       {children}
     </PlateElement>
   );

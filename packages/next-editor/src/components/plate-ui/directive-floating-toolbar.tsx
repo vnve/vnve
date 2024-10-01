@@ -39,6 +39,7 @@ export function DirectiveFloatingToolbar() {
   });
   const { useOption } = useEditorPlugin(DirectivePlugin);
   const editingDirective = useOption("editingDirective");
+  const directiveType = useOption("directiveType");
   const {
     ref: insertRef,
     props: insertProps,
@@ -56,11 +57,14 @@ export function DirectiveFloatingToolbar() {
       ref={insertRef}
     >
       <div className="flex w-[330px] flex-col p-2" {...inputProps}>
-        <DirectiveForm
-          editingDirective={editingDirective}
-          onSubmitDirective={onSubmit}
-          onCancel={onCancel}
-        ></DirectiveForm>
+        {directiveType && (
+          <DirectiveForm
+            editingDirective={editingDirective}
+            directiveType={directiveType}
+            onSubmitDirective={onSubmit}
+            onCancel={onCancel}
+          ></DirectiveForm>
+        )}
       </div>
     </div>
   );

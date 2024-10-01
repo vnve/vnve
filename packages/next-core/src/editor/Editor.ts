@@ -1,8 +1,13 @@
 import * as PIXI from "pixi.js";
 import { Transformer } from "@pixi-essentials/transformer";
-import { Scene, Child, Dialogue } from "../scene";
+import { Scene, Child, Dialogue, Sound, Sprite } from "../scene";
 import { log } from "../util";
-import { DirectiveConfig, SceneScript, Screenplay } from "../director";
+import {
+  DirectiveConfig,
+  DirectiveName,
+  SceneScript,
+  Screenplay,
+} from "../director";
 import { LayerZIndex } from "./constant";
 
 export type EditorChildPosition =
@@ -252,6 +257,24 @@ export class Editor {
     }
   }
 
+  public addSound(sound: Sound, targetScene?: Scene) {
+    const scene = targetScene ?? this.activeScene;
+
+    if (scene) {
+      scene.addSound(sound);
+      this.options.onChangeActiveScene(scene);
+    }
+  }
+
+  public removeSound(sound: Sound, targetScene?: Scene) {
+    const scene = targetScene ?? this.activeScene;
+
+    if (scene) {
+      scene.removeSound(sound);
+      this.options.onChangeActiveScene(scene);
+    }
+  }
+
   public addDialogue(dialogue: Dialogue, targetScene?: Scene) {
     const scene = targetScene ?? this.activeScene;
 
@@ -404,12 +427,27 @@ export class Editor {
     const speakTarget = config.speak?.target;
     const directives: DirectiveConfig[] = [];
 
+    const sceneBackground = scene.children.find(
+      (item) => (item as Sprite).assetType === "Background",
+    );
+
+    // 默认展示背景
+    // TODO: 增加一个默认配置
+    if (sceneBackground) {
+      directives.push({
+        directive: DirectiveName.Show,
+        params: {
+          targetName: sceneBackground.name,
+        },
+      });
+    }
+
     for (const dialogue of dialogues) {
       const { speaker, lines } = dialogue;
 
       if (speakTarget?.name) {
         directives.push({
-          directive: "Speaker",
+          directive: DirectiveName.Speaker,
           params: {
             targetName: speakTarget.name,
             name: speaker.label,
@@ -420,7 +458,7 @@ export class Editor {
 
       if (speakTarget?.dialog) {
         directives.push({
-          directive: "Show",
+          directive: DirectiveName.Show,
           params: {
             targetName: speakTarget.dialog,
           },
@@ -446,7 +484,7 @@ export class Editor {
 
               // 默认speak指令, append
               directives.push({
-                directive: "Speak",
+                directive: DirectiveName.Speak,
                 params: {
                   targetName: speakTarget.text,
                   text,

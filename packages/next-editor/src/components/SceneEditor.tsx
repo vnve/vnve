@@ -20,14 +20,20 @@ export function SceneEditor() {
     const asset = await selectAsset(DBAssetType.Character);
 
     if (asset) {
-      const character = await createSprite(asset);
+      const character = await createSprite(asset, editor);
 
       editor.addChild(character);
     }
   }
 
-  function addBackground() {
-    //
+  async function addBackground() {
+    const asset = await selectAsset(DBAssetType.Background);
+
+    if (asset) {
+      const background = await createSprite(asset, editor);
+
+      editor.addChild(background);
+    }
   }
 
   function addThing() {
@@ -39,6 +45,7 @@ export function SceneEditor() {
       {activeScene && (
         <div>
           <Button onClick={addCharacter}>增加角色</Button>
+          <Button onClick={addBackground}>增加背景</Button>
           <div>
             activeChild:
             <div>

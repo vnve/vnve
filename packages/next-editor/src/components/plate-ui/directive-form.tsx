@@ -22,47 +22,117 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { TDirectiveElement, TDirectiveValue } from "../plugin/directive";
-import { useEffect } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import {
   AnimationDirectiveNameList,
   DirectiveNameOptionGroups,
+  DirectiveType,
+  SoundDirectiveNameList,
+  UtilDirectiveNameList,
 } from "@/config";
-import { DirectiveAnimationFormFields } from "@/components/plate-ui/directive-animation-form-fields";
+import {
+  DirectiveAnimationFormFields,
+  DirectiveAnimationFormFieldsHandle,
+} from "@/components/plate-ui/directive-animation-form-fields";
 import { DirectiveName } from "@vnve/next-core";
 import { Switch } from "@/components/ui/switch";
+import {
+  DirectiveUtilFormFields,
+  DirectiveUtilFormFieldsHandle,
+} from "./directive-util-form-fields";
+import {
+  DirectiveSoundFormFields,
+  DirectiveSoundFormFieldsHandle,
+} from "./directive-sound-form-fields";
 
-const formSchema = z.object({
-  directive: z.string().min(1, {
-    message: "指令必选",
+const formSchema = z.discriminatedUnion("directive", [
+  z.object({
+    directive: z.literal(AnimationDirectiveNameList[0]),
+    params: z.object({
+      targetName: z.string({
+        message: "请选择目标元素",
+      }),
+      source: z.string({
+        message: "请选择目标状态",
+      }),
+      duration: z.number().optional(),
+      sequential: z.boolean().optional(),
+    }),
   }),
-  params: z.object({
-    targetName: z.string().optional(),
-    source: z.string().optional(),
-    sequential: z.boolean().optional(),
+  ...AnimationDirectiveNameList.slice(1).map((name) => {
+    return z.object({
+      directive: z.literal(name),
+      params: z.object({
+        targetName: z.string({
+          message: "请选择目标元素",
+        }),
+        duration: z.number().optional(),
+        sequential: z.boolean().optional(),
+      }),
+    });
   }),
-});
+  z.object({
+    directive: z.literal(DirectiveName.Wait),
+    params: z.object({
+      duration: z.number().optional(),
+      sequential: z.boolean().optional(),
+    }),
+  }),
+  z.object({
+    directive: z.literal(DirectiveName.Play),
+    params: z.object({
+      targetName: z.string({
+        message: "请选择目标音频",
+      }),
+      start: z.number().optional(),
+      volume: z.number().optional(),
+      loop: z.boolean().optional(),
+      untilEnd: z.boolean().optional(),
+    }),
+  }),
+  ...[DirectiveName.Pause, DirectiveName.Stop].map((name) => {
+    return z.object({
+      directive: z.literal(name),
+      params: z.object({
+        targetName: z.string({
+          message: "请选择目标音频",
+        }),
+      }),
+    });
+  }),
+]);
 
 export function DirectiveForm({
   editingDirective,
+  directiveType,
   onSubmitDirective,
   onCancel,
 }: {
   editingDirective: TDirectiveElement | null;
+  directiveType: DirectiveType;
   onSubmitDirective: (value: TDirectiveValue) => void;
   onCancel: () => void;
 }) {
-  // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      directive: "",
+      directive: "", // TODO: 最近使用的一个指令
       params: {},
     },
   });
-  const directive = useWatch({
+  const formDirective = useWatch({
     control: form.control,
     name: "directive",
   });
+  const animationFieldsRef = useRef<DirectiveAnimationFormFieldsHandle>(null);
+  const utilFieldsRef = useRef<DirectiveUtilFormFieldsHandle>(null);
+  const soundFieldsRef = useRef<DirectiveSoundFormFieldsHandle>(null);
+
+  const directiveNameGroup = useMemo(() => {
+    return DirectiveNameOptionGroups.find(
+      (item) => item.type === directiveType,
+    );
+  }, [directiveType]);
 
   useEffect(() => {
     console.log("directiveValue", editingDirective);
@@ -74,37 +144,45 @@ export function DirectiveForm({
   }, [editingDirective, form.reset, form]);
 
   // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(value: z.infer<typeof formSchema>) {
+    let label = "";
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    console.log("values", JSON.stringify(values, null, 2));
-    onSubmitDirective(values);
+    console.log("values", JSON.stringify(value, null, 2));
+
+    if (animationFieldsRef.current) {
+      label = animationFieldsRef.current.getDirectiveLabel();
+    } else if (utilFieldsRef.current) {
+      label = utilFieldsRef.current.getDirectiveLabel();
+    } else if (soundFieldsRef.current) {
+      label = soundFieldsRef.current.getDirectiveLabel();
+    }
+
+    onSubmitDirective({
+      ...value,
+      label,
+    });
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
           name="directive"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>指令</FormLabel>
+              <FormLabel>{directiveNameGroup?.name}</FormLabel>
               <FormControl>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="请选择指令" />
                   </SelectTrigger>
                   <SelectContent>
-                    {DirectiveNameOptionGroups.map((group) => (
-                      <SelectGroup key={group.name}>
-                        <SelectLabel>{group.name}</SelectLabel>
-                        {group.options.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.name}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
+                    {directiveNameGroup?.options.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.name}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -113,18 +191,26 @@ export function DirectiveForm({
             </FormItem>
           )}
         />
-        {AnimationDirectiveNameList.includes(directive as DirectiveName) && (
-          <DirectiveAnimationFormFields
-            form={form}
-          ></DirectiveAnimationFormFields>
+        {AnimationDirectiveNameList.includes(
+          formDirective as DirectiveName,
+        ) && (
+          <DirectiveAnimationFormFields form={form} ref={animationFieldsRef} />
         )}
-        {directive && (
+        {UtilDirectiveNameList.includes(formDirective as DirectiveName) && (
+          <DirectiveUtilFormFields form={form} ref={utilFieldsRef} />
+        )}
+        {SoundDirectiveNameList.includes(formDirective as DirectiveName) && (
+          <DirectiveSoundFormFields form={form} ref={soundFieldsRef} />
+        )}
+        {formDirective && (
           <FormField
             control={form.control}
             name="params.sequential"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>串行</FormLabel>
+              <FormItem className="flex flex-row items-center">
+                <FormLabel className="mr-4 mt-2 flex flex-col space-y-1">
+                  是否串行
+                </FormLabel>
                 <FormControl>
                   <Switch
                     checked={field.value}
@@ -139,7 +225,7 @@ export function DirectiveForm({
         <Button size="sm" type="submit">
           确定
         </Button>
-        <Button size="sm" onClick={onCancel}>
+        <Button size="sm" type="button" onClick={onCancel}>
           取消
         </Button>
       </form>

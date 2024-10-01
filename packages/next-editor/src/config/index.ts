@@ -1,32 +1,40 @@
 import { DirectiveName } from "@vnve/next-core";
 
+export enum DirectiveType {
+  Animation = "Animation",
+  Sound = "Sound",
+  Util = "Util",
+  Filter = "Filter",
+  Transition = "Transition",
+}
+
 interface DirectiveNameOption {
   name: string;
   value: DirectiveName;
 }
 
-const DirectiveNameMap: Record<DirectiveName, string> = {
-  Speak: "发言",
-  Speaker: "发言人",
-  ChangeSource: "变更状态",
-  Show: "显示",
-  Hide: "隐藏",
-  FadeIn: "淡入",
-  FadeOut: "淡出",
-  Play: "播放",
-  Pause: "暂停",
-  Stop: "停止",
-  Wait: "等待",
-  FadeInTransition: "淡入过渡",
-  AddFilter: "添加滤镜",
-  RemoveFilter: "移除滤镜",
+export const DirectiveNameMap: Record<DirectiveName, string> = {
+  [DirectiveName.Speak]: "发言",
+  [DirectiveName.Speaker]: "发言人",
+  [DirectiveName.ChangeSource]: "变更",
+  [DirectiveName.Show]: "显示",
+  [DirectiveName.Hide]: "隐藏",
+  [DirectiveName.FadeIn]: "淡入",
+  [DirectiveName.FadeOut]: "淡出",
+  [DirectiveName.Play]: "播放",
+  [DirectiveName.Pause]: "暂停",
+  [DirectiveName.Stop]: "停止",
+  [DirectiveName.Wait]: "等待",
+  [DirectiveName.FadeInTransition]: "淡入过渡",
+  [DirectiveName.AddFilter]: "添加滤镜",
+  [DirectiveName.RemoveFilter]: "移除滤镜",
 };
 export const AnimationDirectiveNameList: DirectiveName[] = [
-  "ChangeSource",
-  "Show",
-  "Hide",
-  "FadeIn",
-  "FadeOut",
+  DirectiveName.ChangeSource,
+  DirectiveName.Show,
+  DirectiveName.Hide,
+  DirectiveName.FadeIn,
+  DirectiveName.FadeOut,
 ];
 
 export const AnimationDirectiveNameOptions: DirectiveNameOption[] =
@@ -36,9 +44,9 @@ export const AnimationDirectiveNameOptions: DirectiveNameOption[] =
   }));
 
 export const SoundDirectiveNameList: DirectiveName[] = [
-  "Play",
-  "Pause",
-  "Stop",
+  DirectiveName.Play,
+  DirectiveName.Pause,
+  DirectiveName.Stop,
 ];
 
 export const SoundDirectiveNameOptions: DirectiveNameOption[] =
@@ -47,33 +55,85 @@ export const SoundDirectiveNameOptions: DirectiveNameOption[] =
     value,
   }));
 
-export const OtherDirectiveNameList: DirectiveName[] = [
-  "Wait",
-  "FadeInTransition",
-  "AddFilter",
-  "RemoveFilter",
+export const UtilDirectiveNameList: DirectiveName[] = [DirectiveName.Wait];
+
+export const FilterDirectiveNameList: DirectiveName[] = [
+  DirectiveName.AddFilter,
+  DirectiveName.RemoveFilter,
 ];
 
-export const OtherDirectiveNameOptions: DirectiveNameOption[] =
-  OtherDirectiveNameList.map((value) => ({
+export const TransitionDirectiveNameList: DirectiveName[] = [
+  DirectiveName.FadeInTransition,
+];
+
+export const UtilDirectiveNameOptions: DirectiveNameOption[] =
+  UtilDirectiveNameList.map((value) => ({
+    name: DirectiveNameMap[value],
+    value,
+  }));
+
+export const FilterDirectiveNameOptions: DirectiveNameOption[] =
+  FilterDirectiveNameList.map((value) => ({
+    name: DirectiveNameMap[value],
+    value,
+  }));
+
+export const TransitionDirectiveNameOptions: DirectiveNameOption[] =
+  TransitionDirectiveNameList.map((value) => ({
     name: DirectiveNameMap[value],
     value,
   }));
 
 export const DirectiveNameOptionGroups: Array<{
   name: string;
+  type: DirectiveType;
   options: Array<DirectiveNameOption>;
 }> = [
   {
     name: "动画指令",
+    type: DirectiveType.Animation,
     options: AnimationDirectiveNameOptions,
   },
   {
     name: "声音指令",
+    type: DirectiveType.Sound,
     options: SoundDirectiveNameOptions,
   },
   {
-    name: "其他指令",
-    options: OtherDirectiveNameOptions,
+    name: "工具指令",
+    type: DirectiveType.Util,
+    options: UtilDirectiveNameOptions,
+  },
+  {
+    name: "滤镜指令",
+    type: DirectiveType.Filter,
+    options: FilterDirectiveNameOptions,
+  },
+  {
+    name: "转场指令",
+    type: DirectiveType.Transition,
+    options: TransitionDirectiveNameOptions,
   },
 ];
+
+export function getDirectiveType(name: DirectiveName): DirectiveType {
+  if (AnimationDirectiveNameList.includes(name)) {
+    return DirectiveType.Animation;
+  }
+
+  if (SoundDirectiveNameList.includes(name)) {
+    return DirectiveType.Sound;
+  }
+
+  if (UtilDirectiveNameList.includes(name)) {
+    return DirectiveType.Util;
+  }
+
+  if (FilterDirectiveNameList.includes(name)) {
+    return DirectiveType.Filter;
+  }
+
+  if (TransitionDirectiveNameList.includes(name)) {
+    return DirectiveType.Transition;
+  }
+}

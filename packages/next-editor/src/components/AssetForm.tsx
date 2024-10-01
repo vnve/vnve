@@ -93,7 +93,7 @@ export function AssetForm({
         {assetTypeName}
       </h3>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
           <FormField
             control={form.control}
             name="name"
@@ -127,10 +127,7 @@ export function AssetForm({
                               <img
                                 src={
                                   asset.states[index]?.id
-                                    ? getAssetSourceURL(
-                                        asset.states[index].id,
-                                        asset.states[index].ext,
-                                      )
+                                    ? getAssetSourceURL(asset.states[index])
                                     : ""
                                 }
                                 className="h-full w-full object-cover"
@@ -193,7 +190,12 @@ export function AssetForm({
             <FormMessage />
           </FormItem>
 
-          <Button className="mr-2" variant="outline" onClick={onCancel}>
+          <Button
+            type="button"
+            className="mr-2"
+            variant="outline"
+            onClick={onCancel}
+          >
             取消
           </Button>
           <Button type="submit">确定</Button>

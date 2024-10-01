@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useEditorStore } from "@/store";
 import { Input } from "@/components/ui/input";
 import { Label } from "./ui/label";
+import { Dialogue, Text } from "@vnve/next-core";
 
 export function SceneDetail() {
   const editor = useEditorStore((state) => state.editor);
@@ -24,6 +25,48 @@ export function SceneDetail() {
     });
   }
 
+  function handleUpdateDialogue(index: number, value: Dialogue) {
+    editor.updateDialogue(index, value);
+    // 单向同步至画布元素，只改变画布中的值
+    if (activeScene) {
+      const { name, text } = activeScene.config.speak?.target || {};
+
+      if (value.speaker.label) {
+        const nameChild = editor.activeScene.getChildByName(name) as Text;
+
+        nameChild.text = value.speaker.label;
+      }
+
+      if (value.lines.length > 0) {
+        const textChild = editor.activeScene.getChildByName(text) as Text;
+        let speakText = "";
+
+        value.lines.forEach((line) => {
+          if (line.type === "p") {
+            for (let index = 0; index < line.children.length; index++) {
+              const child = line.children[index];
+
+              if (!child.type) {
+                let text = child.text;
+
+                if (index === line.children.length - 1) {
+                  // 最后一个元素是文本，增加换行符
+                  text += "\n";
+                }
+
+                speakText += text;
+              }
+            }
+          }
+        });
+
+        if (speakText) {
+          textChild.text = speakText;
+        }
+      }
+    }
+  }
+
   return (
     <>
       {activeScene && (
@@ -43,9 +86,7 @@ export function SceneDetail() {
               <div key={index}>
                 <DirectiveInput
                   value={dialogue}
-                  onChange={(value) => {
-                    editor.updateDialogue(index, value);
-                  }}
+                  onChange={(value) => handleUpdateDialogue(index, value)}
                 ></DirectiveInput>
                 <Button
                   onClick={() => {
