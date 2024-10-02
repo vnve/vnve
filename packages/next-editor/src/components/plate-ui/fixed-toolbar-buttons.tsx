@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 
 import {
   BoldPlugin,
@@ -33,6 +33,41 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, useWatch } from "react-hook-form";
+import { z } from "zod";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+
+const formSchema = z.object({
+  label: z.string().optional(),
+  wordsPerMin: z.number().optional(),
+  interval: z.number().optional(),
+  effect: z.string().optional(),
+  autoShowSpeaker: z
+    .object({
+      inEffect: z.string(),
+    })
+    .optional(),
+  autoMaskOtherSpeakers: z
+    .object({
+      alpha: z.number(),
+    })
+    .optional(),
+});
+
+const defaultValues = {
+  wordsPerMin: 600,
+  interval: 0.2,
+};
 
 export function FixedToolbarButtons({ speaker, onChangeSpeaker }) {
   const activeScene = useEditorStore((state) => state.activeScene);
@@ -46,9 +81,35 @@ export function FixedToolbarButtons({ speaker, onChangeSpeaker }) {
     );
   }, [activeScene]);
 
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      ...defaultValues,
+      ...speaker,
+    },
+  });
+  const formValues = useWatch({
+    control: form.control,
+  }); // TODO: watch to update speaker but ignore the first render
+
   const handleSelectCharacter = (name: string) => {
-    onChangeSpeaker(characters.find((character) => character.name === name));
+    const hitCharacter = characters.find(
+      (character) => character.name === name,
+    );
+
+    onChangeSpeaker({
+      ...speaker,
+      name,
+      label: hitCharacter?.label || "",
+    });
   };
+
+  useEffect(() => {
+    form.reset({
+      ...defaultValues,
+      ...speaker,
+    });
+  }, [speaker, form]);
 
   return (
     <div className="w-full overflow-hidden">
@@ -87,8 +148,119 @@ export function FixedToolbarButtons({ speaker, onChangeSpeaker }) {
               <Popover>
                 <PopoverTrigger>配置</PopoverTrigger>
                 <PopoverContent>
-                  语速 停顿 效果 自动显示发言 自动隐藏 Place content for the
-                  popover here.
+                  <Form {...form}>
+                    <form className="space-y-4">
+                      <FormField
+                        control={form.control}
+                        name="label"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>自定义角色名</FormLabel>
+                            <FormDescription>
+                              用于自定义在对话中显示的角色名
+                            </FormDescription>
+                            <FormControl>
+                              <Input
+                                placeholder="请输入自定义角色名"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="wordsPerMin"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>语速（字/分钟）</FormLabel>
+                            <FormDescription>
+                              角色发言的速度，默认值参考阅读速度xxx
+                            </FormDescription>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                min={0}
+                                step={100}
+                                placeholder="请输入语速"
+                                value={field.value}
+                                onChange={(e) => {
+                                  const value = Number(e.target.value);
+
+                                  field.onChange(value);
+                                }}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="interval"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>停顿时长（秒）</FormLabel>
+                            <FormDescription>
+                              角色发言完成后的停顿时长
+                            </FormDescription>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                min={0}
+                                step={0.1}
+                                placeholder="请输入停顿时长"
+                                value={field.value}
+                                onChange={(e) => {
+                                  const value = Number(e.target.value);
+
+                                  field.onChange(value);
+                                }}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="effect"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>台词效果</FormLabel>
+                            <FormDescription>台词的输出效果</FormDescription>
+                            <FormControl>
+                              <Input placeholder="请选择台词效果" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="autoShowSpeaker"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>是否自动展示发言角色</FormLabel>
+                            <FormControl></FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="autoMaskOtherSpeakers"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>是否自动阴影非发言角色</FormLabel>
+                            <FormControl></FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </form>
+                  </Form>
                 </PopoverContent>
               </Popover>
             </ToolbarGroup>

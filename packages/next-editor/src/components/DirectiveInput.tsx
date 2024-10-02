@@ -54,6 +54,21 @@ export function DirectiveInput({ value, onChange }) {
   });
   const [editorValue, setEditorValue] = useState([]); // 记录editor value进行比对, 避免重复渲染
 
+  const handleChangeLines = ({ value: newValue }) => {
+    onChange({
+      ...value,
+      lines: newValue,
+    });
+    setEditorValue(newValue);
+  };
+
+  const handleChangeSpeaker = (speaker) => {
+    onChange({
+      ...value,
+      speaker,
+    });
+  };
+
   useEffect(() => {
     if (editorValue !== value.lines) {
       editor.tf.setValue(value.lines);
@@ -63,28 +78,11 @@ export function DirectiveInput({ value, onChange }) {
 
   return (
     <>
-      <Plate
-        editor={editor}
-        onChange={({ value: newValue }) => {
-          onChange({
-            ...value,
-            lines: newValue,
-          });
-          setEditorValue(newValue);
-        }}
-      >
+      <Plate editor={editor} onChange={handleChangeLines}>
         <FixedToolbar>
           <FixedToolbarButtons
             speaker={value.speaker}
-            onChangeSpeaker={(speaker) => {
-              onChange({
-                ...value,
-                speaker: {
-                  label: speaker.label,
-                  name: speaker.name,
-                },
-              });
-            }}
+            onChangeSpeaker={handleChangeSpeaker}
           ></FixedToolbarButtons>
         </FixedToolbar>
         <Editor />
