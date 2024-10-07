@@ -209,7 +209,7 @@ export function DirectiveForm({
             render={({ field }) => (
               <FormItem className="flex flex-row items-center">
                 <FormLabel className="mr-4 mt-2 flex flex-col space-y-1">
-                  是否串行
+                  串行执行
                 </FormLabel>
                 <FormControl>
                   <Switch

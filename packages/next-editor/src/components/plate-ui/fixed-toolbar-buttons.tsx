@@ -7,7 +7,7 @@ import {
   StrikethroughPlugin,
   UnderlinePlugin,
 } from "@udecode/plate-basic-marks/react";
-import { useEditorReadOnly } from "@udecode/plate-common/react";
+import { focusEditor, useEditorRef } from "@udecode/plate-common/react";
 
 import { Icons } from "@/components/icons";
 
@@ -26,7 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useEditorStore } from "@/store";
-import { Sprite } from "@vnve/next-core";
+import { Directive, Sprite } from "@vnve/next-core";
 import { DBAssetType } from "@/db";
 import {
   Popover,
@@ -46,6 +46,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
+import { DirectiveType } from "@/config";
+import { triggerFloatingDirective } from "../plugin/directive";
 
 const formSchema = z.object({
   label: z.string().optional(),
@@ -67,6 +71,13 @@ const formSchema = z.object({
 const defaultValues = {
   wordsPerMin: 600,
   interval: 0.2,
+  effect: "typewriter",
+  autoShowSpeaker: {
+    inEffect: "Show",
+  },
+  autoMaskOtherSpeakers: {
+    alpha: 0.5,
+  },
 };
 
 export function FixedToolbarButtons({ speaker, onChangeSpeaker }) {
@@ -80,6 +91,7 @@ export function FixedToolbarButtons({ speaker, onChangeSpeaker }) {
       (child: Sprite) => child.assetType === DBAssetType.Character,
     );
   }, [activeScene]);
+  const editor = useEditorRef();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -90,7 +102,7 @@ export function FixedToolbarButtons({ speaker, onChangeSpeaker }) {
   });
   const formValues = useWatch({
     control: form.control,
-  }); // TODO: watch to update speaker but ignore the first render
+  });
 
   const handleSelectCharacter = (name: string) => {
     const hitCharacter = characters.find(
@@ -104,12 +116,29 @@ export function FixedToolbarButtons({ speaker, onChangeSpeaker }) {
     });
   };
 
+  const handleSelectDirectiveType = (type: DirectiveType) => {
+    triggerFloatingDirective(editor, {
+      directiveType: type,
+    });
+
+    focusEditor(editor);
+  };
+
   useEffect(() => {
     form.reset({
       ...defaultValues,
       ...speaker,
     });
   }, [speaker, form]);
+
+  useEffect(() => {
+    if (form.formState.isDirty) {
+      onChangeSpeaker({
+        ...speaker,
+        ...formValues,
+      });
+    }
+  }, [form.formState.isDirty, formValues]);
 
   return (
     <div className="w-full overflow-hidden">
@@ -231,7 +260,20 @@ export function FixedToolbarButtons({ speaker, onChangeSpeaker }) {
                             <FormLabel>台词效果</FormLabel>
                             <FormDescription>台词的输出效果</FormDescription>
                             <FormControl>
-                              <Input placeholder="请选择台词效果" {...field} />
+                              <Select
+                                onValueChange={field.onChange}
+                                value={field.value}
+                              >
+                                <SelectTrigger className="w-[180px]">
+                                  <SelectValue placeholder="请选择台词效果" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="typewriter">
+                                    打字机
+                                  </SelectItem>
+                                  <SelectItem value="fadeIn">渐入</SelectItem>
+                                </SelectContent>
+                              </Select>
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -241,9 +283,16 @@ export function FixedToolbarButtons({ speaker, onChangeSpeaker }) {
                         control={form.control}
                         name="autoShowSpeaker"
                         render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>是否自动展示发言角色</FormLabel>
-                            <FormControl></FormControl>
+                          <FormItem className="flex flex-row items-center">
+                            <FormLabel className="mr-4 mt-2 flex flex-col space-y-1">
+                              自动显示发言角色
+                            </FormLabel>
+                            <FormControl>
+                              <Switch
+                                checked={field.value ? true : false}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -252,9 +301,16 @@ export function FixedToolbarButtons({ speaker, onChangeSpeaker }) {
                         control={form.control}
                         name="autoMaskOtherSpeakers"
                         render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>是否自动阴影非发言角色</FormLabel>
-                            <FormControl></FormControl>
+                          <FormItem className="flex flex-row items-center">
+                            <FormLabel className="mr-4 mt-2 flex flex-col space-y-1">
+                              自动阴影其他角色
+                            </FormLabel>
+                            <FormControl>
+                              <Switch
+                                checked={field.value ? true : false}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -266,6 +322,20 @@ export function FixedToolbarButtons({ speaker, onChangeSpeaker }) {
             </ToolbarGroup>
 
             <ToolbarGroup noSeparator>
+              <Button
+                size="sm"
+                onClick={() =>
+                  handleSelectDirectiveType(DirectiveType.Animation)
+                }
+              >
+                +动画
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => handleSelectDirectiveType(DirectiveType.Sound)}
+              >
+                +声音
+              </Button>
               <InsertDropdownMenu />
             </ToolbarGroup>
 

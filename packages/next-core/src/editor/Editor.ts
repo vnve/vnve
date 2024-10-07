@@ -452,6 +452,8 @@ export class Editor {
             targetName: speakTarget.name,
             name: speaker.label,
             speakerTargetName: speaker.name,
+            autoShowSpeaker: speaker.autoShowSpeaker,
+            autoMaskOtherSpeakers: speaker.autoMaskOtherSpeakers,
           },
         });
       }
@@ -489,6 +491,9 @@ export class Editor {
                   targetName: speakTarget.text,
                   text,
                   append: shouldAppend,
+                  wordsPerMin: speaker.wordsPerMin,
+                  interval: speaker.interval,
+                  effect: speaker.effect,
                 },
               });
 

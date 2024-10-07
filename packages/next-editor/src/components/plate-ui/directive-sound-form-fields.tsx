@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { assetDB, DBAssetType, getAssetSourceURL } from "@/db";
 import { useEditorStore } from "@/store";
 import { DirectiveName, Sound } from "@vnve/next-core";
@@ -209,18 +210,15 @@ export const DirectiveSoundFormFields = forwardRef<
             control={form.control}
             name="params.loop"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>是否循环</FormLabel>
+              <FormItem className="flex flex-row items-center">
+                <FormLabel className="mr-4 mt-2 flex flex-col space-y-1">
+                  循环播放
+                </FormLabel>
                 <FormControl>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="请选择是否循环" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="true">是</SelectItem>
-                      <SelectItem value="false">否</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -230,18 +228,15 @@ export const DirectiveSoundFormFields = forwardRef<
             control={form.control}
             name="params.untilEnd"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>是否结束</FormLabel>
+              <FormItem className="flex flex-row items-center">
+                <FormLabel className="mr-4 mt-2 flex flex-col space-y-1">
+                  跨场景播放
+                </FormLabel>
                 <FormControl>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="请选择是否结束" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="true">是</SelectItem>
-                      <SelectItem value="false">否</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

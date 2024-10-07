@@ -25,18 +25,18 @@ import { DirectiveType } from "@/config";
 const items = [
   {
     items: [
-      {
-        description: "动画指令",
-        icon: Icons.add,
-        label: "动画指令",
-        value: DirectiveType.Animation,
-      },
-      {
-        description: "声音指令",
-        icon: Icons.add,
-        label: "声音指令",
-        value: DirectiveType.Sound,
-      },
+      // {
+      //   description: "动画指令",
+      //   icon: Icons.add,
+      //   label: "动画指令",
+      //   value: DirectiveType.Animation,
+      // },
+      // {
+      //   description: "声音指令",
+      //   icon: Icons.add,
+      //   label: "声音指令",
+      //   value: DirectiveType.Sound,
+      // },
       {
         description: "工具指令",
         icon: Icons.add,
@@ -56,13 +56,21 @@ const items = [
         value: DirectiveType.Filter,
       },
     ],
-    label: "指令",
+    label: "更多指令",
   },
 ];
 
 export function InsertDropdownMenu(props: DropdownMenuProps) {
   const editor = useEditorRef();
   const openState = useOpenState();
+
+  function handleSelectDirectiveType(type: DirectiveType) {
+    triggerFloatingDirective(editor, {
+      directiveType: type,
+    });
+
+    focusEditor(editor);
+  }
 
   return (
     <DropdownMenu modal={false} {...openState} {...props}>
@@ -86,13 +94,7 @@ export function InsertDropdownMenu(props: DropdownMenuProps) {
                 <DropdownMenuItem
                   className="min-w-[180px]"
                   key={type}
-                  onSelect={() => {
-                    triggerFloatingDirective(editor, {
-                      directiveType: type,
-                    });
-
-                    focusEditor(editor);
-                  }}
+                  onSelect={() => handleSelectDirectiveType(type)}
                 >
                   <Icon className="mr-2 size-5" />
                   {itemLabel}
