@@ -10,6 +10,7 @@ interface SpriteOptions {
 export class Sprite extends PIXI.Sprite implements DisplayChild {
   public name: string;
   public label: string;
+  public type: string;
   public source: string;
   public assetID: number;
   public assetType: string;
@@ -18,6 +19,7 @@ export class Sprite extends PIXI.Sprite implements DisplayChild {
     super();
     this.name = uuid();
     this.label = "";
+    this.type = "Sprite";
     this.source = options.source;
     this.assetID = 0;
     this.assetType = "";

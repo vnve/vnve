@@ -15,7 +15,9 @@ export type EditorChildPosition =
   | "middle"
   | "bottom"
   | "left"
+  | "near-left"
   | "center"
+  | "near-right"
   | "right";
 
 interface EditorOption {
@@ -105,18 +107,33 @@ export class Editor {
     });
   }
 
-  public setActiveChild(child: Child) {
+  public setActiveChild(child?: Child) {
     this.activeChild = child;
-    if (!this.activeTransformer) {
-      this.addTransformer();
-    }
-    if (this.activeTransformer) {
-      this.activeTransformer.group = [child];
-      // move transformer to top for it can be interactive move
-      this.moveChildToTop(this.activeTransformer as unknown as Child);
+
+    if (child) {
+      if (!this.activeTransformer) {
+        this.addTransformer();
+      }
+      if (this.activeTransformer) {
+        this.activeTransformer.group = [child];
+        // move transformer to top for it can be interactive move
+        this.moveChildToTop(this.activeTransformer as unknown as Child);
+      }
     }
 
     this.options.onChangeActiveChild(child);
+  }
+
+  public setActiveChildByName(name: string) {
+    const scene = this.activeScene;
+
+    if (scene) {
+      const child = scene.children.find((item) => item.name === name);
+
+      if (child) {
+        this.setActiveChild(child);
+      }
+    }
   }
 
   public updateActiveChild(fn: (child: Child) => void) {
@@ -128,7 +145,7 @@ export class Editor {
   }
 
   public removeChildTransformListener(child: Child) {
-    child.removeAllListeners("click");
+    child.removeAllListeners("pointerdown");
   }
 
   public addScene(scene: Scene, sceneIndex?: number) {
@@ -210,6 +227,14 @@ export class Editor {
     this.options.onChangeActiveScene(scene);
   }
 
+  public setActiveSceneByName(name: string) {
+    const scene = this.scenes.find((item) => item.name === name);
+
+    if (scene) {
+      this.setActiveScene(scene);
+    }
+  }
+
   public setActiveSceneByIndex(index: number) {
     this.setActiveScene(this.scenes[index]);
   }
@@ -222,30 +247,71 @@ export class Editor {
     }
   }
 
-  public addChild(child: Child, targetScene?: Scene) {
-    const scene = targetScene ?? this.activeScene;
+  public addChild(child: Child) {
+    const scene = this.activeScene;
 
     if (scene) {
       this.addChildTransformListener(child);
       scene.addChild(child);
 
-      if (!targetScene) {
-        this.options.onChangeActiveScene(scene);
-      }
+      this.options.onChangeActiveScene(scene);
     }
   }
 
-  public removeChild(child: Child, targetScene?: Scene) {
-    const scene = targetScene ?? this.activeScene;
+  public removeChild(child: Child) {
+    const scene = this.activeScene;
 
     if (scene) {
+      if (this.activeChild?.name === child.name) {
+        this.setActiveChild(undefined);
+        this.removeTransformer();
+      }
+
       this.removeChildTransformListener(child);
       scene.removeChild(child);
       child.destroy();
 
-      if (!targetScene) {
-        this.options.onChangeActiveScene(scene);
+      this.options.onChangeActiveScene(scene);
+    }
+  }
+
+  public removeChildByName(name: string) {
+    const scene = this.activeScene;
+
+    if (scene) {
+      const child = scene.children.find((item) => item.name === name);
+
+      if (child) {
+        this.removeChild(child);
       }
+    }
+  }
+
+  public toggleChildVisibleByName(name: string) {
+    const scene = this.activeScene;
+
+    if (scene) {
+      const child = scene.children.find((item) => item.name === name);
+
+      if (child) {
+        child.visible = !child.visible;
+      }
+
+      this.options.onChangeActiveScene(scene);
+    }
+  }
+
+  public toggleChildInteractiveByName(name: string) {
+    const scene = this.activeScene;
+
+    if (scene) {
+      const child = scene.children.find((item) => item.name === name);
+
+      if (child) {
+        child.interactive = !child.interactive;
+      }
+
+      this.options.onChangeActiveScene(scene);
     }
   }
 
@@ -257,8 +323,8 @@ export class Editor {
     }
   }
 
-  public addSound(sound: Sound, targetScene?: Scene) {
-    const scene = targetScene ?? this.activeScene;
+  public addSound(sound: Sound) {
+    const scene = this.activeScene;
 
     if (scene) {
       scene.addSound(sound);
@@ -266,8 +332,8 @@ export class Editor {
     }
   }
 
-  public removeSound(sound: Sound, targetScene?: Scene) {
-    const scene = targetScene ?? this.activeScene;
+  public removeSound(sound: Sound) {
+    const scene = this.activeScene;
 
     if (scene) {
       scene.removeSound(sound);
@@ -275,8 +341,8 @@ export class Editor {
     }
   }
 
-  public addDialogue(dialogue: Dialogue, targetScene?: Scene) {
-    const scene = targetScene ?? this.activeScene;
+  public addDialogue(dialogue: Dialogue) {
+    const scene = this.activeScene;
 
     if (scene) {
       scene.addDialogue(dialogue);
@@ -284,12 +350,8 @@ export class Editor {
     }
   }
 
-  public updateDialogue(
-    index: number,
-    dialogue: Dialogue,
-    targetScene?: Scene,
-  ) {
-    const scene = targetScene ?? this.activeScene;
+  public updateDialogue(index: number, dialogue: Dialogue) {
+    const scene = this.activeScene;
 
     if (scene) {
       scene.updateDialogue(index, dialogue);
@@ -297,8 +359,8 @@ export class Editor {
     }
   }
 
-  public removeDialogue(dialogue: Dialogue, targetScene?: Scene) {
-    const scene = targetScene ?? this.activeScene;
+  public removeDialogue(dialogue: Dialogue) {
+    const scene = this.activeScene;
 
     if (scene) {
       scene.removeDialogue(dialogue);
@@ -411,8 +473,14 @@ export class Editor {
       case "left":
         targetChild.x = 0;
         break;
+      case "near-left":
+        targetChild.x = stageWidth / 3 - targetChild.width / 2;
+        break;
       case "center":
         targetChild.x = stageWidth / 2 - targetChild.width / 2;
+        break;
+      case "near-right":
+        targetChild.x = (stageWidth / 3) * 2 - targetChild.width / 2;
         break;
       case "right":
         targetChild.x = stageWidth - targetChild.width;

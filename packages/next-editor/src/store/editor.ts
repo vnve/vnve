@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { Child, Editor, Scene } from "@vnve/next-core";
+import { Child, Editor, Graphics, Scene, Text } from "@vnve/next-core";
 import { immer } from "zustand/middleware/immer";
 import { immerable } from "immer";
 
@@ -34,7 +34,39 @@ export const useEditorStore = create<{
           view,
           onChangeActiveChild(child) {
             set((state) => {
-              state.activeChild = { ...child };
+              if (!child) {
+                state.activeChild = null;
+                return;
+              }
+
+              let newChild = {
+                ...child,
+                // child上部分属性是在prototype上的，需要手动拷贝到新对象上
+                width: child.width,
+                height: child.height,
+                x: child.x,
+                y: child.y,
+              };
+
+              if (child.type === "Text") {
+                const textChild = child as Text;
+
+                newChild = {
+                  ...newChild,
+                  text: textChild.text,
+                  // textChild.style上部分属性是在prototype上的，需要手动拷贝到新对象上
+                  style: textChild.style && {
+                    ...textChild.style,
+                    fontFamily: textChild.style.fontFamily,
+                    fontWeight: textChild.style.fontWeight,
+                    fontStyle: textChild.style.fontStyle,
+                    fontSize: textChild.style.fontSize,
+                    fill: textChild.style.fill,
+                  },
+                } as Text;
+              }
+
+              state.activeChild = newChild;
             });
           },
           onChangeActiveScene(scene) {

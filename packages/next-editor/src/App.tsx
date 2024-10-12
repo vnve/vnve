@@ -1,5 +1,5 @@
 import { createHashRouter, RouterProvider } from "react-router-dom";
-import EditorPage from "./page/EditorPage.tsx";
+import { EditorPage } from "./page/EditorPage.tsx";
 
 const router = createHashRouter([
   {

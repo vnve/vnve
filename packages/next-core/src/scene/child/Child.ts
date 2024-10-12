@@ -5,7 +5,8 @@ import { Graphics } from "./Graphics";
 import { Filter, reviveFilters } from "../filter";
 
 export abstract class DisplayChild {
-  public label: string = "";
+  abstract label: string;
+  abstract type: string;
   abstract clone(exact?: boolean): DisplayChild;
   abstract load(): Promise<void>;
   abstract toJSON(): AnyJSON;
@@ -23,6 +24,7 @@ export function copyTo(
     to.name = from.name;
   }
   to.label = from.label;
+  to.type = from.type;
   to.visible = from.visible;
   to.alpha = from.alpha;
   to.zIndex = from.zIndex;
@@ -40,6 +42,7 @@ export function toJSON(child: Child, ignoreWH = false) {
     __type: child.constructor.name,
     name: child.name,
     label: child.label,
+    type: child.type,
     visible: child.visible,
     alpha: child.alpha,
     zIndex: child.zIndex,
@@ -61,6 +64,7 @@ export function toJSON(child: Child, ignoreWH = false) {
 export async function copyFromJSON(from: AnyJSON, to: Child, ignoreWH = false) {
   to.name = from.name;
   to.label = from.label;
+  to.type = from.type;
   to.visible = from.visible;
   to.alpha = from.alpha;
   to.zIndex = from.zIndex;

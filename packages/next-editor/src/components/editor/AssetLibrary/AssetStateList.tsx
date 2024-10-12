@@ -1,6 +1,6 @@
 import { DBAsset, DBAssetState, getAssetSourceURL } from "@/db";
-import { ScrollArea } from "./ui/scroll-area";
-import { Button } from "./ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
 
 export function AssetStateList({
   asset,

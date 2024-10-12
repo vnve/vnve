@@ -4,7 +4,9 @@ import { DisplayChild, copyFromJSON, copyTo, toJSON } from "./Child";
 
 export class Text extends PIXI.Text implements DisplayChild {
   public name = uuid();
-  public label: string = "";
+  public label = "";
+  public type = "Text";
+  public disableTextEdit = false;
 
   public async load() {
     // noop
@@ -16,6 +18,8 @@ export class Text extends PIXI.Text implements DisplayChild {
     // 文本元素不能复制宽、高
     copyTo(this, cloned, exact, true);
 
+    cloned.disableTextEdit = this.disableTextEdit;
+
     return cloned;
   }
 
@@ -23,6 +27,7 @@ export class Text extends PIXI.Text implements DisplayChild {
     return {
       ...toJSON(this, true),
       text: this.text,
+      disableTextEdit: this.disableTextEdit,
       style: {
         fontSize: this.style.fontSize,
         fontWeight: this.style.fontWeight,
@@ -41,6 +46,8 @@ export class Text extends PIXI.Text implements DisplayChild {
     const text = new Text(json.text, json.style);
 
     await copyFromJSON(json, text, true);
+
+    text.disableTextEdit = json.disableTextEdit;
 
     return text;
   }

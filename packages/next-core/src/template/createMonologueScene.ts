@@ -26,6 +26,7 @@ export function createMonologueScene() {
   lineText.y = 160;
   lineText.zIndex = LayerZIndex.Text;
   lineText.label = "独白台词";
+  lineText.disableTextEdit = true;
 
   scene.addChild(maskRect);
   scene.addChild(lineText);

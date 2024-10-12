@@ -4,7 +4,9 @@ import { uuid } from "../../util";
 
 export class Graphics extends PIXI.Graphics implements DisplayChild {
   public name = uuid();
-  public label: string = "";
+  public label = "";
+  public type = "Graphics";
+  public fillColor = ""; // 用于存储颜色值，仅给选择器展示使用
 
   public async load() {
     // noop
@@ -15,12 +17,15 @@ export class Graphics extends PIXI.Graphics implements DisplayChild {
 
     copyTo(this, cloned, exact);
 
+    cloned.fillColor = this.fillColor;
+
     return cloned;
   }
 
   public toJSON() {
     return {
       ...toJSON(this),
+      fillColor: this.fillColor,
       graphicsData: this.geometry.graphicsData.map((item) => {
         return [
           item.shape,
@@ -73,6 +78,8 @@ export class Graphics extends PIXI.Graphics implements DisplayChild {
     const graphics = new Graphics(geometry);
 
     await copyFromJSON(json, graphics);
+
+    graphics.fillColor = json.fillColor;
 
     return graphics;
   }
