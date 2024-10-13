@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useEditorStore } from "@/store";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useAssetLibrary } from "@/hooks";
 import { DBAssetType } from "@/db";
 import { createSprite } from "@/lib/core";
@@ -21,6 +21,7 @@ import {
   createMonologueScene,
   Scene,
 } from "@vnve/next-core";
+import { Card, CardContent } from "@/components/ui/card";
 
 const DEFAULT_SCENE_TEMPLATES = [
   {
@@ -43,6 +44,30 @@ export function SceneEditor() {
   const activeChild = useEditorStore((state) => state.activeChild);
   const activeScene = useEditorStore((state) => state.activeScene);
   const { selectAsset } = useAssetLibrary();
+  const canvasContainerRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const adjustCanvasWidth = () => {
+    const container = canvasContainerRef.current;
+    const canvas = canvasRef.current;
+
+    if (container && canvas) {
+      const containerWidth = container.clientWidth;
+      const containerHeight = container.clientHeight;
+      const aspectRatio = 16 / 9;
+
+      let width = containerWidth;
+      let height = containerWidth / aspectRatio;
+
+      if (height > containerHeight) {
+        height = containerHeight;
+        width = containerHeight * aspectRatio;
+      }
+
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+    }
+  };
 
   const handleAddScene = (createTemplateScene: () => Scene) => () => {
     const newScene = createTemplateScene();
@@ -91,11 +116,18 @@ export function SceneEditor() {
   };
 
   useEffect(() => {
-    initEditor(document.getElementById("editor") as HTMLCanvasElement);
+    window.addEventListener("resize", adjustCanvasWidth);
+
+    adjustCanvasWidth();
+    initEditor(canvasRef.current);
+
+    return () => {
+      window.removeEventListener("resize", adjustCanvasWidth);
+    };
   }, [initEditor]);
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 flex-1">
       {/* <Button
             onClick={() => {
               selectAsset().then((res) => {
@@ -155,7 +187,16 @@ export function SceneEditor() {
           </MenubarContent>
         </MenubarMenu>
       </Menubar>
-      <canvas id="editor" className="aspect-[16/9] w-full"></canvas>
+      <Card className="flex-1 rounded-md">
+        <CardContent className="relative h-full p-2">
+          <div
+            className="w-full h-full flex justify-center items-center"
+            ref={canvasContainerRef}
+          >
+            <canvas id="editor" ref={canvasRef}></canvas>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -65,16 +65,16 @@ export function EditorPage() {
             Share
           </Button>
         </header>
-        <main className="grid flex-1 gap-4 overflow-auto p-4 md:grid-cols-2 lg:grid-cols-3">
+        <main className="grid flex-1 gap-2 overflow-auto p-2 md:grid-cols-2 lg:grid-cols-3 bg-muted/50">
           <div
-            className="relative hidden flex-col items-start md:flex"
-            style={{ height: "calc(100vh - 53px - 2rem)" }}
+            className="relative hidden md:flex"
+            style={{ height: "calc(100vh - 53px - 1rem)" }}
           >
             <SceneDetail />
           </div>
-          <div className="relative flex h-full min-h-[50vh] flex-col rounded-xl bg-muted/50 p-2 lg:col-span-2">
+          <div className="relative flex h-full flex-col lg:col-span-2 gap-2">
             <SceneEditor />
-            <div className="grid grid-cols-2 gap-2">
+            <div className="flex gap-2 h-[50vh] md:h-[30vh]">
               <ChildEditor />
               <SceneList />
             </div>

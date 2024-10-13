@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialogue, Text } from "@vnve/next-core";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card, CardContent } from "@/components/ui/card";
 
 export function SceneDetail() {
   const editor = useEditorStore((state) => state.editor);
@@ -71,36 +72,42 @@ export function SceneDetail() {
   return (
     <>
       {activeScene && (
-        <ScrollArea className="w-full flex-1 pr-4">
-          <div className="grid w-full max-w-sm items-center gap-1.5">
-            <Label htmlFor="sceneName">场景名称</Label>
-            <Input
-              type="text"
-              id="sceneName"
-              placeholder="请输入场景名称"
-              value={activeScene.label}
-              onChange={(event) => handleChangeSceneName(event.target.value)}
-            />
-          </div>
-          {activeScene.dialogues.map((dialogue, index) => {
-            return (
-              <div key={index}>
-                <DirectiveInput
-                  value={dialogue}
-                  onChange={(value) => handleUpdateDialogue(index, value)}
-                ></DirectiveInput>
-                <Button
-                  onClick={() => {
-                    editor.removeDialogue(dialogue);
-                  }}
-                >
-                  删除
-                </Button>
+        <Card className="w-full flex-1 h-full rounded-md">
+          <CardContent className="h-full p-4">
+            <ScrollArea className="w-full h-full pr-4">
+              <div className="grid w-full max-w-sm items-center gap-1.5">
+                <Label htmlFor="sceneName">场景名称</Label>
+                <Input
+                  type="text"
+                  id="sceneName"
+                  placeholder="请输入场景名称"
+                  value={activeScene.label}
+                  onChange={(event) =>
+                    handleChangeSceneName(event.target.value)
+                  }
+                />
               </div>
-            );
-          })}
-          <Button onClick={handleAddDialogue}>新增对白</Button>
-        </ScrollArea>
+              {activeScene.dialogues.map((dialogue, index) => {
+                return (
+                  <div key={index}>
+                    <DirectiveInput
+                      value={dialogue}
+                      onChange={(value) => handleUpdateDialogue(index, value)}
+                    ></DirectiveInput>
+                    <Button
+                      onClick={() => {
+                        editor.removeDialogue(dialogue);
+                      }}
+                    >
+                      删除
+                    </Button>
+                  </div>
+                );
+              })}
+              <Button onClick={handleAddDialogue}>新增对白</Button>
+            </ScrollArea>
+          </CardContent>
+        </Card>
       )}
     </>
   );
