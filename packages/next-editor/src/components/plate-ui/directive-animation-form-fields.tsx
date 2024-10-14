@@ -61,6 +61,7 @@ export const DirectiveAnimationFormFields = forwardRef<
   useEffect(() => {
     if (activeScene) {
       const newCharacterOptions = [];
+      const newThingsOptions = [];
       const newBackgroundOptions = [];
       let newOtherOptions = [];
 
@@ -70,6 +71,8 @@ export const DirectiveAnimationFormFields = forwardRef<
           newCharacterOptions.push(newOption);
         } else if ((child as Sprite).assetType === DBAssetType.Background) {
           newBackgroundOptions.push(newOption);
+        } else if ((child as Sprite).assetType === DBAssetType.Thing) {
+          newThingsOptions.push(newOption);
         } else if (child.name) {
           newOtherOptions.push(newOption);
         }
@@ -87,6 +90,10 @@ export const DirectiveAnimationFormFields = forwardRef<
         {
           label: "背景",
           options: newBackgroundOptions,
+        },
+        {
+          label: "物品",
+          options: newThingsOptions,
         },
         {
           label: "其他",

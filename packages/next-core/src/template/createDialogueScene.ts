@@ -38,7 +38,7 @@ export function createDialogueScene() {
   dialogText.y = 770;
   dialogText.zIndex = LayerZIndex.Text;
   dialogText.label = "角色台词";
-  nameText.disableTextEdit = true;
+  dialogText.disableTextEdit = true;
 
   scene.addChild(dialogRect);
   scene.addChild(nameText);

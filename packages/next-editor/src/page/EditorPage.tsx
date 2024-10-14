@@ -66,10 +66,7 @@ export function EditorPage() {
           </Button>
         </header>
         <main className="grid flex-1 gap-2 overflow-auto p-2 md:grid-cols-2 lg:grid-cols-3 bg-muted/50">
-          <div
-            className="relative hidden md:flex"
-            style={{ height: "calc(100vh - 53px - 1rem)" }}
-          >
+          <div className="relative hidden md:flex h-[calc(100vh-53px-1rem)]">
             <SceneDetail />
           </div>
           <div className="relative flex h-full flex-col lg:col-span-2 gap-2">

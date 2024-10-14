@@ -23,6 +23,10 @@ export async function createSprite(asset: DBAsset, editor: Editor) {
     sprite.zIndex = LayerZIndex.Background;
     sprite.width = editor.options.width;
     sprite.height = editor.options.height;
+  } else if (asset.type === DBAssetType.Dialog) {
+    sprite.zIndex = LayerZIndex.Dialog;
+    sprite.x = editor.options.width / 2 - sprite.width / 2;
+    sprite.y = editor.options.height - sprite.height;
   }
 
   return sprite;

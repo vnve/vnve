@@ -71,7 +71,11 @@ export const useEditorStore = create<{
           },
           onChangeActiveScene(scene) {
             set((state) => {
-              state.activeScene = { ...scene };
+              if (scene) {
+                state.activeScene = { ...scene };
+              } else {
+                state.activeScene = null;
+              }
             });
           },
           onChangeScenes(scenes) {

@@ -4,6 +4,7 @@ export enum DBAssetType {
   Character = "Character",
   Background = "Background",
   Thing = "Thing",
+  Dialog = "Dialog",
   Audio = "Audio",
   // Video = "Video",
 }
@@ -16,6 +17,10 @@ export const DBAssetTypeOptions = [
   {
     name: "背景",
     value: DBAssetType.Background,
+  },
+  {
+    name: "对话框",
+    value: DBAssetType.Dialog,
   },
   {
     name: "物品",

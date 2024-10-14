@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Dialogue, Text } from "@vnve/next-core";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
+import { SaveAsTemplateDialog } from "../TemplateLibrary";
 
 export function SceneDetail() {
   const editor = useEditorStore((state) => state.editor);
@@ -87,6 +88,9 @@ export function SceneDetail() {
                   }
                 />
               </div>
+              <SaveAsTemplateDialog sceneName={activeScene.name}>
+                <Button>保存为模版</Button>
+              </SaveAsTemplateDialog>
               {activeScene.dialogues.map((dialogue, index) => {
                 return (
                   <div key={index}>

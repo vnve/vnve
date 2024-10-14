@@ -26,7 +26,7 @@ interface EditorOption {
   height: number;
   background: number;
   onChangeActiveChild: (child?: Child) => void;
-  onChangeActiveScene: (scene: Scene) => void;
+  onChangeActiveScene: (scene?: Scene) => void;
   onChangeScenes: (scenes: Scene[]) => void;
 }
 
@@ -196,6 +196,18 @@ export class Editor {
     this.removeScene(this.scenes[index]);
   }
 
+  public removeSceneByName(name: string) {
+    const scene = this.getSceneByName(name);
+
+    if (scene) {
+      this.removeScene(scene);
+    }
+  }
+
+  public getSceneByName(name: string) {
+    return this.scenes.find((item) => item.name === name);
+  }
+
   public cloneScene(targetScene?: Scene) {
     this.removeTransformer();
     const scene = targetScene ?? this.activeScene;
@@ -209,21 +221,33 @@ export class Editor {
     return this.cloneScene(this.scenes[index]);
   }
 
+  public cloneSceneByName(name: string) {
+    const scene = this.getSceneByName(name);
+
+    if (scene) {
+      return this.cloneScene(scene);
+    }
+  }
+
   public swapScene(a: number, b: number) {
     [this.scenes[a], this.scenes[b]] = [this.scenes[b], this.scenes[a]];
 
     this.options.onChangeScenes(this.scenes);
   }
 
-  public setActiveScene(scene: Scene) {
+  public setActiveScene(scene?: Scene) {
     if (this.activeScene) {
       this.stageRemoveChild(this.activeScene);
       this.removeTransformer();
     }
     this.activeScene = scene;
-    this.activeScene.load();
-    this.addTransformer();
-    this.stageAddChild(scene);
+
+    if (scene) {
+      this.activeScene!.load();
+      this.addTransformer();
+      this.stageAddChild(scene);
+    }
+
     this.options.onChangeActiveScene(scene);
   }
 

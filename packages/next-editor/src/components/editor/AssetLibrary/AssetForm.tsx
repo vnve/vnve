@@ -160,6 +160,14 @@ export function AssetForm({
                                   onChange={(e) => {
                                     const file = e.target.files[0];
                                     form.setValue(`states.${index}.file`, file);
+                                    if (
+                                      form.getValues(`states.${index}.name`)
+                                    ) {
+                                      form.setValue(
+                                        `states.${index}.name`,
+                                        file.name,
+                                      );
+                                    }
                                   }}
                                 />
                               )}

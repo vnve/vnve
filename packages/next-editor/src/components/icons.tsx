@@ -16,6 +16,7 @@ import {
   Edit2,
   ExternalLink,
   Eye,
+  EyeOffIcon,
   FileCode,
   GripVertical,
   Heading1,
@@ -56,13 +57,19 @@ import {
   Table,
   Text,
   Trash,
+  Trash2,
   Underline,
   Ungroup,
   WrapText,
   X,
+  Lock,
+  LockOpen,
+  Type,
+  ALargeSmall,
+  BookOpenText,
 } from "lucide-react";
 
-import type { LucideIcon } from "lucide-react";
+import type { EyeOff, LucideIcon } from "lucide-react";
 
 export type Icon = LucideIcon;
 
@@ -217,10 +224,17 @@ export const Icons = {
   table: Table,
   text: Text,
   trash: Trash,
+  trash2: Trash2,
   ul: List,
   underline: Underline,
   unlink: Link2Off,
   viewing: Eye,
+  viewingOff: EyeOffIcon,
+  lock: Lock,
+  lockOpen: LockOpen,
+  type: Type,
+  fontSize: ALargeSmall,
+  bookOpenText: BookOpenText,
 
   // www
   gitHub: (props: LucideProps) => (

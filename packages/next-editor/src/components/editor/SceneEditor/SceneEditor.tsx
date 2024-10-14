@@ -1,8 +1,7 @@
-import { Button } from "@/components/ui/button";
 import { useEditorStore } from "@/store";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAssetLibrary } from "@/hooks";
-import { DBAssetType } from "@/db";
+import { DBAssetType, templateDB } from "@/db";
 import { createSprite } from "@/lib/core";
 import {
   Menubar,
@@ -22,6 +21,9 @@ import {
   Scene,
 } from "@vnve/next-core";
 import { Card, CardContent } from "@/components/ui/card";
+import { ChildToolbar } from "./ChildEditor/ChildToolbar";
+import { useLiveQuery } from "dexie-react-hooks";
+import { TemplateLibrary } from "../TemplateLibrary";
 
 const DEFAULT_SCENE_TEMPLATES = [
   {
@@ -41,11 +43,13 @@ const DEFAULT_SCENE_TEMPLATES = [
 export function SceneEditor() {
   const initEditor = useEditorStore((state) => state.initEditor);
   const editor = useEditorStore((state) => state.editor);
-  const activeChild = useEditorStore((state) => state.activeChild);
   const activeScene = useEditorStore((state) => state.activeScene);
+  const scenes = useEditorStore((state) => state.scenes);
   const { selectAsset } = useAssetLibrary();
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const customTemplates = useLiveQuery(() => templateDB.reverse().toArray());
+  const [isOpenTemplateLibrary, setIsOpenTemplateLibrary] = useState(false);
 
   const adjustCanvasWidth = () => {
     const container = canvasContainerRef.current;
@@ -71,6 +75,13 @@ export function SceneEditor() {
 
   const handleAddScene = (createTemplateScene: () => Scene) => () => {
     const newScene = createTemplateScene();
+
+    editor.addScene(newScene);
+    editor.setActiveScene(newScene);
+  };
+
+  const handleAddCustomTemplate = async (templateContent: string) => {
+    const newScene = await Scene.fromJSON(JSON.parse(templateContent));
 
     editor.addScene(newScene);
     editor.setActiveScene(newScene);
@@ -128,15 +139,6 @@ export function SceneEditor() {
 
   return (
     <div className="flex flex-col gap-2 flex-1">
-      {/* <Button
-            onClick={() => {
-              selectAsset().then((res) => {
-                console.log("res", res);
-              });
-            }}
-          >
-            素材
-          </Button> */}
       <Menubar>
         <MenubarMenu>
           <MenubarTrigger>场景</MenubarTrigger>
@@ -151,14 +153,30 @@ export function SceneEditor() {
                 </MenubarItem>
               );
             })}
+            {customTemplates?.length > 0 && <MenubarSeparator />}
+            {customTemplates?.map((template) => {
+              return (
+                <MenubarItem
+                  onClick={() => handleAddCustomTemplate(template.content)}
+                  key={template.id}
+                >
+                  新建{template.name}场景
+                </MenubarItem>
+              );
+            })}
             <MenubarSeparator />
-            <MenubarItem>自定义模版</MenubarItem>
-            <MenubarSeparator />
-            <MenubarItem>管理模版...</MenubarItem>
+            <MenubarItem onClick={() => setIsOpenTemplateLibrary(true)}>
+              管理模版...
+            </MenubarItem>
           </MenubarContent>
         </MenubarMenu>
         <MenubarMenu>
-          <MenubarTrigger>元素</MenubarTrigger>
+          <MenubarTrigger
+            disabled={!activeScene}
+            className="data-[disabled]:text-gray-400"
+          >
+            元素
+          </MenubarTrigger>
           <MenubarContent>
             <MenubarItem onClick={handleAddSprite(DBAssetType.Character)}>
               添加角色
@@ -172,7 +190,12 @@ export function SceneEditor() {
           </MenubarContent>
         </MenubarMenu>
         <MenubarMenu>
-          <MenubarTrigger>预览</MenubarTrigger>
+          <MenubarTrigger
+            disabled={scenes.length === 0}
+            className="data-[disabled]:text-gray-400"
+          >
+            预览
+          </MenubarTrigger>
           <MenubarContent>
             <MenubarItem>仅预览当前场景</MenubarItem>
             <MenubarItem>从当前场景开始预览</MenubarItem>
@@ -180,14 +203,27 @@ export function SceneEditor() {
           </MenubarContent>
         </MenubarMenu>
         <MenubarMenu>
-          <MenubarTrigger>导出</MenubarTrigger>
+          <MenubarTrigger
+            disabled={scenes.length === 0}
+            className="data-[disabled]:text-gray-400"
+          >
+            导出
+          </MenubarTrigger>
           <MenubarContent>
             <MenubarItem>仅导出当前场景</MenubarItem>
             <MenubarItem onClick={handleExportScenes}>导出所有场景</MenubarItem>
           </MenubarContent>
         </MenubarMenu>
+        <MenubarMenu>
+          <MenubarTrigger>素材</MenubarTrigger>
+          <MenubarContent>
+            <MenubarItem onClick={() => selectAsset()}>
+              管理素材库...
+            </MenubarItem>
+          </MenubarContent>
+        </MenubarMenu>
       </Menubar>
-      <Card className="flex-1 rounded-md">
+      <Card className="flex-1 rounded-md relative">
         <CardContent className="relative h-full p-2">
           <div
             className="w-full h-full flex justify-center items-center"
@@ -195,8 +231,13 @@ export function SceneEditor() {
           >
             <canvas id="editor" ref={canvasRef}></canvas>
           </div>
+          <ChildToolbar />
         </CardContent>
       </Card>
+      <TemplateLibrary
+        isOpen={isOpenTemplateLibrary}
+        onClose={() => setIsOpenTemplateLibrary(false)}
+      ></TemplateLibrary>
     </div>
   );
 }

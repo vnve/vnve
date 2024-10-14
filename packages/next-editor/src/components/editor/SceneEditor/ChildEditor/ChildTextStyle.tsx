@@ -15,6 +15,8 @@ import {
 } from "@/lib/font";
 import { ColorPicker } from "@/components/ui/color-picker";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Label } from "@/components/ui/label";
+import { Icons } from "@/components/icons";
 
 export function ChildTextStyle() {
   const editor = useEditorStore((state) => state.editor);
@@ -62,32 +64,53 @@ export function ChildTextStyle() {
   };
 
   return (
-    <div>
-      <h3>ChildTextStyle</h3>
-      <ul>
-        <li>
-          color:
-          <ColorPicker
-            value={activeChild.style.fill as string}
-            onChange={handleTextStyleSelectValueChange("fill")}
-          ></ColorPicker>
-        </li>
-        <li>
-          Text:
-          {!activeChild.disableTextEdit && (
+    <div className="flex flex-col gap-3">
+      {!activeChild.disableTextEdit && (
+        <div className="flex gap-2">
+          <div className="flex-1 flex gap-1 items-center">
+            <Icons.bookOpenText className="w-5 h-5" />
             <Input
               value={activeChild.text}
               onChange={handleInputValueChange("text")}
             />
-          )}
-        </li>
-        <li>
-          FontFamily:
+          </div>
+        </div>
+      )}
+      <div className="flex gap-2">
+        <div className="flex-1 flex gap-1 items-center">
+          <Icons.color className="w-5 h-5" />
+          <ColorPicker
+            value={activeChild.style.fill as string}
+            onChange={handleTextStyleSelectValueChange("fill")}
+            className="w-6 h-6"
+          ></ColorPicker>
+        </div>
+        <div className="flex-1 flex gap-1 items-center">
+          <ToggleGroup
+            type="multiple"
+            value={[activeChild.style.fontWeight, activeChild.style.fontStyle]}
+            onValueChange={handleChangeTextWeightStyle}
+          >
+            <ToggleGroupItem value={SUPPORTED_FONT_WEIGHT.BOLD} className="p-2">
+              <Icons.bold className="w-4 h-4"></Icons.bold>
+            </ToggleGroupItem>
+            <ToggleGroupItem
+              value={SUPPORTED_FONT_STYLE.ITALIC}
+              className="p-2"
+            >
+              <Icons.italic className="w-4 h-4"></Icons.italic>
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </div>
+      </div>
+      <div className="flex gap-2">
+        <div className="flex-1 flex gap-1 items-center">
+          <Icons.type className="w-5 h-5" />
           <Select
             onValueChange={handleTextStyleSelectValueChange("fontFamily")}
             value={activeChild.style.fontFamily as string}
           >
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="h-6">
               <SelectValue placeholder="---" />
             </SelectTrigger>
             <SelectContent>
@@ -98,33 +121,19 @@ export function ChildTextStyle() {
               ))}
             </SelectContent>
           </Select>
-        </li>
-        <li>
-          Font Style
-          <ToggleGroup
-            type="multiple"
-            value={[activeChild.style.fontWeight, activeChild.style.fontStyle]}
-            onValueChange={handleChangeTextWeightStyle}
-          >
-            <ToggleGroupItem value={SUPPORTED_FONT_WEIGHT.BOLD}>
-              B
-            </ToggleGroupItem>
-            <ToggleGroupItem value={SUPPORTED_FONT_STYLE.ITALIC}>
-              I
-            </ToggleGroupItem>
-          </ToggleGroup>
-        </li>
-        <li>
-          FontSize:
+        </div>
+        <div className="flex-1 flex gap-1 items-center">
+          <Icons.fontSize className="w-5 h-5" />
           <Input
             value={activeChild.style.fontSize}
             onChange={handleTextStyleInputValueChange("fontSize", "number")}
             type="number"
             min={1}
             step={10}
+            className="h-6"
           />
-        </li>
-      </ul>
+        </div>
+      </div>
     </div>
   );
 }

@@ -10,11 +10,20 @@ import { Button } from "@/components/ui/button";
 import { useEditorStore } from "@/store";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Icons } from "@/components/icons";
 
 export function SceneList() {
   const editor = useEditorStore((state) => state.editor);
   const activeScene = useEditorStore((state) => state.activeScene);
   const scenes = useEditorStore((state) => state.scenes);
+
+  const handleRemoveScene = (scene) => {
+    if (scene.name === activeScene?.name) {
+      editor.setActiveScene(undefined);
+    }
+
+    editor.removeSceneByName(scene.name);
+  };
 
   return (
     <Card className="flex-1 h-full rounded-md">
@@ -23,9 +32,8 @@ export function SceneList() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[100px]">场景序号</TableHead>
-                <TableHead>场景名称</TableHead>
-                <TableHead className="text-right">操作</TableHead>
+                <TableHead>场景</TableHead>
+                <TableHead className="w-[100px]">操作</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -35,21 +43,19 @@ export function SceneList() {
                   onClick={() => {
                     editor.setActiveSceneByName(scene.name);
                   }}
-                  className={activeScene?.name === scene.name ? "bg-muted" : ""}
+                  className={`${
+                    activeScene?.name === scene.name ? "bg-muted" : ""
+                  } cursor-pointer`}
                 >
-                  <TableCell className="font-medium">
-                    {sceneIndex + 1}
+                  <TableCell>
+                    <span className="font-medium mr-2">{sceneIndex + 1}.</span>
+                    {scene.label}
                   </TableCell>
-                  <TableCell>{scene.label}</TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        editor.removeScene(scene);
-                      }}
-                    >
-                      删除
-                    </Button>
+                  <TableCell>
+                    <Icons.trash2
+                      className="w-4 h-4 cursor-pointer hover:text-destructive"
+                      onClick={() => handleRemoveScene(scene)}
+                    />
                   </TableCell>
                 </TableRow>
               ))}
