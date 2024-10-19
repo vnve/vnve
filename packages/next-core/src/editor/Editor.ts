@@ -9,6 +9,7 @@ import {
   Screenplay,
 } from "../director";
 import { LayerZIndex } from "./constant";
+import { cloneDeep } from "lodash-es";
 
 export type EditorChildPosition =
   | "top"
@@ -263,6 +264,10 @@ export class Editor {
     this.setActiveScene(this.scenes[index]);
   }
 
+  public getActiveSceneIndex() {
+    return this.activeScene ? this.scenes.indexOf(this.activeScene) : -1;
+  }
+
   public updateActiveScene(fn: (scene: Scene) => void) {
     if (this.activeScene) {
       fn(this.activeScene);
@@ -365,11 +370,19 @@ export class Editor {
     }
   }
 
-  public addDialogue(dialogue: Dialogue) {
+  public cloneDialogue(dialogue: Dialogue) {
+    return cloneDeep(dialogue);
+  }
+
+  public cloneDialogueSpeaker(dialogue: Dialogue) {
+    return cloneDeep(dialogue.speaker);
+  }
+
+  public addDialogue(dialogue: Dialogue, index?: number) {
     const scene = this.activeScene;
 
     if (scene) {
-      scene.addDialogue(dialogue);
+      scene.addDialogue(dialogue, index);
       this.options.onChangeActiveScene(scene);
     }
   }
@@ -388,6 +401,15 @@ export class Editor {
 
     if (scene) {
       scene.removeDialogue(dialogue);
+      this.options.onChangeActiveScene(scene);
+    }
+  }
+
+  public swapDialogue(a: number, b: number) {
+    const scene = this.activeScene;
+
+    if (scene) {
+      scene.swapDialogue(a, b);
       this.options.onChangeActiveScene(scene);
     }
   }
@@ -603,8 +625,8 @@ export class Editor {
     };
   }
 
-  public async exportScreenplay(): Promise<Screenplay> {
-    const scenes = this.exportScenes();
+  public async exportScreenplay(start = 0, end?: number): Promise<Screenplay> {
+    const scenes = this.exportScenes(start, end);
     const sceneScripts = scenes.map(this.genSceneScript);
 
     // 预加载所有场景资源
@@ -618,13 +640,13 @@ export class Editor {
     };
   }
 
-  public exportScenes() {
+  public exportScenes(start = 0, end?: number) {
     this.removeTransformer();
 
     const now = performance.now();
-    const scenes = this.scenes.map((item) => item.clone());
+    const scenes = this.scenes.slice(start, end).map((item) => item.clone());
 
-    log.info("editor export cost:", performance.now() - now);
+    log.info("editor export cost:", performance.now() - now, scenes);
 
     return scenes;
   }
@@ -650,5 +672,14 @@ export class Editor {
     }
 
     this.loadScenes(scenes);
+  }
+
+  public clear() {
+    this.scenes.forEach((scene) => {
+      this.removeScene(scene);
+    });
+    this.setActiveScene(undefined);
+    this.setActiveChild(undefined);
+    this.removeTransformer();
   }
 }

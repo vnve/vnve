@@ -20,7 +20,7 @@
     // "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "types": [
-      "unplugin-icons/types/react",
+      "@types/wicg-file-system-access",
       "dom-webcodecs"
     ],
     "baseUrl": ".",

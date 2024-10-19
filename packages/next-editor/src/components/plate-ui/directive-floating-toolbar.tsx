@@ -11,6 +11,7 @@ import {
   type UseVirtualFloatingOptions,
   flip,
   offset,
+  FloatingPortal,
 } from "@udecode/plate-floating";
 
 import { Icons } from "@/components/icons";
@@ -51,21 +52,26 @@ export function DirectiveFloatingToolbar() {
   });
 
   return (
-    <div
-      className={cn(popoverVariants(), "w-auto p-1")}
-      {...insertProps}
-      ref={insertRef}
-    >
-      <div className="flex w-[330px] flex-col p-2" {...inputProps}>
-        {directiveType && (
-          <DirectiveForm
-            editingDirective={editingDirective}
-            directiveType={directiveType}
-            onSubmitDirective={onSubmit}
-            onCancel={onCancel}
-          ></DirectiveForm>
-        )}
+    <FloatingPortal>
+      <div
+        className={cn(popoverVariants(), "w-auto p-1")}
+        {...insertProps}
+        ref={insertRef}
+      >
+        <div
+          className="flex w-[330px] h-[400px] overflow-auto flex-col p-2"
+          {...inputProps}
+        >
+          {directiveType && (
+            <DirectiveForm
+              editingDirective={editingDirective}
+              directiveType={directiveType}
+              onSubmitDirective={onSubmit}
+              onCancel={onCancel}
+            ></DirectiveForm>
+          )}
+        </div>
       </div>
-    </div>
+    </FloatingPortal>
   );
 }

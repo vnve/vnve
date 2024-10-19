@@ -67,6 +67,10 @@ import {
   Type,
   ALargeSmall,
   BookOpenText,
+  Copy,
+  ArrowUp,
+  ArrowDown,
+  SquarePlus,
 } from "lucide-react";
 
 import type { EyeOff, LucideIcon } from "lucide-react";
@@ -235,6 +239,10 @@ export const Icons = {
   type: Type,
   fontSize: ALargeSmall,
   bookOpenText: BookOpenText,
+  copy: Copy,
+  moveUp: ArrowUp,
+  moveDown: ArrowDown,
+  squarePlus: SquarePlus,
 
   // www
   gitHub: (props: LucideProps) => (

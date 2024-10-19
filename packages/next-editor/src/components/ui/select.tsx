@@ -25,11 +25,15 @@ const SelectTrigger = React.forwardRef<
       "flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
       className,
     )}
+    data-disable-click-outside
     {...props}
   >
     {children}
     <SelectPrimitive.Icon asChild>
-      <CaretSortIcon className="h-4 w-4 opacity-50" />
+      <CaretSortIcon
+        data-disable-click-outside
+        className="h-4 w-4 opacity-50"
+      />
     </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>
 ));
@@ -45,6 +49,7 @@ const SelectScrollUpButton = React.forwardRef<
       "flex cursor-default items-center justify-center py-1",
       className,
     )}
+    data-disable-click-outside
     {...props}
   >
     <ChevronUpIcon />
@@ -62,6 +67,7 @@ const SelectScrollDownButton = React.forwardRef<
       "flex cursor-default items-center justify-center py-1",
       className,
     )}
+    data-disable-click-outside
     {...props}
   >
     <ChevronDownIcon />
@@ -84,6 +90,7 @@ const SelectContent = React.forwardRef<
         className,
       )}
       position={position}
+      data-disable-click-outside
       {...props}
     >
       <SelectScrollUpButton />
@@ -93,6 +100,7 @@ const SelectContent = React.forwardRef<
           position === "popper" &&
             "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]",
         )}
+        data-disable-click-outside
       >
         {children}
       </SelectPrimitive.Viewport>
@@ -110,6 +118,7 @@ const SelectLabel = React.forwardRef<
     ref={ref}
     className={cn("px-2 py-1.5 text-sm font-semibold", className)}
     {...props}
+    data-disable-click-outside
   />
 ));
 SelectLabel.displayName = SelectPrimitive.Label.displayName;
@@ -124,14 +133,20 @@ const SelectItem = React.forwardRef<
       "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className,
     )}
+    data-disable-click-outside
     {...props}
   >
-    <span className="absolute right-2 flex h-3.5 w-3.5 items-center justify-center">
+    <span
+      className="absolute right-2 flex h-3.5 w-3.5 items-center justify-center"
+      data-disable-click-outside
+    >
       <SelectPrimitive.ItemIndicator>
         <CheckIcon className="h-4 w-4" />
       </SelectPrimitive.ItemIndicator>
     </span>
-    <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+    <SelectPrimitive.ItemText data-disable-click-outside>
+      {children}
+    </SelectPrimitive.ItemText>
   </SelectPrimitive.Item>
 ));
 SelectItem.displayName = SelectPrimitive.Item.displayName;
@@ -143,6 +158,7 @@ const SelectSeparator = React.forwardRef<
   <SelectPrimitive.Separator
     ref={ref}
     className={cn("-mx-1 my-1 h-px bg-muted", className)}
+    data-disable-click-outside
     {...props}
   />
 ));

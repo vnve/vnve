@@ -25,6 +25,12 @@ export function SceneList() {
     editor.removeSceneByName(scene.name);
   };
 
+  const handleCopyScene = (scene) => {
+    const copiedScene = editor.cloneSceneByName(scene.name);
+
+    editor.addScene(copiedScene);
+  };
+
   return (
     <Card className="flex-1 h-full rounded-md">
       <CardContent className="h-full p-2">
@@ -51,9 +57,13 @@ export function SceneList() {
                     <span className="font-medium mr-2">{sceneIndex + 1}.</span>
                     {scene.label}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="flex gap-1">
+                    <Icons.copy
+                      className="size-4 ml-2 cursor-pointer hover:text-primary"
+                      onClick={() => handleCopyScene(scene)}
+                    />
                     <Icons.trash2
-                      className="w-4 h-4 cursor-pointer hover:text-destructive"
+                      className="size-4 cursor-pointer hover:text-destructive"
                       onClick={() => handleRemoveScene(scene)}
                     />
                   </TableCell>

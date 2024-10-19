@@ -1,7 +1,7 @@
 import { useEditorStore } from "@/store";
 import { useEffect, useRef, useState } from "react";
-import { useAssetLibrary } from "@/hooks";
-import { DBAssetType, templateDB } from "@/db";
+import { useAssetLibrary } from "@/components/hooks/useAssetLibrary";
+import { DBAssetType, importAssetToDB, projectDB, templateDB } from "@/db";
 import { createSprite } from "@/lib/core";
 import {
   Menubar,
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/menubar";
 import {
   Compositor,
+  Previewer,
   Director,
   createDialogueScene,
   createTitleScene,
@@ -24,6 +25,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ChildToolbar } from "./ChildEditor/ChildToolbar";
 import { useLiveQuery } from "dexie-react-hooks";
 import { TemplateLibrary } from "../TemplateLibrary";
+import { ExportVideoDialog } from "./ExportVideoDialog";
+import { PreviewVideoDialog } from "./PreviewVideoDialog";
+import { CreateProjectDialog, ProjectLibrary } from "../ProjectLibrary";
+import { useToast } from "@/components/hooks/use-toast";
 
 const DEFAULT_SCENE_TEMPLATES = [
   {
@@ -42,6 +47,7 @@ const DEFAULT_SCENE_TEMPLATES = [
 
 export function SceneEditor() {
   const initEditor = useEditorStore((state) => state.initEditor);
+  const project = useEditorStore((state) => state.project);
   const editor = useEditorStore((state) => state.editor);
   const activeScene = useEditorStore((state) => state.activeScene);
   const scenes = useEditorStore((state) => state.scenes);
@@ -49,7 +55,20 @@ export function SceneEditor() {
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const customTemplates = useLiveQuery(() => templateDB.reverse().toArray());
+  const [isOpenCreateProjectDialog, setIsOpenCreateProjectDialog] =
+    useState(false);
+  const [isOpenProjectLibrary, setIsOpenProjectLibrary] = useState(false);
   const [isOpenTemplateLibrary, setIsOpenTemplateLibrary] = useState(false);
+  const [isOpenExportVideoDialog, setIsOpenExportVideoDialog] = useState(false);
+  const [isOpenPreviewVideoDialog, setIsOpenPreviewVideoDialog] =
+    useState(false);
+  const previewVideoDialogRef = useRef(null);
+  const [previewVideoRange, setPreviewVideoRange] = useState<number[]>([]);
+  const [curExportVideoURL, setCurExportVideoURL] = useState<string | null>(
+    null,
+  );
+  const director = useRef(null);
+  const { toast } = useToast();
 
   const adjustCanvasWidth = () => {
     const container = canvasContainerRef.current;
@@ -73,6 +92,25 @@ export function SceneEditor() {
     }
   };
 
+  const handleSaveProject = async () => {
+    try {
+      await projectDB.update(project.id, {
+        content: editor.saveAsJSON(),
+        time: Date.now(),
+      });
+      toast({
+        title: "保存成功！",
+        duration: 1500,
+      });
+    } catch (error) {
+      toast({
+        title: "保存失败！",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleAddScene = (createTemplateScene: () => Scene) => () => {
     const newScene = createTemplateScene();
 
@@ -81,7 +119,7 @@ export function SceneEditor() {
   };
 
   const handleAddCustomTemplate = async (templateContent: string) => {
-    const newScene = await Scene.fromJSON(JSON.parse(templateContent));
+    const newScene = await Scene.fromJSON(JSON.parse(templateContent), false);
 
     editor.addScene(newScene);
     editor.setActiveScene(newScene);
@@ -97,15 +135,38 @@ export function SceneEditor() {
     }
   };
 
-  const handlePreviewScenes = async () => {
-    //
+  const handlePreviewScenes = async (start = 0, end?: number) => {
+    setPreviewVideoRange([start, end]);
+    setIsOpenPreviewVideoDialog(true);
+    const screenplay = await editor.exportScreenplay(start, end);
+    const previewer = new Previewer({
+      canvas: previewVideoDialogRef.current.getPreviewCanvas(),
+      width: 1920,
+      height: 1080,
+      fps: 30,
+      // disableAudio: true,
+    });
+
+    director.current.connect(previewer);
+    director.current
+      .action(screenplay)
+      .then(() => {
+        console.log("预览完成");
+      })
+      .catch((error) => {
+        setIsOpenPreviewVideoDialog(false);
+        toast({
+          title: "预览失败！",
+          description: error.message,
+          variant: "destructive",
+        });
+      });
   };
 
-  const handleExportScenes = async () => {
-    const director = new Director({
-      background: 0xcccccc,
-    });
-    const screenplay = await editor.exportScreenplay();
+  const handleExportScenes = async (start = 0, end?: number) => {
+    setIsOpenExportVideoDialog(true);
+    setCurExportVideoURL(null);
+    const screenplay = await editor.exportScreenplay(start, end);
     const compositor = new Compositor({
       width: 1920,
       height: 1080,
@@ -113,17 +174,51 @@ export function SceneEditor() {
       // disableAudio: true,
     });
 
-    director.connect(compositor);
-    director.action(screenplay).then((res) => {
-      const videoSrc = URL.createObjectURL(res);
-      console.log("finish", videoSrc);
-      const video = document.createElement("video");
-      video.src = videoSrc;
-      video.width = 1920 / 2;
-      video.height = 1080 / 2;
-      video.controls = true;
-      document.body.append(video);
-    });
+    director.current.connect(compositor);
+    director.current
+      .action(screenplay)
+      .then((res) => {
+        const videoSrc = URL.createObjectURL(res);
+
+        setCurExportVideoURL(videoSrc);
+      })
+      .catch((error) => {
+        setIsOpenExportVideoDialog(false);
+        toast({
+          title: "导出失败！",
+          description: error.message,
+          variant: "destructive",
+        });
+      });
+  };
+
+  const handleCloseExportVideoDialog = () => {
+    setIsOpenExportVideoDialog(false);
+    if (director.current.hasStarted()) {
+      director.current.cut();
+    }
+    if (curExportVideoURL) {
+      URL.revokeObjectURL(curExportVideoURL);
+    }
+    setCurExportVideoURL(null);
+  };
+
+  const handleClosePreviewVideoDialog = () => {
+    setIsOpenPreviewVideoDialog(false);
+
+    if (director.current.hasStarted()) {
+      director.current.cut();
+    }
+  };
+
+  const handlePreviewToExport = () => {
+    setIsOpenPreviewVideoDialog(false);
+    handleExportScenes(...previewVideoRange);
+  };
+
+  const handleImportAsset = async () => {
+    await importAssetToDB();
+    // TODO: loading + 提示
   };
 
   useEffect(() => {
@@ -131,6 +226,11 @@ export function SceneEditor() {
 
     adjustCanvasWidth();
     initEditor(canvasRef.current);
+    director.current = new Director();
+
+    canvasRef.current.onselectstart = function () {
+      return false;
+    };
 
     return () => {
       window.removeEventListener("resize", adjustCanvasWidth);
@@ -141,7 +241,28 @@ export function SceneEditor() {
     <div className="flex flex-col gap-2 flex-1">
       <Menubar>
         <MenubarMenu>
-          <MenubarTrigger>场景</MenubarTrigger>
+          <MenubarTrigger className="data-[disabled]:text-gray-400">
+            项目
+          </MenubarTrigger>
+          <MenubarContent>
+            <MenubarItem onClick={() => setIsOpenCreateProjectDialog(true)}>
+              创建新项目
+            </MenubarItem>
+            <MenubarItem onClick={() => setIsOpenProjectLibrary(true)}>
+              打开...
+            </MenubarItem>
+            <MenubarItem disabled={!project} onClick={handleSaveProject}>
+              保存
+            </MenubarItem>
+          </MenubarContent>
+        </MenubarMenu>
+        <MenubarMenu>
+          <MenubarTrigger
+            className="data-[disabled]:text-gray-400"
+            disabled={!project}
+          >
+            场景
+          </MenubarTrigger>
           <MenubarContent>
             {DEFAULT_SCENE_TEMPLATES.map((template) => {
               return (
@@ -172,20 +293,34 @@ export function SceneEditor() {
         </MenubarMenu>
         <MenubarMenu>
           <MenubarTrigger
-            disabled={!activeScene}
             className="data-[disabled]:text-gray-400"
+            disabled={!project}
           >
-            元素
+            素材
           </MenubarTrigger>
           <MenubarContent>
-            <MenubarItem onClick={handleAddSprite(DBAssetType.Character)}>
+            <MenubarItem
+              disabled={!activeScene}
+              onClick={handleAddSprite(DBAssetType.Character)}
+            >
               添加角色
             </MenubarItem>
-            <MenubarItem onClick={handleAddSprite(DBAssetType.Background)}>
+            <MenubarItem
+              disabled={!activeScene}
+              onClick={handleAddSprite(DBAssetType.Background)}
+            >
               添加背景
             </MenubarItem>
-            <MenubarItem onClick={handleAddSprite(DBAssetType.Thing)}>
+            <MenubarItem
+              disabled={!activeScene}
+              onClick={handleAddSprite(DBAssetType.Thing)}
+            >
               添加物品
+            </MenubarItem>
+            <MenubarSeparator />
+            <MenubarItem onClick={handleImportAsset}>导入素材库...</MenubarItem>
+            <MenubarItem onClick={() => selectAsset()}>
+              管理素材库...
             </MenubarItem>
           </MenubarContent>
         </MenubarMenu>
@@ -197,9 +332,23 @@ export function SceneEditor() {
             预览
           </MenubarTrigger>
           <MenubarContent>
-            <MenubarItem>仅预览当前场景</MenubarItem>
-            <MenubarItem>从当前场景开始预览</MenubarItem>
-            <MenubarItem>从头开始预览</MenubarItem>
+            <MenubarItem
+              onClick={() => {
+                const activeSceneIndex = editor.getActiveSceneIndex();
+
+                handlePreviewScenes(activeSceneIndex, activeSceneIndex);
+              }}
+            >
+              仅预览当前场景
+            </MenubarItem>
+            <MenubarItem
+              onClick={() => handlePreviewScenes(editor.getActiveSceneIndex())}
+            >
+              从当前场景开始预览
+            </MenubarItem>
+            <MenubarItem onClick={() => handlePreviewScenes()}>
+              从头开始预览
+            </MenubarItem>
           </MenubarContent>
         </MenubarMenu>
         <MenubarMenu>
@@ -210,15 +359,22 @@ export function SceneEditor() {
             导出
           </MenubarTrigger>
           <MenubarContent>
-            <MenubarItem>仅导出当前场景</MenubarItem>
-            <MenubarItem onClick={handleExportScenes}>导出所有场景</MenubarItem>
-          </MenubarContent>
-        </MenubarMenu>
-        <MenubarMenu>
-          <MenubarTrigger>素材</MenubarTrigger>
-          <MenubarContent>
-            <MenubarItem onClick={() => selectAsset()}>
-              管理素材库...
+            <MenubarItem
+              onClick={() => {
+                const activeSceneIndex = editor.getActiveSceneIndex();
+
+                handleExportScenes(activeSceneIndex, activeSceneIndex);
+              }}
+            >
+              仅导出当前场景
+            </MenubarItem>
+            <MenubarItem
+              onClick={() => handleExportScenes(editor.getActiveSceneIndex())}
+            >
+              从当前场景开始导出
+            </MenubarItem>
+            <MenubarItem onClick={() => handleExportScenes()}>
+              导出所有场景
             </MenubarItem>
           </MenubarContent>
         </MenubarMenu>
@@ -229,15 +385,35 @@ export function SceneEditor() {
             className="w-full h-full flex justify-center items-center"
             ref={canvasContainerRef}
           >
-            <canvas id="editor" ref={canvasRef}></canvas>
+            <canvas ref={canvasRef}></canvas>
           </div>
           <ChildToolbar />
         </CardContent>
       </Card>
+      {/* Dialogs */}
+      <ProjectLibrary
+        isOpen={isOpenProjectLibrary}
+        onClose={() => setIsOpenProjectLibrary(false)}
+      ></ProjectLibrary>
       <TemplateLibrary
         isOpen={isOpenTemplateLibrary}
         onClose={() => setIsOpenTemplateLibrary(false)}
       ></TemplateLibrary>
+      <ExportVideoDialog
+        url={curExportVideoURL}
+        isOpen={isOpenExportVideoDialog}
+        onClose={handleCloseExportVideoDialog}
+      ></ExportVideoDialog>
+      <PreviewVideoDialog
+        ref={previewVideoDialogRef}
+        isOpen={isOpenPreviewVideoDialog}
+        onClose={handleClosePreviewVideoDialog}
+        onExport={handlePreviewToExport}
+      ></PreviewVideoDialog>
+      <CreateProjectDialog
+        isOpen={isOpenCreateProjectDialog}
+        onClose={() => setIsOpenCreateProjectDialog(false)}
+      ></CreateProjectDialog>
     </div>
   );
 }

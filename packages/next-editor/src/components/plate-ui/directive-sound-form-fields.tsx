@@ -24,7 +24,7 @@ import { useEffect, useImperativeHandle, useState, forwardRef } from "react";
 import { set, UseFormReturn, useWatch } from "react-hook-form";
 import { Input } from "../ui/input";
 import { DirectiveNameMap } from "@/config";
-import { useAssetLibrary } from "@/hooks";
+import { useAssetLibrary } from "@/components/hooks/useAssetLibrary";
 import { createSound } from "@/lib/core";
 
 export interface DirectiveSoundFormFieldsHandle {
@@ -144,6 +144,7 @@ export const DirectiveSoundFormFields = forwardRef<
                     <div
                       onClick={handleOpenAndAddSound}
                       className="cursor-pointer select-none py-1.5 pl-2 pr-8 text-sm hover:bg-slate-100 rounded-sm"
+                      data-disable-click-outside
                     >
                       +从素材库中选择并添加到当前场景
                     </div>

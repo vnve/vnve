@@ -1,21 +1,8 @@
 import React, { useEffect, useMemo } from "react";
-
-import {
-  BoldPlugin,
-  CodePlugin,
-  ItalicPlugin,
-  StrikethroughPlugin,
-  UnderlinePlugin,
-} from "@udecode/plate-basic-marks/react";
 import { focusEditor, useEditorRef } from "@udecode/plate-common/react";
-
 import { Icons } from "@/components/icons";
-
 import { InsertDropdownMenu } from "./insert-dropdown-menu";
-import { MarkToolbarButton } from "./mark-toolbar-button";
-import { ModeDropdownMenu } from "./mode-dropdown-menu";
 import { ToolbarGroup } from "./toolbar";
-import { TurnIntoDropdownMenu } from "./turn-into-dropdown-menu";
 import {
   Select,
   SelectContent,
@@ -80,7 +67,7 @@ const defaultValues = {
   },
 };
 
-export function FixedToolbarButtons({ speaker, onChangeSpeaker }) {
+export function FixedToolbarButtons({ speaker, onChangeSpeaker, children }) {
   const activeScene = useEditorStore((state) => state.activeScene);
   const characters = useMemo(() => {
     if (!activeScene) {
@@ -141,240 +128,186 @@ export function FixedToolbarButtons({ speaker, onChangeSpeaker }) {
   }, [form.formState.isDirty, formValues]);
 
   return (
-    <div className="w-full overflow-hidden">
-      <div
-        className="flex flex-wrap"
-        style={{
-          transform: "translateX(calc(-1px))",
-        }}
-      >
-        {
-          <>
-            <ToolbarGroup noSeparator>
-              <Select
-                value={speaker.name}
-                onValueChange={handleSelectCharacter}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="请选择角色" />
-                </SelectTrigger>
-                <SelectContent>
-                  {characters.map((character) => (
-                    <SelectItem key={character.name} value={character.name}>
-                      {character.label}
-                    </SelectItem>
-                  ))}
-                  {characters.length === 0 && (
-                    <div className="select-none py-1.5 pl-2 pr-8 text-sm opacity-50">
-                      请先在画布中添加角色
-                    </div>
+    <div className="w-full flex flex-wrap gap-1">
+      <ToolbarGroup noSeparator>
+        <Select value={speaker.name} onValueChange={handleSelectCharacter}>
+          <SelectTrigger className="w-[130px] h-8">
+            <SelectValue placeholder="选择角色" />
+          </SelectTrigger>
+          <SelectContent>
+            {characters.map((character) => (
+              <SelectItem key={character.name} value={character.name}>
+                {character.label}
+              </SelectItem>
+            ))}
+            {characters.length === 0 && (
+              <div className="select-none py-1.5 pl-2 pr-8 text-sm opacity-50">
+                请先在画布中添加角色
+              </div>
+            )}
+          </SelectContent>
+        </Select>
+        <Popover>
+          <PopoverTrigger>
+            <Icons.settings className="size-4 cursor-pointer" />
+          </PopoverTrigger>
+          <PopoverContent>
+            <Form {...form}>
+              <form className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="label"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>自定义角色名</FormLabel>
+                      <FormDescription>
+                        用于自定义在对话中显示的角色名
+                      </FormDescription>
+                      <FormControl>
+                        <Input placeholder="请输入自定义角色名" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )}
-                </SelectContent>
-              </Select>
-            </ToolbarGroup>
+                />
+                <FormField
+                  control={form.control}
+                  name="wordsPerMin"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>语速（字/分钟）</FormLabel>
+                      <FormDescription>
+                        角色发言的速度，默认值参考阅读速度xxx
+                      </FormDescription>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min={0}
+                          step={100}
+                          placeholder="请输入语速"
+                          value={field.value}
+                          onChange={(e) => {
+                            const value = Number(e.target.value);
 
-            <ToolbarGroup noSeparator>
-              <Popover>
-                <PopoverTrigger>配置</PopoverTrigger>
-                <PopoverContent>
-                  <Form {...form}>
-                    <form className="space-y-4">
-                      <FormField
-                        control={form.control}
-                        name="label"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>自定义角色名</FormLabel>
-                            <FormDescription>
-                              用于自定义在对话中显示的角色名
-                            </FormDescription>
-                            <FormControl>
-                              <Input
-                                placeholder="请输入自定义角色名"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="wordsPerMin"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>语速（字/分钟）</FormLabel>
-                            <FormDescription>
-                              角色发言的速度，默认值参考阅读速度xxx
-                            </FormDescription>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                min={0}
-                                step={100}
-                                placeholder="请输入语速"
-                                value={field.value}
-                                onChange={(e) => {
-                                  const value = Number(e.target.value);
+                            field.onChange(value);
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="interval"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>停顿时长（秒）</FormLabel>
+                      <FormDescription>
+                        角色发言完成后的停顿时长
+                      </FormDescription>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min={0}
+                          step={0.1}
+                          placeholder="请输入停顿时长"
+                          value={field.value}
+                          onChange={(e) => {
+                            const value = Number(e.target.value);
 
-                                  field.onChange(value);
-                                }}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="interval"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>停顿时长（秒）</FormLabel>
-                            <FormDescription>
-                              角色发言完成后的停顿时长
-                            </FormDescription>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                min={0}
-                                step={0.1}
-                                placeholder="请输入停顿时长"
-                                value={field.value}
-                                onChange={(e) => {
-                                  const value = Number(e.target.value);
+                            field.onChange(value);
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="effect"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>台词效果</FormLabel>
+                      <FormDescription>台词的输出效果</FormDescription>
+                      <FormControl>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="请选择台词效果" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="typewriter">打字机</SelectItem>
+                            <SelectItem value="fadeIn">渐入</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="autoShowSpeaker"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center">
+                      <FormLabel className="mr-4 mt-2 flex flex-col space-y-1">
+                        自动显示发言角色
+                      </FormLabel>
+                      <FormControl>
+                        <Switch
+                          checked={field.value ? true : false}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="autoMaskOtherSpeakers"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center">
+                      <FormLabel className="mr-4 mt-2 flex flex-col space-y-1">
+                        自动阴影其他角色
+                      </FormLabel>
+                      <FormControl>
+                        <Switch
+                          checked={field.value ? true : false}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </form>
+            </Form>
+          </PopoverContent>
+        </Popover>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => handleSelectDirectiveType(DirectiveType.Animation)}
+        >
+          <Icons.squarePlus className="size-4 mr-1" /> 动画
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => handleSelectDirectiveType(DirectiveType.Sound)}
+        >
+          <Icons.squarePlus className="size-4 mr-1" />
+          声音
+        </Button>
+        <InsertDropdownMenu />
+      </ToolbarGroup>
 
-                                  field.onChange(value);
-                                }}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="effect"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>台词效果</FormLabel>
-                            <FormDescription>台词的输出效果</FormDescription>
-                            <FormControl>
-                              <Select
-                                onValueChange={field.onChange}
-                                value={field.value}
-                              >
-                                <SelectTrigger className="w-[180px]">
-                                  <SelectValue placeholder="请选择台词效果" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="typewriter">
-                                    打字机
-                                  </SelectItem>
-                                  <SelectItem value="fadeIn">渐入</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="autoShowSpeaker"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-center">
-                            <FormLabel className="mr-4 mt-2 flex flex-col space-y-1">
-                              自动显示发言角色
-                            </FormLabel>
-                            <FormControl>
-                              <Switch
-                                checked={field.value ? true : false}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="autoMaskOtherSpeakers"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-center">
-                            <FormLabel className="mr-4 mt-2 flex flex-col space-y-1">
-                              自动阴影其他角色
-                            </FormLabel>
-                            <FormControl>
-                              <Switch
-                                checked={field.value ? true : false}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </form>
-                  </Form>
-                </PopoverContent>
-              </Popover>
-            </ToolbarGroup>
-
-            <ToolbarGroup noSeparator>
-              <Button
-                size="sm"
-                onClick={() =>
-                  handleSelectDirectiveType(DirectiveType.Animation)
-                }
-              >
-                +动画
-              </Button>
-              <Button
-                size="sm"
-                onClick={() => handleSelectDirectiveType(DirectiveType.Sound)}
-              >
-                +声音
-              </Button>
-              <InsertDropdownMenu />
-            </ToolbarGroup>
-
-            {/* <ToolbarGroup>
-              <MarkToolbarButton nodeType={BoldPlugin.key} tooltip="Bold (⌘+B)">
-                <Icons.bold />
-              </MarkToolbarButton>
-              <MarkToolbarButton
-                nodeType={ItalicPlugin.key}
-                tooltip="Italic (⌘+I)"
-              >
-                <Icons.italic />
-              </MarkToolbarButton>
-              <MarkToolbarButton
-                nodeType={UnderlinePlugin.key}
-                tooltip="Underline (⌘+U)"
-              >
-                <Icons.underline />
-              </MarkToolbarButton>
-
-              <MarkToolbarButton
-                nodeType={StrikethroughPlugin.key}
-                tooltip="Strikethrough (⌘+⇧+M)"
-              >
-                <Icons.strikethrough />
-              </MarkToolbarButton>
-              <MarkToolbarButton nodeType={CodePlugin.key} tooltip="Code (⌘+E)">
-                <Icons.code />
-              </MarkToolbarButton>
-            </ToolbarGroup> */}
-          </>
-        }
-
-        {/* <div className="grow" />
-
-        <ToolbarGroup noSeparator>
-          <ModeDropdownMenu />
-        </ToolbarGroup> */}
-      </div>
+      <ToolbarGroup className="ml-auto">{children}</ToolbarGroup>
     </div>
   );
 }

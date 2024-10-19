@@ -4,6 +4,7 @@ import { AnimationDirective, AnimationDirectiveOptions } from "../base";
 import { Speaker, SpeakerDirectiveOptions } from "./Speaker";
 import { Voice, VoiceDirectiveOptions } from "../sound";
 import { Scene } from "../../../scene";
+import { merge } from "lodash-es";
 
 export type SpeakDirectiveEffect = "typewriter" | "fadeIn";
 
@@ -25,12 +26,14 @@ export class Speak extends AnimationDirective<PIXI.Text> {
 
   constructor(options: SpeakDirectiveOptions, stage: PIXI.Container) {
     super(options, stage);
-    this.options = {
-      interval: 0.2,
-      sequential: true,
-      effect: "typewriter",
-      ...options,
-    };
+    this.options = merge(
+      {
+        interval: 0.2,
+        sequential: true,
+        effect: "typewriter",
+      },
+      options,
+    );
     const { speaker, voice } = this.options;
 
     if (speaker) {
@@ -43,6 +46,7 @@ export class Speak extends AnimationDirective<PIXI.Text> {
   }
 
   public execute(): void {
+    console.log("speak target", this.target);
     if (!this.target) {
       return;
     }

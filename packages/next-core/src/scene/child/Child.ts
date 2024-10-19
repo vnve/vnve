@@ -76,7 +76,7 @@ export async function copyFromJSON(from: AnyJSON, to: Child, ignoreWH = false) {
       to.height = from.height;
     }
   }
-  to.setTransform(from.transform);
+  to.setTransform(...from.transform);
   to.filters = await reviveFilters(from.filters);
 }
 

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { findNode, moveSelection } from "@udecode/plate-common";
 import {
   focusEditor,
@@ -18,6 +18,7 @@ import {
   TDirectiveElement,
   TDirectiveValue,
 } from "./DirectivePlugin";
+import { useAssetStore } from "@/store";
 
 export function useFloatingDirective({
   triggerFloatingLinkHotkeys,
@@ -35,18 +36,33 @@ export function useFloatingDirective({
     onOpenChange: (open) => setOption("openEditorId", open ? editor.id : null),
     getBoundingClientRect: getSelectionBoundingClientRect,
     open: isOpen && ["insert", "edit"].includes(mode),
-    whileElementsMounted: () => {},
     ...floatingOptions,
   });
   const focused = useFocused();
+  const isOpenAssetLibrary = useAssetStore((state) => state.isOpen);
 
   const ref = useOnClickOutside(
-    () => {
-      // TODO: 与select选择存在冲突，暂时禁用
-      // if (["insert", "edit"].includes(getOptions().mode)) {
-      //   api.floatingDirective.hide();
-      //   focusEditor(editor, editor.selection!);
-      // }
+    (e) => {
+      const target = e.target as HTMLElement;
+
+      if (target && target.dataset.disableClickOutside) {
+        return;
+      }
+
+      if (target === document.documentElement) {
+        return;
+      }
+
+      if (isOpenAssetLibrary) {
+        return;
+      }
+
+      console.log("outside click", target);
+
+      if (["insert", "edit"].includes(getOptions().mode)) {
+        api.floatingDirective.hide();
+        focusEditor(editor, editor.selection!);
+      }
     },
     {
       disabled: !isOpen,

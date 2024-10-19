@@ -1,18 +1,9 @@
-import { withProps } from "@udecode/cn";
 import {
   usePlateEditor,
   Plate,
   ParagraphPlugin,
-  PlateLeaf,
   PlateEditor,
 } from "@udecode/plate-common/react";
-// import { BoldPlugin, ItalicPlugin } from "@udecode/plate-basic-marks/react";
-// import {
-//   FontColorPlugin,
-//   FontBackgroundColorPlugin,
-//   FontSizePlugin,
-// } from "@udecode/plate-font";
-import { NodeIdPlugin } from "@udecode/plate-node-id";
 import { DeletePlugin } from "@udecode/plate-select";
 
 import { ParagraphElement } from "@/components/plate-ui/paragraph-element";
@@ -25,7 +16,7 @@ import { DirectiveElement } from "@/components/plate-ui/directive-element";
 import { DirectiveFloatingToolbar } from "@/components/plate-ui/directive-floating-toolbar";
 import { useEffect, useState } from "react";
 
-export function DirectiveInput({ value, onChange }) {
+export function DirectiveInput({ value, onChange, children }) {
   const editor: PlateEditor = usePlateEditor({
     plugins: [
       ParagraphPlugin,
@@ -34,20 +25,12 @@ export function DirectiveInput({ value, onChange }) {
           afterEditable: () => <DirectiveFloatingToolbar />,
         },
       }),
-      // BoldPlugin,
-      // ItalicPlugin,
-      // FontColorPlugin,
-      // FontBackgroundColorPlugin,
-      // FontSizePlugin,
-      // NodeIdPlugin,
       DeletePlugin,
     ],
     override: {
       components: withPlaceholders({
         [DirectivePlugin.key]: DirectiveElement,
         [ParagraphPlugin.key]: ParagraphElement,
-        // [BoldPlugin.key]: withProps(PlateLeaf, { as: "strong" }),
-        // [ItalicPlugin.key]: withProps(PlateLeaf, { as: "em" }),
       }),
     },
     value: value.lines,
@@ -77,16 +60,18 @@ export function DirectiveInput({ value, onChange }) {
   }, [editor, value.lines, editorValue]);
 
   return (
-    <>
-      <Plate editor={editor} onChange={handleChangeLines}>
+    <Plate editor={editor} onChange={handleChangeLines}>
+      <div className="relative rounded-md border bg-background border-border">
         <FixedToolbar>
           <FixedToolbarButtons
             speaker={value.speaker}
             onChangeSpeaker={handleChangeSpeaker}
-          ></FixedToolbarButtons>
+          >
+            {children}
+          </FixedToolbarButtons>
         </FixedToolbar>
-        <Editor />
-      </Plate>
-    </>
+        <Editor focusRing={false} variant="ghost" size="md" />
+      </div>
+    </Plate>
   );
 }

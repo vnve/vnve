@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js";
 import { uuid } from "../util";
 import { reviveSounds, Sound } from "./Sound";
-import { Child, reviveChildren } from "./child";
+import { Child, reviveChildren, Text } from "./child";
 import { Filter, reviveFilters } from "./filter";
 import { cloneDeep } from "lodash-es";
 import {
@@ -76,8 +76,12 @@ export class Scene extends PIXI.Container {
     }
   }
 
-  public addDialogue(dialogue: Dialogue) {
-    this.dialogues.push(dialogue);
+  public addDialogue(dialogue: Dialogue, index?: number) {
+    if (typeof index !== "undefined") {
+      this.dialogues.splice(index, 0, dialogue);
+    } else {
+      this.dialogues.push(dialogue);
+    }
   }
 
   public updateDialogue(index: number, dialogue: Dialogue) {
@@ -89,6 +93,13 @@ export class Scene extends PIXI.Container {
 
   public removeDialogue(dialogue: Dialogue) {
     this.dialogues = this.dialogues.filter((item) => item !== dialogue);
+  }
+
+  public swapDialogue(a: number, b: number) {
+    [this.dialogues[a], this.dialogues[b]] = [
+      this.dialogues[b],
+      this.dialogues[a],
+    ];
   }
 
   public clone(): Scene {
@@ -124,10 +135,12 @@ export class Scene extends PIXI.Container {
     };
   }
 
-  static async fromJSON(json: AnyJSON) {
+  static async fromJSON(json: AnyJSON, exact = true) {
     const scene = new Scene();
 
-    scene.name = json.name;
+    if (exact) {
+      scene.name = json.name;
+    }
     scene.label = json.label;
     scene.config = json.config;
     scene.dialogues = json.dialogues;

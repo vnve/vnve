@@ -106,12 +106,12 @@ export function ChildList() {
                           {child.visible ? (
                             <Icons.viewing
                               onClick={() => handleToggleChildVisible(child)}
-                              className="w-4 h-4 cursor-pointer"
+                              className="size-4 cursor-pointer"
                             />
                           ) : (
                             <Icons.viewingOff
                               onClick={() => handleToggleChildVisible(child)}
-                              className="w-4 h-4 cursor-pointer"
+                              className="size-4 cursor-pointer"
                             />
                           )}
 
@@ -120,19 +120,19 @@ export function ChildList() {
                               onClick={() =>
                                 handleToggleChildInteractive(child)
                               }
-                              className="w-4 h-4 cursor-pointer"
+                              className="size-4 cursor-pointer"
                             />
                           ) : (
                             <Icons.lock
                               onClick={() =>
                                 handleToggleChildInteractive(child)
                               }
-                              className="w-4 h-4 cursor-pointer"
+                              className="size-4 cursor-pointer"
                             />
                           )}
                           <Icons.trash2
                             onClick={() => handleRemoveChild(child)}
-                            className="w-4 h-4 cursor-pointer hover:text-destructive"
+                            className="size-4 cursor-pointer hover:text-destructive"
                           />
                         </div>
                       </div>

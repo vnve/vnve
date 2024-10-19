@@ -3,7 +3,7 @@ import { Graphics } from "@vnve/next-core";
 import { ColorPicker } from "@/components/ui/color-picker";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { useAssetLibrary } from "@/hooks";
+import { useAssetLibrary } from "@/components/hooks/useAssetLibrary";
 import { DBAssetType } from "@/db";
 import { createSprite } from "@/lib/core";
 

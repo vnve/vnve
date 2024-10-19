@@ -1,7 +1,6 @@
 import path from "path";
 import { defineConfig, splitVendorChunkPlugin } from "vite";
 import react from "@vitejs/plugin-react";
-import Icons from "unplugin-icons/vite";
 import legacy from "@vitejs/plugin-legacy";
 import { VitePWA } from "vite-plugin-pwa";
 
@@ -15,10 +14,6 @@ export default defineConfig({
   },
   plugins: [
     react(),
-    Icons({
-      compiler: "jsx",
-      jsx: "react",
-    }),
     legacy({
       targets: ["defaults", "not IE 11"],
     }),

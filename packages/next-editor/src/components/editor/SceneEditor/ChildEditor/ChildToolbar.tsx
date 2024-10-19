@@ -52,10 +52,12 @@ export function ChildToolbar() {
   };
 
   return (
-    <div className="flex flex-col w-8 bg-white rounded-sm border p-1 gap-1 absolute top-0 right-0">
-      <Icons.delete className="w-6 h-6" onClick={handleCopy} />
-      <Icons.delete className="w-6 h-6" onClick={handleDelete} />
-    </div>
+    activeChild && (
+      <div className="flex flex-col w-8 bg-white rounded-sm border p-1 gap-1 absolute top-0 right-0">
+        <Icons.delete className="w-6 h-6" onClick={handleCopy} />
+        <Icons.delete className="w-6 h-6" onClick={handleDelete} />
+      </div>
+    )
   );
 
   return (

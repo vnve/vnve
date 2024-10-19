@@ -25,6 +25,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { AssetForm } from "./AssetForm";
 import { AssetStateList } from "./AssetStateList";
+import { Icons } from "@/components/icons";
 
 export type DBAssetForm = DBAsset & {
   states: (DBAssetState & { file?: File })[];
@@ -189,7 +190,8 @@ export function AssetLibrary() {
               </TabsList>
             </Tabs>
             <Button size="sm" onClick={handleAddAsset}>
-              新增{DBAssetTypeNameMap[assetType]}
+              <Icons.add className="w-3.5 h-3.5" />
+              新增
             </Button>
           </div>
           <ScrollArea className="flex-grow">

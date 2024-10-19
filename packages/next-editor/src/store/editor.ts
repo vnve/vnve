@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { Child, Editor, Graphics, Scene, Text } from "@vnve/next-core";
 import { immer } from "zustand/middleware/immer";
 import { immerable } from "immer";
+import { DBProject } from "@/db";
 
 // TODO: immerable ?
 // Editor[immerable] = true;
@@ -9,11 +10,13 @@ import { immerable } from "immer";
 // Child[immerable] = true;
 
 export const useEditorStore = create<{
+  project: Pick<DBProject, "id" | "name"> | null;
   editor: Editor;
   activeChild: Child | null;
   activeScene: Scene | null;
   scenes: Scene[];
   initEditor(view: HTMLCanvasElement): void;
+  setProject(project: DBProject | null): void;
   updateActiveChild(fn: (child: Child) => void): void;
   updateActiveScene(fn: (scene: Scene) => void): void;
 }>()(
@@ -24,10 +27,19 @@ export const useEditorStore = create<{
     // editor中所有需要在视图中展示的属性需要同步维护在store中，方便实现视图状态更新
     // editor中，activeChild和activeScene内部属性的更新，必须通过update方法来更新，直接修改editor中的属性无法完成视图状态更新
     return {
+      project: null,
       editor: null, // editor仅提供方法调用，内部属性不用作状态同步
       activeChild: null,
       activeScene: null,
       scenes: [],
+      setProject(project: DBProject) {
+        set((state) => {
+          state.project = {
+            id: project.id,
+            name: project.name,
+          };
+        });
+      },
       initEditor(view: HTMLCanvasElement) {
         console.log("initEditor");
         editor = new Editor({

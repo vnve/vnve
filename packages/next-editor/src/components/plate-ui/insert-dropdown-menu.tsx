@@ -39,19 +39,19 @@ const items = [
       // },
       {
         description: "工具指令",
-        icon: Icons.add,
+        icon: Icons.squarePlus,
         label: "工具指令",
         value: DirectiveType.Util,
       },
       {
         description: "转场指令",
-        icon: Icons.add,
+        icon: Icons.squarePlus,
         label: "转场指令",
         value: DirectiveType.Transition,
       },
       {
         description: "滤镜指令",
-        icon: Icons.add,
+        icon: Icons.squarePlus,
         label: "滤镜指令",
         value: DirectiveType.Filter,
       },
@@ -75,8 +75,8 @@ export function InsertDropdownMenu(props: DropdownMenuProps) {
   return (
     <DropdownMenu modal={false} {...openState} {...props}>
       <DropdownMenuTrigger asChild>
-        <ToolbarButton isDropdown pressed={openState.open} tooltip="Insert">
-          <Icons.add />
+        <ToolbarButton isDropdown pressed={openState.open} tooltip="更多指令">
+          <Icons.add className="size-4" />
         </ToolbarButton>
       </DropdownMenuTrigger>
 
@@ -96,7 +96,7 @@ export function InsertDropdownMenu(props: DropdownMenuProps) {
                   key={type}
                   onSelect={() => handleSelectDirectiveType(type)}
                 >
-                  <Icon className="mr-2 size-5" />
+                  <Icon className="mr-2 size-4" />
                   {itemLabel}
                 </DropdownMenuItem>
               ),

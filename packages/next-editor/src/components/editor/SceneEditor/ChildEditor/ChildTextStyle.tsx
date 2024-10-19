@@ -92,13 +92,13 @@ export function ChildTextStyle() {
             onValueChange={handleChangeTextWeightStyle}
           >
             <ToggleGroupItem value={SUPPORTED_FONT_WEIGHT.BOLD} className="p-2">
-              <Icons.bold className="w-4 h-4"></Icons.bold>
+              <Icons.bold className="size-4"></Icons.bold>
             </ToggleGroupItem>
             <ToggleGroupItem
               value={SUPPORTED_FONT_STYLE.ITALIC}
               className="p-2"
             >
-              <Icons.italic className="w-4 h-4"></Icons.italic>
+              <Icons.italic className="size-4"></Icons.italic>
             </ToggleGroupItem>
           </ToggleGroup>
         </div>

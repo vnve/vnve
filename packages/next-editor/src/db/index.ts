@@ -68,7 +68,7 @@ export interface DBTemplate {
   content: string;
 }
 
-export interface DBDraft {
+export interface DBProject {
   id?: number;
   name: string;
   time: number;
@@ -79,15 +79,16 @@ export class VNVEDexie extends Dexie {
   asset!: Table<DBAsset, number>;
   assetSource!: Table<DBAssetSource, number>;
   template!: Table<DBTemplate, number>;
-  draft!: Table<DBDraft, number>;
+  project!: Table<DBProject, number>;
 
   constructor() {
     super("vnve2");
-    this.version(1).stores({
+    this.version(2).stores({
       asset: "++id, name, type, states",
       assetSource: "++id, mime, blob, ext",
       template: "++id, name, type, content",
       draft: "++id, name, time, content",
+      project: "++id, name, time, content",
     });
   }
 }
@@ -96,8 +97,55 @@ export const db = new VNVEDexie();
 export const assetDB = db.asset;
 export const assetSourceDB = db.assetSource;
 export const templateDB = db.template;
-export const draftDB = db.draft;
+export const projectDB = db.project;
 
-export const getAssetSourceURL = (assetState: DBAssetState) => {
+export function getAssetSourceURL(assetState: DBAssetState) {
   return `https://s/${assetState.id}.${assetState.ext}`;
-};
+}
+
+export async function importAssetToDB() {
+  const dirHandle = await window.showDirectoryPicker();
+
+  for (const assetType of DBAssetTypeOptions) {
+    const typeFolderHandle = await dirHandle
+      .getDirectoryHandle(assetType.name)
+      .catch(() => {});
+
+    if (!typeFolderHandle) {
+      continue;
+    }
+
+    for await (const [assetName, assetHandle] of typeFolderHandle.entries()) {
+      if (assetHandle.kind === "directory") {
+        const assetId = await assetDB.add({
+          name: assetName,
+          type: assetType.value,
+          states: [],
+        });
+
+        for await (const [stateName, stateHandle] of assetHandle.entries()) {
+          if (stateHandle.kind === "file") {
+            const source = await stateHandle.getFile();
+            const ext = source.name.split(".").pop() || "";
+            const id = await assetSourceDB.add({
+              mime: source.type,
+              blob: source,
+              ext,
+            });
+
+            await assetDB
+              .where("id")
+              .equals(assetId)
+              .modify((asset) => {
+                asset.states.push({
+                  id,
+                  name: stateName,
+                  ext,
+                });
+              });
+          }
+        }
+      }
+    }
+  }
+}

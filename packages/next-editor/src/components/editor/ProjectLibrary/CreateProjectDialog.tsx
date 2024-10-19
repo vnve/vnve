@@ -1,6 +1,3 @@
-"use client";
-
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -10,7 +7,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -22,47 +18,56 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { templateDB } from "@/db";
+import { projectDB } from "@/db";
 import { useEditorStore } from "@/store";
 
 const formSchema = z.object({
-  templateName: z.string().min(1, "模板名称不能为空"),
+  projectName: z.string().min(1, "项目名称不能为空"),
 });
 
-export function SaveAsTemplateDialog({
-  sceneName,
-  children,
+export function CreateProjectDialog({
+  isOpen,
+  onClose,
 }: {
-  sceneName: string;
-  children: React.ReactNode;
+  isOpen: boolean;
+  onClose: () => void;
 }) {
-  const editor = useEditorStore((state) => state.editor);
-  const [open, setOpen] = useState(false);
+  const setProject = useEditorStore((state) => state.setProject);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      templateName: "",
+      projectName: "",
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    await templateDB.add({
-      name: values.templateName,
-      type: "",
-      content: JSON.stringify(editor.cloneSceneByName(sceneName)),
-    });
+  const handleOpenChange = (value) => {
+    if (!value) {
+      onClose();
+    }
+  };
 
-    setOpen(false);
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const newProject = {
+      name: values.projectName,
+      content: "",
+      time: Date.now(),
+    };
+    const id = await projectDB.add(newProject);
+
+    setProject({
+      id,
+      ...newProject,
+    });
+    onClose();
     form.reset();
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>保存为模板</DialogTitle>
+          <DialogTitle>创建新项目</DialogTitle>
           <DialogDescription></DialogDescription>
         </DialogHeader>
 
@@ -70,26 +75,22 @@ export function SaveAsTemplateDialog({
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
               control={form.control}
-              name="templateName"
+              name="projectName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>模板名称</FormLabel>
+                  <FormLabel>项目名称</FormLabel>
                   <FormControl>
-                    <Input placeholder="输入模板名称" {...field} />
+                    <Input placeholder="输入项目名称" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <div className="flex justify-end space-x-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setOpen(false)}
-              >
+              <Button type="button" variant="outline" onClick={onClose}>
                 取消
               </Button>
-              <Button type="submit">保存</Button>
+              <Button type="submit">创建</Button>
             </div>
           </form>
         </Form>

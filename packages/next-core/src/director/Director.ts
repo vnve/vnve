@@ -164,6 +164,9 @@ export class Director {
       return;
     }
     const now = performance.now();
+
+    gsap.updateRoot(0); // 全局实例重置为0，否则重复执行时动画异常
+
     try {
       const duration = this.parseScreenplay(screenplay);
 

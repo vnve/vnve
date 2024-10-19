@@ -5,10 +5,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export function ChildEditor() {
   return (
-    <Card className="flex-1 h-full rounded-md">
+    <Card className="flex-1 max-h-[50%] sm:max-h-full rounded-md">
       <CardContent className="h-full p-2">
         <Tabs defaultValue="style" className="h-full flex flex-col">
-          <TabsList>
+          <TabsList className="self-center">
             <TabsTrigger value="style">元素样式</TabsTrigger>
             <TabsTrigger value="list">元素列表</TabsTrigger>
           </TabsList>

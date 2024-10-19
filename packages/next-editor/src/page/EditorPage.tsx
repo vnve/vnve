@@ -2,55 +2,13 @@ import { SceneList } from "@/components/editor/SceneList";
 import { ChildEditor, SceneEditor } from "@/components/editor/SceneEditor";
 import { SceneDetail } from "@/components/editor/SceneDetail";
 import { AssetLibrary } from "@/components/editor/AssetLibrary";
-import {
-  Bird,
-  Book,
-  Bot,
-  Code2,
-  CornerDownLeft,
-  LifeBuoy,
-  Mic,
-  Paperclip,
-  Rabbit,
-  Settings,
-  Settings2,
-  Share,
-  SquareTerminal,
-  SquareUser,
-  Triangle,
-  Turtle,
-} from "lucide-react";
-
 import { Button } from "@/components/ui/button";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  TooltipProvider,
-} from "@/components/ui/tooltip";
-
-export const description =
-  "An AI playground with a sidebar navigation and a main content area. The playground has a header with a settings drawer and a share button. The sidebar has navigation links and a user menu. The main content area shows a form to configure the model and messages.";
+import { Toaster } from "@/components/ui/toaster";
+import { useToast } from "@/components/hooks/use-toast";
 
 export function EditorPage() {
+  const { toast } = useToast();
+
   return (
     <div className="grid h-screen w-full">
       <div className="flex flex-col">
@@ -60,10 +18,13 @@ export function EditorPage() {
             variant="outline"
             size="sm"
             className="ml-auto gap-1.5 text-sm"
-          >
-            <Share className="size-3.5" />
-            Share
-          </Button>
+            onClick={() => {
+              toast({
+                title: "Scheduled: Catch up",
+                description: "Friday, February 10, 2023 at 5:57 PM",
+              });
+            }}
+          ></Button>
         </header>
         <main className="grid flex-1 gap-2 overflow-auto p-2 md:grid-cols-2 lg:grid-cols-3 bg-muted/50">
           <div className="relative hidden md:flex h-[calc(100vh-53px-1rem)]">
@@ -71,14 +32,15 @@ export function EditorPage() {
           </div>
           <div className="relative flex h-full flex-col lg:col-span-2 gap-2">
             <SceneEditor />
-            <div className="flex gap-2 h-[50vh] md:h-[30vh]">
+            <div className="flex gap-2 h-[50vh] md:h-[30vh] flex-col sm:flex-row">
               <ChildEditor />
               <SceneList />
             </div>
           </div>
         </main>
       </div>
-      <AssetLibrary></AssetLibrary>
+      <AssetLibrary />
+      <Toaster />
     </div>
   );
 }
