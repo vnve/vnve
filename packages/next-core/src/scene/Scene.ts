@@ -85,10 +85,7 @@ export class Scene extends PIXI.Container {
   }
 
   public updateDialogue(index: number, dialogue: Dialogue) {
-    this.dialogues[index] = {
-      ...this.dialogues[index],
-      ...dialogue,
-    };
+    this.dialogues[index] = dialogue;
   }
 
   public removeDialogue(dialogue: Dialogue) {

@@ -55,7 +55,7 @@ export function ChildBasicStyle() {
         <div className="flex-1 flex gap-1 items-center">
           <Label className="w-5">X</Label>
           <Input
-            value={activeChild.x}
+            value={activeChild.x.toFixed(0)}
             onChange={handleInputValueChange("x", "number")}
             type="number"
             min={0}
@@ -66,7 +66,7 @@ export function ChildBasicStyle() {
         <div className="flex-1 flex gap-1 items-center">
           <Label className="w-5">Y</Label>
           <Input
-            value={activeChild.y}
+            value={activeChild.y.toFixed(0)}
             onChange={handleInputValueChange("y", "number")}
             type="number"
             min={0}

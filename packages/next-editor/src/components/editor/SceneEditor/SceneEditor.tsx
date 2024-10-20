@@ -333,21 +333,23 @@ export function SceneEditor() {
           </MenubarTrigger>
           <MenubarContent>
             <MenubarItem
+              disabled={!activeScene}
               onClick={() => {
                 const activeSceneIndex = editor.getActiveSceneIndex();
 
-                handlePreviewScenes(activeSceneIndex, activeSceneIndex);
+                handlePreviewScenes(activeSceneIndex, activeSceneIndex + 1);
               }}
             >
               仅预览当前场景
             </MenubarItem>
             <MenubarItem
+              disabled={!activeScene}
               onClick={() => handlePreviewScenes(editor.getActiveSceneIndex())}
             >
               从当前场景开始预览
             </MenubarItem>
             <MenubarItem onClick={() => handlePreviewScenes()}>
-              从头开始预览
+              预览全部场景
             </MenubarItem>
           </MenubarContent>
         </MenubarMenu>
@@ -360,21 +362,23 @@ export function SceneEditor() {
           </MenubarTrigger>
           <MenubarContent>
             <MenubarItem
+              disabled={!activeScene}
               onClick={() => {
                 const activeSceneIndex = editor.getActiveSceneIndex();
 
-                handleExportScenes(activeSceneIndex, activeSceneIndex);
+                handleExportScenes(activeSceneIndex, activeSceneIndex + 1);
               }}
             >
               仅导出当前场景
             </MenubarItem>
             <MenubarItem
+              disabled={!activeScene}
               onClick={() => handleExportScenes(editor.getActiveSceneIndex())}
             >
               从当前场景开始导出
             </MenubarItem>
             <MenubarItem onClick={() => handleExportScenes()}>
-              导出所有场景
+              导出全部场景
             </MenubarItem>
           </MenubarContent>
         </MenubarMenu>

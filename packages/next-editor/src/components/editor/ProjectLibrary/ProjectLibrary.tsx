@@ -43,6 +43,7 @@ export function ProjectLibrary({
 
     if (project.content) {
       await editor.loadFromJSON(project.content);
+      editor.setActiveSceneByIndex(0);
     }
     setProject(project);
     onClose();

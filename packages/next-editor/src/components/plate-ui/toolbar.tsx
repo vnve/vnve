@@ -146,7 +146,7 @@ export const ToolbarGroup = withRef<
   return (
     <div className={cn("flex", className)} ref={ref}>
       {!noSeparator && (
-        <div className="h-full py-1">
+        <div className="h-full py-2">
           <Separator orientation="vertical" />
         </div>
       )}

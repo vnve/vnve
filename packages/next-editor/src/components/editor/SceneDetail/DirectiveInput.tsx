@@ -14,7 +14,7 @@ import { withPlaceholders } from "@/components/plate-ui/placeholder";
 import { DirectivePlugin } from "@/components/plugin/directive/DirectivePlugin";
 import { DirectiveElement } from "@/components/plate-ui/directive-element";
 import { DirectiveFloatingToolbar } from "@/components/plate-ui/directive-floating-toolbar";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 export function DirectiveInput({ value, onChange, children }) {
   const editor: PlateEditor = usePlateEditor({
@@ -35,14 +35,12 @@ export function DirectiveInput({ value, onChange, children }) {
     },
     value: value.lines,
   });
-  const [editorValue, setEditorValue] = useState([]); // 记录editor value进行比对, 避免重复渲染
 
   const handleChangeLines = ({ value: newValue }) => {
     onChange({
       ...value,
       lines: newValue,
     });
-    setEditorValue(newValue);
   };
 
   const handleChangeSpeaker = (speaker) => {
@@ -53,11 +51,10 @@ export function DirectiveInput({ value, onChange, children }) {
   };
 
   useEffect(() => {
-    if (editorValue !== value.lines) {
+    if (editor.children !== value.lines) {
       editor.tf.setValue(value.lines);
-      setEditorValue(value.lines);
     }
-  }, [editor, value.lines, editorValue]);
+  }, [value.lines, editor]);
 
   return (
     <Plate editor={editor} onChange={handleChangeLines}>
@@ -70,7 +67,7 @@ export function DirectiveInput({ value, onChange, children }) {
             {children}
           </FixedToolbarButtons>
         </FixedToolbar>
-        <Editor focusRing={false} variant="ghost" size="md" />
+        <Editor focusRing={false} variant="ghost" size="sm" />
       </div>
     </Plate>
   );

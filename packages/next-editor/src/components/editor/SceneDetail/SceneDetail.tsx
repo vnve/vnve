@@ -64,6 +64,12 @@ export function SceneDetail() {
 
       if (value.lines.length > 0) {
         const textChild = editor.activeScene.getChildByName(text) as Text;
+        // TODO: 切换时，activeScene更新了，editor.activeScene还没有更新
+        console.log(
+          "textChild",
+          textChild,
+          activeScene.children.find((item) => item.name === text),
+        );
         let speakText = "";
 
         value.lines.forEach((line) => {
@@ -138,9 +144,9 @@ export function SceneDetail() {
                       <div key={index}>
                         <DirectiveInput
                           value={dialogue}
-                          onChange={(value) =>
-                            handleUpdateDialogue(index, value)
-                          }
+                          onChange={(value) => {
+                            handleUpdateDialogue(index, value);
+                          }}
                         >
                           <DropdownMenu>
                             <DropdownMenuTrigger>
