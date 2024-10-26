@@ -43,13 +43,10 @@ export function createDialogueScene() {
   scene.addChild(dialogRect);
   scene.addChild(nameText);
   scene.addChild(dialogText);
-  scene.config.speak = {
-    target: {
-      name: nameText.name,
-      text: dialogText.name,
-      dialog: dialogRect.name,
-    },
-  };
+  scene.config.speak.targetName = dialogText.name;
+  scene.config.speak.dialogTargetName = dialogRect.name;
+  scene.config.speak.speaker.targetName = nameText.name;
+  scene.config.speak.speaker.name = nameText.text;
 
   return scene;
 }

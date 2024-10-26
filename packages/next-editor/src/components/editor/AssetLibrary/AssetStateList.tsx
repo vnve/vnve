@@ -1,6 +1,7 @@
-import { DBAsset, DBAssetState, getAssetSourceURL } from "@/db";
+import { DBAsset, DBAssetState } from "@/db";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
+import { AssetStateCard } from "./AssetCard";
 
 export function AssetStateList({
   asset,
@@ -13,28 +14,26 @@ export function AssetStateList({
 }) {
   return (
     <div>
-      <h3 className="text-base font-bold mb-4">选择展示的状态</h3>
+      <h3 className="text-base font-bold mb-4 flex justify-between items-center">
+        选择默认状态
+        <Button variant="outline" size="sm" onClick={onCancel}>
+          返回列表
+        </Button>
+      </h3>
       <ScrollArea>
-        {asset.states.map((state) => {
-          return (
-            <div key={state.id} onClick={() => onSelectState(state)}>
-              <div
-                className="aspect-[9/16] h-[160px] w-[90px] bg-[length:20px_20px]"
-                style={{
-                  backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><rect width="10" height="10" fill="%23ccc"/><rect x="10" y="10" width="10" height="10" fill="%23ccc"/></svg>')`,
-                }}
-              >
-                <img
-                  src={getAssetSourceURL(state)}
-                  className="h-full w-full object-cover"
-                />
-              </div>
-              <div>{state.name}</div>
-            </div>
-          );
-        })}
+        <div className="flex gap-2 flex-wrap">
+          {asset.states?.map((state) => {
+            return (
+              <AssetStateCard
+                key={state.id}
+                type={asset.type}
+                state={state}
+                onSelect={() => onSelectState(state)}
+              />
+            );
+          })}
+        </div>
       </ScrollArea>
-      <Button onClick={onCancel}>返回列表</Button>
     </div>
   );
 }

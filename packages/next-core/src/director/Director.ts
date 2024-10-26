@@ -23,6 +23,11 @@ interface RendererOptions {
   height: number;
   background: number;
   renderer?: PIXI.IRenderer;
+  onProgress?: (
+    progress: number,
+    currentTime: number,
+    duration: number,
+  ) => void;
 }
 
 export enum DirectiveName {
@@ -60,17 +65,17 @@ export interface DirectiveConfig {
 }
 
 export interface SceneConfig {
-  speak?: {
-    target: {
-      name?: string;
-      text?: string;
-      dialog?: string;
-    };
-    wordsPerMin?: number;
-    interval?: number;
-    effect?: string; // 播放效果, 打字机效果等
+  speak: Omit<Directives.SpeakDirectiveOptions, "text"> & {
+    speaker: Directives.SpeakerDirectiveOptions;
   };
+  /**
+   * 场景间停顿间隔
+   */
   endInterval?: number;
+  /**
+   * 自动展示背景
+   */
+  autoShowBackground?: boolean;
 }
 
 export interface SceneScript {
@@ -81,7 +86,7 @@ export interface SceneScript {
 
 export interface Screenplay {
   name?: string;
-  config?: any; // 全局配置
+  config?: unknown; // TODO: 待补充全局配置
   scenes: SceneScript[];
 }
 
@@ -182,7 +187,6 @@ export class Director {
   // cut!
   public cut() {
     this.started = false;
-    // TODO: remove all listeners manually
     this.reset();
   }
 
@@ -230,13 +234,13 @@ export class Director {
       const Directive = Directives[directiveName as keyof typeof Directives];
 
       if (!Directive) {
-        console.error(`Directive ${directiveName} not found`);
+        log.error(`Directive ${directiveName} not found`);
         continue;
       }
 
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      const directive = new Directive(params, scene, sceneConfig); // TODO: 增加场景默认配置
+      const directive = new Directive(params, scene);
 
       // 指令执行时机
       directive.executeTime = duration;
@@ -247,7 +251,6 @@ export class Director {
         // 当前时间
         directive.currentTime = time;
 
-        // TODO: 时间精度
         if (
           approximatelyEqual(
             time,
@@ -276,7 +279,6 @@ export class Director {
     this.ticker.add(() => {
       const time = this.ticker.time;
 
-      // TODO: 时间开闭区间问题
       if (
         time >= prevSceneDuration &&
         time <= duration &&
@@ -324,7 +326,7 @@ export class Director {
   private async run(duration: number) {
     // 触发逐帧执行
     const { fps } = this.rendererOptions;
-    const frameCount = duration * fps;
+    const frameCount = Math.ceil(duration * fps);
 
     this.started = true;
 
@@ -344,6 +346,14 @@ export class Director {
             imageSource: this.ticker.ctx.imageSource!,
             audioBuffers: this.ticker.ctx.audioBuffers!,
           });
+        }
+
+        if (this.rendererOptions.onProgress) {
+          this.rendererOptions.onProgress(
+            (frameIndex / frameCount) * 100,
+            frameTimeMS / 1000,
+            duration,
+          );
         }
       } else {
         break;

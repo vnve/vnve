@@ -1,3 +1,4 @@
+import * as React from "react";
 import { DirectiveInput } from "./DirectiveInput";
 import { Button } from "@/components/ui/button";
 import { useEditorStore } from "@/store";
@@ -12,7 +13,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -22,12 +22,11 @@ export function SceneDetail() {
   const activeScene = useEditorStore((state) => state.activeScene);
 
   const handleAddDialogue = (index?: number) => {
+    const { config } = activeScene;
+
     editor.addDialogue(
       {
-        speaker: {
-          name: "",
-          label: "",
-        },
+        speak: editor.cloneDialogueSpeak(config.speak),
         lines: [],
       },
       index,
@@ -37,7 +36,7 @@ export function SceneDetail() {
   const handleInsertDialogue = (index: number, dialogue: Dialogue) => {
     editor.addDialogue(
       {
-        speaker: editor.cloneDialogueSpeaker(dialogue),
+        speak: editor.cloneDialogueSpeak(dialogue.speak),
         lines: [],
       },
       index,
@@ -53,23 +52,25 @@ export function SceneDetail() {
   const handleUpdateDialogue = (index: number, value: Dialogue) => {
     editor.updateDialogue(index, value);
     // 单向同步至画布元素，只改变画布中的值
-    if (activeScene) {
-      const { name, text } = activeScene.config.speak?.target || {};
+    // 此时activeScene没有更新，使用editor.activeScene
+    if (editor.activeScene) {
+      const { speaker, targetName: textTargetName } =
+        editor.activeScene.config.speak || {};
 
-      if (value.speaker.label) {
-        const nameChild = editor.activeScene.getChildByName(name) as Text;
+      if (value.speak.speaker.name && speaker) {
+        const nameChild = editor.activeScene.getChildByName(
+          speaker.targetName,
+        ) as Text;
 
-        nameChild.text = value.speaker.label;
+        if (nameChild) {
+          nameChild.text = value.speak.speaker.name;
+        }
       }
 
       if (value.lines.length > 0) {
-        const textChild = editor.activeScene.getChildByName(text) as Text;
-        // TODO: 切换时，activeScene更新了，editor.activeScene还没有更新
-        console.log(
-          "textChild",
-          textChild,
-          activeScene.children.find((item) => item.name === text),
-        );
+        const textChild = editor.activeScene.getChildByName(
+          textTargetName,
+        ) as Text;
         let speakText = "";
 
         value.lines.forEach((line) => {
@@ -91,7 +92,7 @@ export function SceneDetail() {
           }
         });
 
-        if (speakText) {
+        if (speakText && textChild) {
           textChild.text = speakText;
         }
       }

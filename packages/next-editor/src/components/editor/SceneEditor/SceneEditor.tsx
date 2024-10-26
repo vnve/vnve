@@ -12,38 +12,16 @@ import {
   MenubarShortcut,
   MenubarTrigger,
 } from "@/components/ui/menubar";
-import {
-  Compositor,
-  Previewer,
-  Director,
-  createDialogueScene,
-  createTitleScene,
-  createMonologueScene,
-  Scene,
-} from "@vnve/next-core";
+import { Compositor, Previewer, Director, Scene } from "@vnve/next-core";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChildToolbar } from "./ChildEditor/ChildToolbar";
-import { useLiveQuery } from "dexie-react-hooks";
 import { TemplateLibrary } from "../TemplateLibrary";
 import { ExportVideoDialog } from "./ExportVideoDialog";
 import { PreviewVideoDialog } from "./PreviewVideoDialog";
 import { CreateProjectDialog, ProjectLibrary } from "../ProjectLibrary";
 import { useToast } from "@/components/hooks/use-toast";
-
-const DEFAULT_SCENE_TEMPLATES = [
-  {
-    label: "对话",
-    value: createDialogueScene,
-  },
-  {
-    label: "独白",
-    value: createMonologueScene,
-  },
-  {
-    label: "标题",
-    value: createTitleScene,
-  },
-];
+import { useTemplates } from "@/components/hooks/useTemplates";
+import { ActionProgress } from "./types";
 
 export function SceneEditor() {
   const initEditor = useEditorStore((state) => state.initEditor);
@@ -54,7 +32,12 @@ export function SceneEditor() {
   const { selectAsset } = useAssetLibrary();
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const customTemplates = useLiveQuery(() => templateDB.reverse().toArray());
+  const {
+    defaultTemplates,
+    customTemplates,
+    handleAddDefaultTemplate,
+    handleAddCustomTemplate,
+  } = useTemplates();
   const [isOpenCreateProjectDialog, setIsOpenCreateProjectDialog] =
     useState(false);
   const [isOpenProjectLibrary, setIsOpenProjectLibrary] = useState(false);
@@ -68,7 +51,20 @@ export function SceneEditor() {
     null,
   );
   const director = useRef(null);
+  const [actionProgress, setActionProgress] = useState<ActionProgress>({
+    value: 0,
+    currentTime: 0,
+    duration: 0,
+  });
   const { toast } = useToast();
+
+  const resetActionProgress = () => {
+    setActionProgress({
+      value: 0,
+      currentTime: 0,
+      duration: 0,
+    });
+  };
 
   const adjustCanvasWidth = () => {
     const container = canvasContainerRef.current;
@@ -111,20 +107,6 @@ export function SceneEditor() {
     }
   };
 
-  const handleAddScene = (createTemplateScene: () => Scene) => () => {
-    const newScene = createTemplateScene();
-
-    editor.addScene(newScene);
-    editor.setActiveScene(newScene);
-  };
-
-  const handleAddCustomTemplate = async (templateContent: string) => {
-    const newScene = await Scene.fromJSON(JSON.parse(templateContent), false);
-
-    editor.addScene(newScene);
-    editor.setActiveScene(newScene);
-  };
-
   const handleAddSprite = (assetType: DBAssetType) => async () => {
     const asset = await selectAsset(assetType);
 
@@ -136,6 +118,7 @@ export function SceneEditor() {
   };
 
   const handlePreviewScenes = async (start = 0, end?: number) => {
+    resetActionProgress();
     setPreviewVideoRange([start, end]);
     setIsOpenPreviewVideoDialog(true);
     const screenplay = await editor.exportScreenplay(start, end);
@@ -164,6 +147,7 @@ export function SceneEditor() {
   };
 
   const handleExportScenes = async (start = 0, end?: number) => {
+    resetActionProgress();
     setIsOpenExportVideoDialog(true);
     setCurExportVideoURL(null);
     const screenplay = await editor.exportScreenplay(start, end);
@@ -226,7 +210,15 @@ export function SceneEditor() {
 
     adjustCanvasWidth();
     initEditor(canvasRef.current);
-    director.current = new Director();
+    director.current = new Director({
+      onProgress(progress, currentTime, duration) {
+        setActionProgress({
+          value: progress,
+          currentTime,
+          duration,
+        });
+      },
+    });
 
     canvasRef.current.onselectstart = function () {
       return false;
@@ -264,24 +256,24 @@ export function SceneEditor() {
             场景
           </MenubarTrigger>
           <MenubarContent>
-            {DEFAULT_SCENE_TEMPLATES.map((template) => {
+            {defaultTemplates.map((template) => {
               return (
                 <MenubarItem
-                  onClick={handleAddScene(template.value)}
-                  key={template.label}
+                  onClick={handleAddDefaultTemplate(template.content)}
+                  key={template.name}
                 >
-                  新建{template.label}场景
+                  新建{template.name}
                 </MenubarItem>
               );
             })}
-            {customTemplates?.length > 0 && <MenubarSeparator />}
-            {customTemplates?.map((template) => {
+            {customTemplates.length > 0 && <MenubarSeparator />}
+            {customTemplates.map((template) => {
               return (
                 <MenubarItem
                   onClick={() => handleAddCustomTemplate(template.content)}
                   key={template.id}
                 >
-                  新建{template.name}场景
+                  新建{template.name}
                 </MenubarItem>
               );
             })}
@@ -404,11 +396,13 @@ export function SceneEditor() {
         onClose={() => setIsOpenTemplateLibrary(false)}
       ></TemplateLibrary>
       <ExportVideoDialog
+        progress={actionProgress}
         url={curExportVideoURL}
         isOpen={isOpenExportVideoDialog}
         onClose={handleCloseExportVideoDialog}
       ></ExportVideoDialog>
       <PreviewVideoDialog
+        progress={actionProgress}
         ref={previewVideoDialogRef}
         isOpen={isOpenPreviewVideoDialog}
         onClose={handleClosePreviewVideoDialog}

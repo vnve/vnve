@@ -1,7 +1,5 @@
 import {
-  Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -17,15 +15,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { assetDB, DBAssetType, getAssetSourceURL } from "@/db";
+import { DBAssetType } from "@/db";
 import { useEditorStore } from "@/store";
-import { DirectiveName, Sound } from "@vnve/next-core";
+import { DirectiveName } from "@vnve/next-core";
 import { useEffect, useImperativeHandle, useState, forwardRef } from "react";
-import { set, UseFormReturn, useWatch } from "react-hook-form";
+import { UseFormReturn, useWatch } from "react-hook-form";
 import { Input } from "../ui/input";
 import { DirectiveNameMap } from "@/config";
 import { useAssetLibrary } from "@/components/hooks/useAssetLibrary";
 import { createSound } from "@/lib/core";
+import { Slider } from "@/components/ui/slider";
 
 export interface DirectiveSoundFormFieldsHandle {
   getDirectiveLabel: () => string;
@@ -189,18 +188,12 @@ export const DirectiveSoundFormFields = forwardRef<
               <FormItem>
                 <FormLabel>音量</FormLabel>
                 <FormControl>
-                  <Input
-                    type="number"
+                  <Slider
                     min={0}
                     max={1}
-                    step={0.01}
-                    placeholder="请输入音量"
-                    value={field.value ?? ""}
-                    onChange={(e) => {
-                      const value = Number(e.target.value);
-
-                      field.onChange(value);
-                    }}
+                    step={0.1}
+                    value={[field.value]}
+                    onValueChange={(value) => field.onChange(value[0])}
                   />
                 </FormControl>
                 <FormMessage />
@@ -213,7 +206,7 @@ export const DirectiveSoundFormFields = forwardRef<
             render={({ field }) => (
               <FormItem className="flex flex-row items-center">
                 <FormLabel className="mr-4 mt-2 flex flex-col space-y-1">
-                  循环播放
+                  循环
                 </FormLabel>
                 <FormControl>
                   <Switch
@@ -231,7 +224,7 @@ export const DirectiveSoundFormFields = forwardRef<
             render={({ field }) => (
               <FormItem className="flex flex-row items-center">
                 <FormLabel className="mr-4 mt-2 flex flex-col space-y-1">
-                  跨场景播放
+                  跨场景
                 </FormLabel>
                 <FormControl>
                   <Switch

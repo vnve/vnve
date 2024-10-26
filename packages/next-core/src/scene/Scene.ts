@@ -1,25 +1,17 @@
 import * as PIXI from "pixi.js";
 import { uuid } from "../util";
 import { reviveSounds, Sound } from "./Sound";
-import { Child, reviveChildren, Text } from "./child";
+import { Child, reviveChildren } from "./child";
 import { Filter, reviveFilters } from "./filter";
 import { cloneDeep } from "lodash-es";
-import {
-  SceneConfig,
-  SpeakDirectiveOptions,
-  SpeakerDirectiveOptions,
-} from "../director";
+import { SceneConfig, SpeakDirectiveOptions } from "../director";
 
 export interface SceneOption {
   label?: string;
 }
 
 export interface Dialogue {
-  speaker: {
-    name: string;
-    label: string;
-  } & Omit<SpeakDirectiveOptions, "text" | "targetName"> &
-    Omit<SpeakerDirectiveOptions, "name" | "targetName">;
+  speak: Omit<SpeakDirectiveOptions, "text" | "targetName">;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   lines: any[]; // 同plate.js的value
 }
@@ -36,7 +28,27 @@ export class Scene extends PIXI.Container {
     super();
     this.name = uuid();
     this.label = options?.label || "";
-    this.config = {};
+
+    this.config = {
+      speak: {
+        targetName: "",
+        wordsPerMin: 600,
+        interval: 0.2,
+        effect: "typewriter",
+        speaker: {
+          targetName: "",
+          name: "",
+          autoShowSpeaker: {
+            inEffect: "Show",
+          },
+          autoMaskOtherSpeakers: {
+            alpha: 0.5,
+          },
+        },
+      },
+      endInterval: 0.5,
+      autoShowBackground: true,
+    };
     this.dialogues = [];
     this.sounds = [];
     this.children = [];

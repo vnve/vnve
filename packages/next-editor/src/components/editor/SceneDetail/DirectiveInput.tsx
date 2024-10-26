@@ -43,10 +43,10 @@ export function DirectiveInput({ value, onChange, children }) {
     });
   };
 
-  const handleChangeSpeaker = (speaker) => {
+  const handleChangeSpeak = (speak) => {
     onChange({
       ...value,
-      speaker,
+      speak,
     });
   };
 
@@ -61,8 +61,8 @@ export function DirectiveInput({ value, onChange, children }) {
       <div className="relative rounded-md border bg-background border-border">
         <FixedToolbar>
           <FixedToolbarButtons
-            speaker={value.speaker}
-            onChangeSpeaker={handleChangeSpeaker}
+            speak={value.speak}
+            onChangeSpeak={handleChangeSpeak}
           >
             {children}
           </FixedToolbarButtons>

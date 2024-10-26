@@ -6,7 +6,6 @@ import {
 } from "../plugin/directive/DirectivePlugin";
 
 import { cn, withRef } from "@udecode/cn";
-import { getHandler } from "@udecode/plate-common";
 import {
   PlateElement,
   useEditorPlugin,
@@ -21,7 +20,7 @@ export const DirectiveElement = withRef<
     onClick?: (directiveNode: TDirectiveElement) => void;
     prefix?: string;
   }
->(({ children, className, onClick, prefix, ...props }, ref) => {
+>(({ children, className, prefix, ...props }, ref) => {
   const element = useElement<TDirectiveElement>();
   const selected = useSelected();
   const focused = useFocused();

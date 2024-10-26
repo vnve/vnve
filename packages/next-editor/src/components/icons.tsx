@@ -71,6 +71,7 @@ import {
   ArrowUp,
   ArrowDown,
   SquarePlus,
+  Folder,
 } from "lucide-react";
 
 import type { EyeOff, LucideIcon } from "lucide-react";
@@ -243,6 +244,7 @@ export const Icons = {
   moveUp: ArrowUp,
   moveDown: ArrowDown,
   squarePlus: SquarePlus,
+  folder: Folder,
 
   // www
   gitHub: (props: LucideProps) => (

@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -15,9 +14,7 @@ import {
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -116,7 +113,7 @@ export function DirectiveForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      directive: "", // TODO: 最近使用的一个指令
+      directive: undefined,
       params: {},
     },
   });
@@ -135,20 +132,17 @@ export function DirectiveForm({
   }, [directiveType]);
 
   useEffect(() => {
-    console.log("directiveValue", editingDirective);
     if (editingDirective) {
-      form.reset(editingDirective.value, { keepDefaultValues: true });
+      form.reset(editingDirective.value as z.infer<typeof formSchema>, {
+        keepDefaultValues: true,
+      });
     } else {
       form.reset();
     }
   }, [editingDirective, form.reset, form]);
 
-  // 2. Define a submit handler.
   function onSubmit(value: z.infer<typeof formSchema>) {
     let label = "";
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log("values", JSON.stringify(value, null, 2));
 
     if (animationFieldsRef.current) {
       label = animationFieldsRef.current.getDirectiveLabel();
@@ -161,12 +155,12 @@ export function DirectiveForm({
     onSubmitDirective({
       ...value,
       label,
-    });
+    } as TDirectiveValue);
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
         <FormField
           control={form.control}
           name="directive"
@@ -208,7 +202,7 @@ export function DirectiveForm({
             name="params.sequential"
             render={({ field }) => (
               <FormItem className="flex flex-row items-center">
-                <FormLabel className="mr-4 mt-2 flex flex-col space-y-1">
+                <FormLabel className="mr-4 mt-1.5 flex flex-col space-y-1">
                   串行执行
                 </FormLabel>
                 <FormControl>
@@ -222,12 +216,14 @@ export function DirectiveForm({
             )}
           />
         )}
-        <Button size="sm" type="submit">
-          确定
-        </Button>
-        <Button size="sm" type="button" onClick={onCancel}>
-          取消
-        </Button>
+        <div className="mt-4">
+          <Button size="sm" type="submit" className="mr-2">
+            确定
+          </Button>
+          <Button size="sm" type="button" onClick={onCancel} variant="outline">
+            取消
+          </Button>
+        </div>
       </form>
     </Form>
   );

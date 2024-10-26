@@ -19,12 +19,12 @@ export const DBAssetTypeOptions = [
     value: DBAssetType.Background,
   },
   {
-    name: "对话框",
-    value: DBAssetType.Dialog,
-  },
-  {
     name: "物品",
     value: DBAssetType.Thing,
+  },
+  {
+    name: "对话框",
+    value: DBAssetType.Dialog,
   },
   {
     name: "音频",

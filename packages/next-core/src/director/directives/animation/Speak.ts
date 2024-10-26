@@ -15,6 +15,7 @@ export interface SpeakDirectiveOptions extends AnimationDirectiveOptions {
   append?: boolean;
   effect?: SpeakDirectiveEffect;
   alignWithVoice?: boolean;
+  dialogTargetName?: string;
   speaker?: SpeakerDirectiveOptions;
   voice?: VoiceDirectiveOptions;
 }

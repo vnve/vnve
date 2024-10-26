@@ -374,8 +374,8 @@ export class Editor {
     return cloneDeep(dialogue);
   }
 
-  public cloneDialogueSpeaker(dialogue: Dialogue) {
-    return cloneDeep(dialogue.speaker);
+  public cloneDialogueSpeak(speak: Dialogue["speak"]) {
+    return cloneDeep(speak);
   }
 
   public addDialogue(dialogue: Dialogue, index?: number) {
@@ -538,7 +538,7 @@ export class Editor {
 
   private genSceneScript(scene: Scene): SceneScript {
     const { dialogues, config } = scene;
-    const speakTarget = config.speak?.target;
+    const sceneSpeakConfig = config.speak;
     const directives: DirectiveConfig[] = [];
 
     const sceneBackground = scene.children.find(
@@ -546,8 +546,7 @@ export class Editor {
     );
 
     // 默认展示背景
-    // TODO: 增加一个默认配置
-    if (sceneBackground) {
+    if (sceneBackground && config.autoShowBackground) {
       directives.push({
         directive: DirectiveName.Show,
         params: {
@@ -557,26 +556,27 @@ export class Editor {
     }
 
     for (const dialogue of dialogues) {
-      const { speaker, lines } = dialogue;
+      const { speak: dialogueSpeakConfig, lines } = dialogue;
 
-      if (speakTarget?.name) {
+      if (sceneSpeakConfig.speaker.targetName) {
         directives.push({
           directive: DirectiveName.Speaker,
           params: {
-            targetName: speakTarget.name,
-            name: speaker.label,
-            speakerTargetName: speaker.name,
-            autoShowSpeaker: speaker.autoShowSpeaker,
-            autoMaskOtherSpeakers: speaker.autoMaskOtherSpeakers,
+            targetName: sceneSpeakConfig.speaker.targetName,
+            name: dialogueSpeakConfig.speaker?.name,
+            speakerTargetName: dialogueSpeakConfig.speaker?.speakerTargetName,
+            autoShowSpeaker: dialogueSpeakConfig.speaker?.autoShowSpeaker,
+            autoMaskOtherSpeakers:
+              dialogueSpeakConfig.speaker?.autoMaskOtherSpeakers,
           },
         });
       }
 
-      if (speakTarget?.dialog) {
+      if (sceneSpeakConfig?.dialogTargetName) {
         directives.push({
           directive: DirectiveName.Show,
           params: {
-            targetName: speakTarget.dialog,
+            targetName: sceneSpeakConfig.dialogTargetName,
           },
         });
       }
@@ -590,7 +590,7 @@ export class Editor {
 
             if (child.type === "directive") {
               directives.push(child.value);
-            } else if (child.text && speakTarget?.text) {
+            } else if (child.text && sceneSpeakConfig?.targetName) {
               let text = child.text;
 
               if (index === line.children.length - 1) {
@@ -602,12 +602,12 @@ export class Editor {
               directives.push({
                 directive: DirectiveName.Speak,
                 params: {
-                  targetName: speakTarget.text,
+                  targetName: sceneSpeakConfig.targetName,
                   text,
                   append: shouldAppend,
-                  wordsPerMin: speaker.wordsPerMin,
-                  interval: speaker.interval,
-                  effect: speaker.effect,
+                  wordsPerMin: dialogueSpeakConfig.wordsPerMin,
+                  interval: dialogueSpeakConfig.interval,
+                  effect: dialogueSpeakConfig.effect,
                 },
               });
 

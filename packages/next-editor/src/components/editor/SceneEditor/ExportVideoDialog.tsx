@@ -10,12 +10,16 @@ import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
 import { downloadFile } from "@/lib/utils";
 import { useEditorStore } from "@/store";
+import { Progress } from "@/components/ui/progress";
+import { ActionProgress } from "./types";
 
 export function ExportVideoDialog({
+  progress,
   url,
   isOpen,
   onClose,
 }: {
+  progress: ActionProgress;
   url: string;
   isOpen: boolean;
   onClose: () => void;
@@ -41,11 +45,12 @@ export function ExportVideoDialog({
           <DialogTitle>导出</DialogTitle>
           <DialogDescription></DialogDescription>
         </DialogHeader>
+        {!url && <Progress value={progress.value} />}
         {url && (
           <video src={url} className="w-full aspect-[16/9]" controls></video>
         )}
         <DialogFooter>
-          {url && <Button onClick={handleDownloadVideo}>下载</Button>}
+          {url && <Button onClick={handleDownloadVideo}>保存视频</Button>}
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -6,14 +6,12 @@ import { ToolbarGroup } from "./toolbar";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import { useEditorStore } from "@/store";
-import { Directive, Sprite } from "@vnve/next-core";
+import { Sprite } from "@vnve/next-core";
 import { DBAssetType } from "@/db";
 import {
   Popover,
@@ -39,35 +37,25 @@ import { DirectiveType } from "@/config";
 import { triggerFloatingDirective } from "../plugin/directive";
 
 const formSchema = z.object({
-  label: z.string().optional(),
   wordsPerMin: z.number().optional(),
   interval: z.number().optional(),
   effect: z.string().optional(),
-  autoShowSpeaker: z
-    .object({
-      inEffect: z.string(),
-    })
-    .optional(),
-  autoMaskOtherSpeakers: z
-    .object({
-      alpha: z.number(),
-    })
-    .optional(),
+  speaker: z.object({
+    name: z.string().optional(),
+    autoShowSpeaker: z
+      .object({
+        inEffect: z.string(),
+      })
+      .optional(),
+    autoMaskOtherSpeakers: z
+      .object({
+        alpha: z.number(),
+      })
+      .optional(),
+  }),
 });
 
-const defaultValues = {
-  wordsPerMin: 600,
-  interval: 0.2,
-  effect: "typewriter",
-  autoShowSpeaker: {
-    inEffect: "Show",
-  },
-  autoMaskOtherSpeakers: {
-    alpha: 0.5,
-  },
-};
-
-export function FixedToolbarButtons({ speaker, onChangeSpeaker, children }) {
+export function FixedToolbarButtons({ speak, onChangeSpeak, children }) {
   const activeScene = useEditorStore((state) => state.activeScene);
   const characters = useMemo(() => {
     if (!activeScene) {
@@ -82,10 +70,7 @@ export function FixedToolbarButtons({ speaker, onChangeSpeaker, children }) {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      ...defaultValues,
-      ...speaker,
-    },
+    defaultValues: speak,
   });
   const formValues = useWatch({
     control: form.control,
@@ -96,10 +81,13 @@ export function FixedToolbarButtons({ speaker, onChangeSpeaker, children }) {
       (character) => character.name === name,
     );
 
-    onChangeSpeaker({
-      ...speaker,
-      name,
-      label: hitCharacter?.label || "",
+    onChangeSpeak({
+      ...speak,
+      speaker: {
+        ...speak.speaker,
+        speakerTargetName: hitCharacter?.name,
+        name: hitCharacter?.label || "",
+      },
     });
   };
 
@@ -113,16 +101,19 @@ export function FixedToolbarButtons({ speaker, onChangeSpeaker, children }) {
 
   useEffect(() => {
     form.reset({
-      ...defaultValues,
-      ...speaker,
+      ...speak,
     });
-  }, [speaker, form]);
+  }, [speak, form]);
 
   useEffect(() => {
     if (form.formState.isDirty) {
-      onChangeSpeaker({
-        ...speaker,
+      onChangeSpeak({
+        ...speak,
         ...formValues,
+        speaker: {
+          ...speak.speaker,
+          ...formValues.speaker,
+        },
       });
     }
   }, [form.formState.isDirty, formValues]);
@@ -130,7 +121,10 @@ export function FixedToolbarButtons({ speaker, onChangeSpeaker, children }) {
   return (
     <div className="w-full flex flex-wrap gap-1">
       <ToolbarGroup noSeparator>
-        <Select value={speaker.name} onValueChange={handleSelectCharacter}>
+        <Select
+          value={speak.speaker.speakerTargetName}
+          onValueChange={handleSelectCharacter}
+        >
           <SelectTrigger className="w-[130px] h-8">
             <SelectValue placeholder="选择角色" />
           </SelectTrigger>
@@ -156,7 +150,7 @@ export function FixedToolbarButtons({ speaker, onChangeSpeaker, children }) {
               <form className="space-y-4">
                 <FormField
                   control={form.control}
-                  name="label"
+                  name="speaker.name"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>自定义角色名</FormLabel>
@@ -251,7 +245,7 @@ export function FixedToolbarButtons({ speaker, onChangeSpeaker, children }) {
                 />
                 <FormField
                   control={form.control}
-                  name="autoShowSpeaker"
+                  name="speaker.autoShowSpeaker"
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center">
                       <FormLabel className="mr-4 mt-2 flex flex-col space-y-1">
@@ -269,7 +263,7 @@ export function FixedToolbarButtons({ speaker, onChangeSpeaker, children }) {
                 />
                 <FormField
                   control={form.control}
-                  name="autoMaskOtherSpeakers"
+                  name="speaker.autoMaskOtherSpeakers"
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center">
                       <FormLabel className="mr-4 mt-2 flex flex-col space-y-1">

@@ -29,7 +29,7 @@ export function ChildGraphicsStyle() {
 
     editor.addChild(dialogSprite);
     editor.updateActiveScene((scene) => {
-      scene.config.speak.target.dialog = dialogSprite.name;
+      scene.config.speak.dialogTargetName = dialogSprite.name;
     });
     editor.setActiveChildByName(dialogSprite.name);
     editor.removeChildByName(activeChild.name);

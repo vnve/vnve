@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Button } from "@/components/ui/button";
 import {
@@ -6,10 +6,8 @@ import {
   assetSourceDB,
   DBAsset,
   DBAssetType,
-  getAssetSourceURL,
   DBAssetTypeOptions,
   DBAssetState,
-  DBAssetTypeNameMap,
 } from "@/db";
 import { useAssetStore } from "@/store";
 import {
@@ -19,13 +17,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { AssetForm } from "./AssetForm";
 import { AssetStateList } from "./AssetStateList";
 import { Icons } from "@/components/icons";
+import { AssetCard } from "./AssetCard";
 
 export type DBAssetForm = DBAsset & {
   states: (DBAssetState & { file?: File })[];
@@ -195,29 +192,19 @@ export function AssetLibrary() {
             </Button>
           </div>
           <ScrollArea className="flex-grow">
-            <ul>
+            <div className="flex gap-2 flex-wrap">
               {assets?.map((asset) => {
                 return (
-                  <li key={asset.id}>
-                    <div onClick={() => setSelectingAsset(asset)}>
-                      <img
-                        className="w-[160px] h-[90px]"
-                        src={getAssetSourceURL(asset.states[0])}
-                      />
-                      <p>
-                        {asset.id} {asset.name}
-                      </p>
-                    </div>
-                    <Button size="sm" onClick={() => handleEditAsset(asset)}>
-                      编辑
-                    </Button>
-                    <Button size="sm" onClick={() => handleDeleteAsset(asset)}>
-                      删除
-                    </Button>
-                  </li>
+                  <AssetCard
+                    key={asset.id}
+                    asset={asset}
+                    onSelect={() => setSelectingAsset(asset)}
+                    onEdit={() => handleEditAsset(asset)}
+                    onDelete={() => handleDeleteAsset(asset)}
+                  ></AssetCard>
                 );
               })}
-            </ul>
+            </div>
           </ScrollArea>
         </>
       );

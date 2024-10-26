@@ -30,12 +30,8 @@ export function createMonologueScene() {
 
   scene.addChild(maskRect);
   scene.addChild(lineText);
-  scene.config.speak = {
-    target: {
-      text: lineText.name,
-      dialog: maskRect.name,
-    },
-  };
+  scene.config.speak.targetName = lineText.name;
+  scene.config.speak.dialogTargetName = maskRect.name;
 
   return scene;
 }

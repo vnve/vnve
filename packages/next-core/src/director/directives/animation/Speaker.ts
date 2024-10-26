@@ -19,9 +19,15 @@ export interface AutoMaskOtherSpeakersOptions {
 }
 
 export interface SpeakerDirectiveOptions extends AnimationDirectiveOptions {
+  /**
+   * 发言角色展示名称
+   */
   name: string;
+  /**
+   * 发言角色立绘的targetName
+   */
   speakerTargetName?: string;
-  autoShowSpeaker?: AutoShowSpeakerOptions;
+  autoShowSpeaker?: Omit<AutoShowSpeakerOptions, "targetName">;
   autoMaskOtherSpeakers?: AutoMaskOtherSpeakersOptions;
 }
 

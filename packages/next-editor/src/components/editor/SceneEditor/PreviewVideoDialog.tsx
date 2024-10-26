@@ -9,14 +9,22 @@ import {
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
 import { forwardRef, useImperativeHandle, useRef } from "react";
+import { Progress } from "@/components/ui/progress";
+import { ActionProgress } from "./types";
 
 export const PreviewVideoDialog = forwardRef(
   (
     {
+      progress,
       isOpen,
       onClose,
       onExport,
-    }: { isOpen: boolean; onClose: () => void; onExport: () => void },
+    }: {
+      progress: ActionProgress;
+      isOpen: boolean;
+      onClose: () => void;
+      onExport: () => void;
+    },
     ref,
   ) => {
     const previewCanvasRef = useRef(null);
@@ -44,6 +52,7 @@ export const PreviewVideoDialog = forwardRef(
               ref={previewCanvasRef}
               className="w-full aspect-[16/9]"
             ></canvas>
+            <Progress value={progress.value} className="mt-2" />
           </DialogHeader>
 
           <DialogFooter>

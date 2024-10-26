@@ -59,7 +59,7 @@ export function DirectiveFloatingToolbar() {
         ref={insertRef}
       >
         <div
-          className="flex w-[330px] h-[400px] overflow-auto flex-col p-2"
+          className="flex max-w-[330px] max-h-[600px] overflow-auto flex-col p-2"
           {...inputProps}
         >
           {directiveType && (
