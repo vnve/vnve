@@ -30,21 +30,27 @@ const formSchema = z.object({
 });
 
 export function SaveAsTemplateDialog({
+  isOpen,
   sceneName,
-  children,
+  onClose,
 }: {
+  isOpen: boolean;
   sceneName: string;
-  children: React.ReactNode;
+  onClose: () => void;
 }) {
   const editor = useEditorStore((state) => state.editor);
-  const [open, setOpen] = useState(false);
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       templateName: "",
     },
   });
+
+  const handleOpenChange = (value) => {
+    if (!value) {
+      onClose();
+    }
+  };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     await templateDB.add({
@@ -53,13 +59,12 @@ export function SaveAsTemplateDialog({
       content: JSON.stringify(editor.cloneSceneByName(sceneName)),
     });
 
-    setOpen(false);
+    onClose();
     form.reset();
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>保存为模板</DialogTitle>
@@ -82,11 +87,7 @@ export function SaveAsTemplateDialog({
               )}
             />
             <div className="flex justify-end space-x-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setOpen(false)}
-              >
+              <Button type="button" variant="outline" onClick={onClose}>
                 取消
               </Button>
               <Button type="submit">保存</Button>

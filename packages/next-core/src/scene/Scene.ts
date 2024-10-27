@@ -46,7 +46,6 @@ export class Scene extends PIXI.Container {
           },
         },
       },
-      endInterval: 0.5,
       autoShowBackground: true,
     };
     this.dialogues = [];

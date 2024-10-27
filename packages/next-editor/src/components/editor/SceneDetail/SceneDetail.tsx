@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useState } from "react";
 import { DirectiveInput } from "./DirectiveInput";
 import { Button } from "@/components/ui/button";
 import { useEditorStore } from "@/store";
@@ -16,10 +16,37 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { DirectiveSpeakForm } from "@/components/plate-ui/directive-speak-form";
+import { Switch } from "@/components/ui/switch";
 
 export function SceneDetail() {
   const editor = useEditorStore((state) => state.editor);
   const activeScene = useEditorStore((state) => state.activeScene);
+  const [isOpenSaveAsTemplateDialog, setIsOpenSaveAsTemplateDialog] =
+    useState(false);
+
+  const handleChangeSpeak = (speak) => {
+    editor.updateActiveScene((scene) => {
+      scene.config.speak = speak;
+    });
+  };
+
+  const handleChangeAutoShowBackground = (value) => {
+    editor.updateActiveScene((scene) => {
+      scene.config.autoShowBackground = value;
+    });
+  };
 
   const handleAddDialogue = (index?: number) => {
     const { config } = activeScene;
@@ -56,7 +83,7 @@ export function SceneDetail() {
       const { speaker, targetName: textTargetName } =
         editor.activeScene.config.speak || {};
 
-      if (value.speak.speaker.name && speaker) {
+      if (speaker) {
         const nameChild = editor.activeScene.getChildByName(
           speaker.targetName,
         ) as Text;
@@ -126,11 +153,52 @@ export function SceneDetail() {
                     className="flex justify-between items-center"
                   >
                     <span>场景名称</span>
-                    <SaveAsTemplateDialog sceneName={activeScene.name}>
-                      <Button size="sm" variant="outline">
-                        保存为模版
-                      </Button>
-                    </SaveAsTemplateDialog>
+                    <div className="flex items-center">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button size="sm" variant="ghost">
+                            <Icons.settings className="size-4"></Icons.settings>
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent>
+                          <div className="flex flex-col">
+                            <h3 className="text-base font-bold">场景设置</h3>
+                            <DirectiveSpeakForm
+                              speak={activeScene.config.speak}
+                              onChangeSpeak={handleChangeSpeak}
+                              disableCustomName={true}
+                            ></DirectiveSpeakForm>
+                            <div className="flex mt-2">
+                              <span className="text-sm font-medium w-[8rem]">
+                                自动展示背景
+                              </span>
+                              <Switch
+                                checked={activeScene.config.autoShowBackground}
+                                onCheckedChange={handleChangeAutoShowBackground}
+                              />
+                            </div>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() =>
+                                setIsOpenSaveAsTemplateDialog(true)
+                              }
+                            >
+                              <Icons.bookmark className="size-4"></Icons.bookmark>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>保存为模版</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                   </Label>
                   <Input
                     type="text"
@@ -217,6 +285,11 @@ export function SceneDetail() {
                 </Button>
               </div>
             </ScrollArea>
+            <SaveAsTemplateDialog
+              isOpen={isOpenSaveAsTemplateDialog}
+              onClose={() => setIsOpenSaveAsTemplateDialog(false)}
+              sceneName={activeScene.name}
+            ></SaveAsTemplateDialog>
           </CardContent>
         </Card>
       )}

@@ -69,10 +69,6 @@ export interface SceneConfig {
     speaker: Directives.SpeakerDirectiveOptions;
   };
   /**
-   * 场景间停顿间隔
-   */
-  endInterval?: number;
-  /**
    * 自动展示背景
    */
   autoShowBackground?: boolean;
@@ -269,11 +265,6 @@ export class Director {
       });
 
       duration += directive.getDuration();
-    }
-
-    // 场景结束间隔
-    if (sceneConfig?.endInterval) {
-      duration += sceneConfig.endInterval;
     }
 
     this.ticker.add(() => {

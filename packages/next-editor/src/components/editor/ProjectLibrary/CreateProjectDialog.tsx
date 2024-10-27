@@ -32,6 +32,7 @@ export function CreateProjectDialog({
   isOpen: boolean;
   onClose: () => void;
 }) {
+  const editor = useEditorStore((state) => state.editor);
   const setProject = useEditorStore((state) => state.setProject);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -55,6 +56,7 @@ export function CreateProjectDialog({
     };
     const id = await projectDB.add(newProject);
 
+    editor.clear();
     setProject({
       id,
       ...newProject,

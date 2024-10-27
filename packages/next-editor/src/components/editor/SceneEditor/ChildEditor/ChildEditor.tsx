@@ -9,8 +9,8 @@ export function ChildEditor() {
       <CardContent className="h-full p-2">
         <Tabs defaultValue="style" className="h-full flex flex-col">
           <TabsList className="self-center">
-            <TabsTrigger value="style">元素样式</TabsTrigger>
-            <TabsTrigger value="list">元素列表</TabsTrigger>
+            <TabsTrigger value="style">素材样式</TabsTrigger>
+            <TabsTrigger value="list">素材列表</TabsTrigger>
           </TabsList>
           <TabsContent className="h-[calc(100%-2.5rem)]" value="style">
             <ChildStyle />

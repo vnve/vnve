@@ -72,6 +72,7 @@ import {
   ArrowDown,
   SquarePlus,
   Folder,
+  Bookmark,
 } from "lucide-react";
 
 import type { EyeOff, LucideIcon } from "lucide-react";
@@ -245,6 +246,7 @@ export const Icons = {
   moveDown: ArrowDown,
   squarePlus: SquarePlus,
   folder: Folder,
+  bookmark: Bookmark,
 
   // www
   gitHub: (props: LucideProps) => (
