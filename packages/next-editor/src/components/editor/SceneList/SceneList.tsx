@@ -22,6 +22,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { useTemplates } from "@/components/hooks/useTemplates";
+import { Scene } from "@vnve/next-core";
 
 export function SceneList() {
   const editor = useEditorStore((state) => state.editor);
@@ -42,10 +43,10 @@ export function SceneList() {
     editor.removeSceneByName(scene.name);
   };
 
-  const handleCopyScene = (scene) => {
+  const handleCopyScene = (scene: Scene, index: number) => {
     const copiedScene = editor.cloneSceneByName(scene.name);
 
-    editor.addScene(copiedScene);
+    editor.addScene(copiedScene, index);
   };
 
   const handleSwapScene = (fromIndex, toIndex) => {
@@ -60,7 +61,7 @@ export function SceneList() {
             <TableHeader>
               <TableRow>
                 <TableHead>场景</TableHead>
-                <TableHead className="w-[100px] text-right">操作</TableHead>
+                <TableHead className="w-[3rem] text-right">操作</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -108,6 +109,7 @@ export function SceneList() {
                                   key={template.name}
                                   onClick={handleAddDefaultTemplate(
                                     template.content,
+                                    index + 1,
                                   )}
                                 >
                                   {template.name}
@@ -120,7 +122,10 @@ export function SceneList() {
                                 <DropdownMenuItem
                                   key={template.id}
                                   onClick={() =>
-                                    handleAddCustomTemplate(template.content)
+                                    handleAddCustomTemplate(
+                                      template.content,
+                                      index + 1,
+                                    )
                                   }
                                 >
                                   {template.name}
@@ -130,7 +135,7 @@ export function SceneList() {
                           </DropdownMenuPortal>
                         </DropdownMenuSub>
                         <DropdownMenuItem
-                          onClick={() => handleCopyScene(scene)}
+                          onClick={() => handleCopyScene(scene, index + 1)}
                         >
                           复制
                         </DropdownMenuItem>

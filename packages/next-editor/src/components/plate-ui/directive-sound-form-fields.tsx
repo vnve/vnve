@@ -169,7 +169,7 @@ export const DirectiveSoundFormFields = forwardRef<
                     min={0}
                     step={1}
                     placeholder="请输入开始时间"
-                    value={field.value ?? ""}
+                    value={field.value ?? 0}
                     onChange={(e) => {
                       const value = Number(e.target.value);
 
@@ -193,7 +193,7 @@ export const DirectiveSoundFormFields = forwardRef<
                     min={0}
                     max={1}
                     step={0.1}
-                    value={[field.value]}
+                    value={[field.value ?? 1]}
                     onValueChange={(value) => field.onChange(value[0])}
                   />
                 </FormControl>

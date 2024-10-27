@@ -199,7 +199,7 @@ export function DirectiveForm({
         {SoundDirectiveNameList.includes(formDirective as DirectiveName) && (
           <DirectiveSoundFormFields form={form} ref={soundFieldsRef} />
         )}
-        {formDirective && (
+        {formDirective && formDirective !== DirectiveName.Wait && (
           <FormField
             control={form.control}
             name="params.sequential"

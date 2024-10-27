@@ -134,6 +134,7 @@ export function AssetForm({
                 onClick={() => append({ name: "" })}
                 className="ml-2"
               >
+                <Icons.squarePlus className="size-4 mr-1"></Icons.squarePlus>
                 新增状态
               </Button>
             </FormLabel>
@@ -198,8 +199,11 @@ export function AssetForm({
             <FormMessage />
           </FormItem>
           <div className="flex gap-2">
-            <Button type="submit">确定</Button>
+            <Button size="sm" type="submit">
+              确定
+            </Button>
             <Button
+              size="sm"
               type="button"
               className="mr-2"
               variant="outline"

@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/menubar";
 import { Compositor, Previewer, Director, Scene } from "@vnve/next-core";
 import { Card, CardContent } from "@/components/ui/card";
-import { ChildToolbar } from "./ChildEditor/ChildToolbar";
 import { TemplateLibrary } from "../TemplateLibrary";
 import { ExportVideoDialog } from "./ExportVideoDialog";
 import { PreviewVideoDialog } from "./PreviewVideoDialog";
@@ -383,7 +382,6 @@ export function SceneEditor() {
           >
             <canvas className="shadow border border-b" ref={canvasRef}></canvas>
           </div>
-          <ChildToolbar />
         </CardContent>
       </Card>
       {/* Dialogs */}

@@ -47,7 +47,6 @@ export class Speak extends AnimationDirective<PIXI.Text> {
   }
 
   public execute(): void {
-    console.log("speak target", this.target);
     if (!this.target) {
       return;
     }

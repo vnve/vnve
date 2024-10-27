@@ -52,7 +52,7 @@ export const DirectiveUtilFormFields = forwardRef<
             <Input
               type="number"
               min={0}
-              step={1}
+              step={0.1}
               placeholder="请输入等待时间"
               value={field.value ?? ""}
               onChange={(e) => {

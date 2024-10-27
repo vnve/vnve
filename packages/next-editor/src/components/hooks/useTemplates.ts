@@ -31,17 +31,21 @@ export function useTemplates() {
   const editor = useEditorStore((state) => state.editor);
   const customTemplates = useLiveQuery(() => templateDB.reverse().toArray());
 
-  const handleAddDefaultTemplate = (createTemplateScene: () => Scene) => () => {
-    const newScene = createTemplateScene();
+  const handleAddDefaultTemplate =
+    (createTemplateScene: () => Scene, index?: number) => () => {
+      const newScene = createTemplateScene();
 
-    editor.addScene(newScene);
-    editor.setActiveScene(newScene);
-  };
+      editor.addScene(newScene, index);
+      editor.setActiveScene(newScene);
+    };
 
-  const handleAddCustomTemplate = async (templateContent: string) => {
+  const handleAddCustomTemplate = async (
+    templateContent: string,
+    index?: number,
+  ) => {
     const newScene = await Scene.fromJSON(JSON.parse(templateContent), false);
 
-    editor.addScene(newScene);
+    editor.addScene(newScene, index);
     editor.setActiveScene(newScene);
   };
 
