@@ -49,8 +49,7 @@ export function SceneDetail() {
     });
   };
 
-  const handleUpdateDialogue = (index: number, value: Dialogue) => {
-    editor.updateDialogue(index, value);
+  const handleFocusDialogue = (index: number, value: Dialogue) => {
     // 单向同步至画布元素，只改变画布中的值
     // 此时activeScene没有更新，使用editor.activeScene
     if (editor.activeScene) {
@@ -99,6 +98,11 @@ export function SceneDetail() {
     }
   };
 
+  const handleUpdateDialogue = (index: number, value: Dialogue) => {
+    editor.updateDialogue(index, value);
+    handleFocusDialogue(index, value);
+  };
+
   const handleCopyDialogue = (dialogue: Dialogue, index?: number) => {
     const clonedDialogue = editor.cloneDialogue(dialogue);
 
@@ -145,9 +149,10 @@ export function SceneDetail() {
                       <div key={index}>
                         <DirectiveInput
                           value={dialogue}
-                          onChange={(value) => {
-                            handleUpdateDialogue(index, value);
-                          }}
+                          onChange={(value) =>
+                            handleUpdateDialogue(index, value)
+                          }
+                          onFocus={(value) => handleFocusDialogue(index, value)}
                         >
                           <DropdownMenu>
                             <DropdownMenuTrigger>

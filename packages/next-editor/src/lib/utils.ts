@@ -13,3 +13,13 @@ export function downloadFile(filename: string, fileSrc: string) {
   a.click();
   document.body.removeChild(a);
 }
+
+export function getFileInfo(file: File) {
+  const ext = file.name.split(".").pop() || "";
+  const name = file.name.substring(0, file.name.lastIndexOf("."));
+
+  return {
+    name,
+    ext,
+  };
+}

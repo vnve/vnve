@@ -160,16 +160,19 @@ export function DirectiveForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-2 flex flex-col h-full"
+      >
         <FormField
           control={form.control}
           name="directive"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="space-y-1">
               <FormLabel>{directiveNameGroup?.name}</FormLabel>
               <FormControl>
                 <Select onValueChange={field.onChange} value={field.value}>
-                  <SelectTrigger className="w-[180px]">
+                  <SelectTrigger className="h-8">
                     <SelectValue placeholder="请选择指令" />
                   </SelectTrigger>
                   <SelectContent>
@@ -201,8 +204,8 @@ export function DirectiveForm({
             control={form.control}
             name="params.sequential"
             render={({ field }) => (
-              <FormItem className="flex flex-row items-center">
-                <FormLabel className="mr-4 mt-1.5 flex flex-col space-y-1">
+              <FormItem className="space-y-0 flex flex-row items-center !mb-4">
+                <FormLabel className="flex flex-col w-[4rem]">
                   串行执行
                 </FormLabel>
                 <FormControl>
@@ -216,8 +219,8 @@ export function DirectiveForm({
             )}
           />
         )}
-        <div className="mt-4">
-          <Button size="sm" type="submit" className="mr-2">
+        <div className="pt-2 !mt-auto sticky left-0 bottom-0 bg-white w-full flex justify-center border-t border-t-border gap-2">
+          <Button size="sm" type="submit">
             确定
           </Button>
           <Button size="sm" type="button" onClick={onCancel} variant="outline">

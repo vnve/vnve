@@ -127,8 +127,6 @@ export const DirectiveAnimationFormFields = forwardRef<
         setStateOptions([]);
       }
     }
-
-    form.setValue("params.source", ""); // targetName变化时，需要清空source
   }, [activeScene, formDirective, formTargetName, form]);
 
   useImperativeHandle(
@@ -165,11 +163,17 @@ export const DirectiveAnimationFormFields = forwardRef<
         control={form.control}
         name="params.targetName"
         render={({ field }) => (
-          <FormItem>
+          <FormItem className="space-y-1">
             <FormLabel>动画对象</FormLabel>
             <FormControl>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <SelectTrigger className="w-[180px]">
+              <Select
+                onValueChange={(value) => {
+                  field.onChange(value);
+                  form.setValue("params.source", ""); // 切换对象需要清空目标状态
+                }}
+                value={field.value}
+              >
+                <SelectTrigger className="h-8">
                   <SelectValue placeholder="请选择动画对象" />
                 </SelectTrigger>
                 <SelectContent>
@@ -206,11 +210,11 @@ export const DirectiveAnimationFormFields = forwardRef<
             control={form.control}
             name="params.source"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="space-y-1">
                 <FormLabel>目标状态</FormLabel>
                 <FormControl>
                   <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger className="w-[180px]">
+                    <SelectTrigger className="h-8">
                       <SelectValue placeholder="请选择目标状态" />
                     </SelectTrigger>
                     <SelectContent>
@@ -232,7 +236,7 @@ export const DirectiveAnimationFormFields = forwardRef<
           control={form.control}
           name="params.duration"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="space-y-1">
               <FormLabel>动画时长(秒)</FormLabel>
               <FormControl>
                 <Input
@@ -246,6 +250,7 @@ export const DirectiveAnimationFormFields = forwardRef<
 
                     field.onChange(value);
                   }}
+                  className="h-8"
                 />
               </FormControl>
               <FormMessage />

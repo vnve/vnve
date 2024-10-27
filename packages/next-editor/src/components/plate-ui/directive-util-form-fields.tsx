@@ -46,7 +46,7 @@ export const DirectiveUtilFormFields = forwardRef<
       control={form.control}
       name="params.duration"
       render={({ field }) => (
-        <FormItem>
+        <FormItem className="space-y-1">
           <FormLabel>等待时间(秒)</FormLabel>
           <FormControl>
             <Input
@@ -59,6 +59,7 @@ export const DirectiveUtilFormFields = forwardRef<
                 const value = Number(e.target.value);
                 field.onChange(value);
               }}
+              className="h-8"
             />
           </FormControl>
           <FormMessage />

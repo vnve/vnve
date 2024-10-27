@@ -14,9 +14,9 @@ import { withPlaceholders } from "@/components/plate-ui/placeholder";
 import { DirectivePlugin } from "@/components/plugin/directive/DirectivePlugin";
 import { DirectiveElement } from "@/components/plate-ui/directive-element";
 import { DirectiveFloatingToolbar } from "@/components/plate-ui/directive-floating-toolbar";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
-export function DirectiveInput({ value, onChange, children }) {
+export function DirectiveInput({ value, onChange, onFocus, children }) {
   const editor: PlateEditor = usePlateEditor({
     plugins: [
       ParagraphPlugin,
@@ -35,11 +35,19 @@ export function DirectiveInput({ value, onChange, children }) {
     },
     value: value.lines,
   });
+  const isControlledValueChanged = useRef(false);
 
-  const handleChangeLines = ({ value: newValue }) => {
+  const handleChangeLines = ({ value: lines }) => {
+    // editor.tf.setValues会触发onValueChange
+    // 假如是外部传入Value变化，应该保持和受控组件行为一致，不触发变更事件
+    if (isControlledValueChanged.current) {
+      isControlledValueChanged.current = false;
+      return;
+    }
+
     onChange({
       ...value,
-      lines: newValue,
+      lines,
     });
   };
 
@@ -50,15 +58,23 @@ export function DirectiveInput({ value, onChange, children }) {
     });
   };
 
+  const handleFocus = () => {
+    onFocus(value);
+  };
+
   useEffect(() => {
     if (editor.children !== value.lines) {
+      isControlledValueChanged.current = true;
       editor.tf.setValue(value.lines);
     }
   }, [value.lines, editor]);
 
   return (
-    <Plate editor={editor} onChange={handleChangeLines}>
-      <div className="relative rounded-md border bg-background border-border">
+    <Plate editor={editor} onValueChange={handleChangeLines}>
+      <div
+        className="relative rounded-md border bg-background border-border"
+        onFocus={handleFocus}
+      >
         <FixedToolbar>
           <FixedToolbarButtons
             speak={value.speak}

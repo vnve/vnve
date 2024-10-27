@@ -26,6 +26,7 @@ import { CardContent, CardFooter } from "@/components/ui/card";
 import { Icons } from "@/components/icons";
 import FileSelector from "./FileSelector";
 import { AssetStateCard } from "./AssetCard";
+import { getFileInfo } from "@/lib/utils";
 
 const formSchema = z.object({
   id: z.number().optional(),
@@ -88,8 +89,8 @@ export function AssetForm({
 
   const handleChangeFile = (file: File, index: number) => {
     form.setValue(`states.${index}.file`, file);
-    if (form.getValues(`states.${index}.name`)) {
-      form.setValue(`states.${index}.name`, file.name);
+    if (!form.getValues(`states.${index}.name`)) {
+      form.setValue(`states.${index}.name`, getFileInfo(file).name);
     }
   };
 
@@ -196,15 +197,17 @@ export function AssetForm({
             </FormControl>
             <FormMessage />
           </FormItem>
-          <Button type="submit">确定</Button>
-          <Button
-            type="button"
-            className="mr-2"
-            variant="outline"
-            onClick={onCancel}
-          >
-            取消
-          </Button>
+          <div className="flex gap-2">
+            <Button type="submit">确定</Button>
+            <Button
+              type="button"
+              className="mr-2"
+              variant="outline"
+              onClick={onCancel}
+            >
+              取消
+            </Button>
+          </div>
         </form>
       </Form>
     </div>

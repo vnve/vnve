@@ -23,6 +23,7 @@ import { AssetForm } from "./AssetForm";
 import { AssetStateList } from "./AssetStateList";
 import { Icons } from "@/components/icons";
 import { AssetCard } from "./AssetCard";
+import { getFileInfo } from "@/lib/utils";
 
 export type DBAssetForm = DBAsset & {
   states: (DBAssetState & { file?: File })[];
@@ -76,7 +77,7 @@ export function AssetLibrary() {
 
   const addAssetToDB = async (asset: DBAssetForm) => {
     for (const state of asset.states) {
-      const ext = state.file.name.split(".").pop() || "";
+      const ext = getFileInfo(state.file).ext;
       const id = await assetSourceDB.add({
         mime: state.file.type,
         blob: state.file,
@@ -100,7 +101,7 @@ export function AssetLibrary() {
           await assetSourceDB.delete(state.id);
         }
 
-        const ext = state.file.name.split(".").pop() || "";
+        const ext = getFileInfo(state.file).ext;
         const id = await assetSourceDB.add({
           mime: state.file.type,
           blob: state.file,

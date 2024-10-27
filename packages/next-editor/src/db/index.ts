@@ -1,3 +1,4 @@
+import { getFileInfo } from "@/lib/utils";
 import Dexie, { Table } from "dexie";
 
 export enum DBAssetType {
@@ -123,10 +124,10 @@ export async function importAssetToDB() {
           states: [],
         });
 
-        for await (const [stateName, stateHandle] of assetHandle.entries()) {
+        for await (const [, stateHandle] of assetHandle.entries()) {
           if (stateHandle.kind === "file") {
             const source = await stateHandle.getFile();
-            const ext = source.name.split(".").pop() || "";
+            const { name, ext } = getFileInfo(source);
             const id = await assetSourceDB.add({
               mime: source.type,
               blob: source,
@@ -139,7 +140,7 @@ export async function importAssetToDB() {
               .modify((asset) => {
                 asset.states.push({
                   id,
-                  name: stateName,
+                  name,
                   ext,
                 });
               });

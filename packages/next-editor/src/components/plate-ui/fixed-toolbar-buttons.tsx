@@ -35,6 +35,7 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { DirectiveType } from "@/config";
 import { triggerFloatingDirective } from "../plugin/directive";
+import { ToolbarButton } from "./toolbar";
 
 const formSchema = z.object({
   wordsPerMin: z.number().optional(),
@@ -119,14 +120,14 @@ export function FixedToolbarButtons({ speak, onChangeSpeak, children }) {
   }, [form.formState.isDirty, formValues]);
 
   return (
-    <div className="w-full flex flex-wrap gap-1">
+    <div className="w-full flex flex-wrap">
       <ToolbarGroup noSeparator>
         <Select
           value={speak.speaker.speakerTargetName}
           onValueChange={handleSelectCharacter}
         >
           <SelectTrigger className="w-[130px] h-8">
-            <SelectValue placeholder="选择角色" />
+            <SelectValue placeholder="选择发言角色" />
           </SelectTrigger>
           <SelectContent>
             {characters.map((character) => (
@@ -142,23 +143,29 @@ export function FixedToolbarButtons({ speak, onChangeSpeak, children }) {
           </SelectContent>
         </Select>
         <Popover>
-          <PopoverTrigger>
-            <Icons.settings className="size-4 cursor-pointer" />
+          <PopoverTrigger asChild>
+            <ToolbarButton className="px-1" tooltip="发言设置">
+              <Icons.settings className="!size-4 cursor-pointer mx-1" />
+            </ToolbarButton>
           </PopoverTrigger>
           <PopoverContent>
             <Form {...form}>
-              <form className="space-y-4">
+              <form className="space-y-2">
                 <FormField
                   control={form.control}
                   name="speaker.name"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="space-y-1">
                       <FormLabel>自定义角色名</FormLabel>
                       <FormDescription>
                         用于自定义在对话中显示的角色名
                       </FormDescription>
                       <FormControl>
-                        <Input placeholder="请输入自定义角色名" {...field} />
+                        <Input
+                          className="h-8"
+                          placeholder="请输入自定义角色名"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -168,13 +175,14 @@ export function FixedToolbarButtons({ speak, onChangeSpeak, children }) {
                   control={form.control}
                   name="wordsPerMin"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="space-y-1">
                       <FormLabel>语速（字/分钟）</FormLabel>
                       <FormDescription>
                         角色发言的速度，默认值参考阅读速度xxx
                       </FormDescription>
                       <FormControl>
                         <Input
+                          className="h-8"
                           type="number"
                           min={0}
                           step={100}
@@ -195,13 +203,14 @@ export function FixedToolbarButtons({ speak, onChangeSpeak, children }) {
                   control={form.control}
                   name="interval"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="space-y-1">
                       <FormLabel>停顿时长（秒）</FormLabel>
                       <FormDescription>
                         角色发言完成后的停顿时长
                       </FormDescription>
                       <FormControl>
                         <Input
+                          className="h-8"
                           type="number"
                           min={0}
                           step={0.1}
@@ -222,7 +231,7 @@ export function FixedToolbarButtons({ speak, onChangeSpeak, children }) {
                   control={form.control}
                   name="effect"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="space-y-1">
                       <FormLabel>台词效果</FormLabel>
                       <FormDescription>台词的输出效果</FormDescription>
                       <FormControl>
@@ -230,7 +239,7 @@ export function FixedToolbarButtons({ speak, onChangeSpeak, children }) {
                           onValueChange={field.onChange}
                           value={field.value}
                         >
-                          <SelectTrigger className="w-[180px]">
+                          <SelectTrigger className="h-8">
                             <SelectValue placeholder="请选择台词效果" />
                           </SelectTrigger>
                           <SelectContent>
@@ -247,10 +256,8 @@ export function FixedToolbarButtons({ speak, onChangeSpeak, children }) {
                   control={form.control}
                   name="speaker.autoShowSpeaker"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-center">
-                      <FormLabel className="mr-4 mt-2 flex flex-col space-y-1">
-                        自动显示发言角色
-                      </FormLabel>
+                    <FormItem className="flex flex-row items-center space-y-0">
+                      <FormLabel className="mr-2">自动显示发言角色</FormLabel>
                       <FormControl>
                         <Switch
                           checked={field.value ? true : false}
@@ -265,10 +272,8 @@ export function FixedToolbarButtons({ speak, onChangeSpeak, children }) {
                   control={form.control}
                   name="speaker.autoMaskOtherSpeakers"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-center">
-                      <FormLabel className="mr-4 mt-2 flex flex-col space-y-1">
-                        自动阴影其他角色
-                      </FormLabel>
+                    <FormItem className="flex flex-row items-center space-y-0">
+                      <FormLabel className="mr-2">自动阴影其他角色</FormLabel>
                       <FormControl>
                         <Switch
                           checked={field.value ? true : false}
@@ -283,21 +288,21 @@ export function FixedToolbarButtons({ speak, onChangeSpeak, children }) {
             </Form>
           </PopoverContent>
         </Popover>
-        <Button
-          size="sm"
-          variant="outline"
+        <ToolbarButton
+          className="px-1 text-xs"
           onClick={() => handleSelectDirectiveType(DirectiveType.Animation)}
+          tooltip="插入动画"
         >
-          <Icons.squarePlus className="size-4 mr-1" /> 动画
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
+          <Icons.squarePlus className="!size-4 mr-0.5" /> 动画
+        </ToolbarButton>
+        <ToolbarButton
+          className="px-1 text-xs"
           onClick={() => handleSelectDirectiveType(DirectiveType.Sound)}
+          tooltip="插入音频"
         >
-          <Icons.squarePlus className="size-4 mr-1" />
-          声音
-        </Button>
+          <Icons.squarePlus className="!size-4 mr-0.5" />
+          音频
+        </ToolbarButton>
         <InsertDropdownMenu />
       </ToolbarGroup>
 

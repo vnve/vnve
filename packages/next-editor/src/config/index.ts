@@ -95,7 +95,7 @@ export const DirectiveNameOptionGroups: Array<{
     options: AnimationDirectiveNameOptions,
   },
   {
-    name: "声音指令",
+    name: "音频指令",
     type: DirectiveType.Sound,
     options: SoundDirectiveNameOptions,
   },

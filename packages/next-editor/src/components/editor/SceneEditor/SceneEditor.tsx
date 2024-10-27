@@ -381,7 +381,7 @@ export function SceneEditor() {
             className="w-full h-full flex justify-center items-center"
             ref={canvasContainerRef}
           >
-            <canvas ref={canvasRef}></canvas>
+            <canvas className="shadow border border-b" ref={canvasRef}></canvas>
           </div>
           <ChildToolbar />
         </CardContent>
