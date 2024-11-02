@@ -31,17 +31,19 @@ interface RendererOptions {
 }
 
 export enum DirectiveName {
+  ChangeSource = "ChangeSource",
   Speak = "Speak",
   Speaker = "Speaker",
   Show = "Show",
   Hide = "Hide",
   FadeIn = "FadeIn",
   FadeOut = "FadeOut",
+  ShakeX = "ShakeX",
+  ShakeY = "ShakeY",
   Wait = "Wait",
   Play = "Play",
   Pause = "Pause",
   Stop = "Stop",
-  ChangeSource = "ChangeSource",
   FadeInTransition = "FadeInTransition",
   AddFilter = "AddFilter",
   RemoveFilter = "RemoveFilter",
@@ -55,7 +57,7 @@ export type DirectiveParams =
   | Directives.SoundDirectiveOptions
   | Directives.PlayDirectiveOptions
   | Directives.ChangeSourceDirectiveOptions
-  | Directives.TransitionDirective
+  | Directives.TransitionDirectiveOptions
   | Directives.FilterDirectiveOptions
   | Directives.AddFilterDirectiveOptions;
 
@@ -77,7 +79,7 @@ export interface SceneConfig {
 export interface SceneScript {
   scene: PIXI.Container;
   directives: DirectiveConfig[];
-  config?: SceneConfig; // TODO: 场景配置
+  config: SceneConfig;
 }
 
 export interface Screenplay {
@@ -116,6 +118,7 @@ export class Director {
   private rendererOptions: RendererOptions;
   private started: boolean;
   private connecter?: Connector;
+  private cutResolver?: (value: unknown) => void;
 
   constructor(rendererOptions?: Partial<RendererOptions>) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -177,13 +180,19 @@ export class Director {
     } finally {
       this.reset();
       log.info("action cost:", performance.now() - now);
+      if (this.cutResolver) {
+        this.cutResolver(true);
+      }
     }
   }
 
   // cut!
   public cut() {
-    this.started = false;
-    this.reset();
+    return new Promise((resolve) => {
+      this.started = false;
+      this.reset();
+      this.cutResolver = resolve;
+    });
   }
 
   public reset() {

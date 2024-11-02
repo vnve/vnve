@@ -1,7 +1,13 @@
 import { useEditorStore } from "@/store";
 import { useEffect, useRef, useState } from "react";
 import { useAssetLibrary } from "@/components/hooks/useAssetLibrary";
-import { DBAssetType, importAssetToDB, projectDB, templateDB } from "@/db";
+import {
+  clearAssetDB,
+  DBAssetType,
+  importAssetToDB,
+  projectDB,
+  templateDB,
+} from "@/db";
 import { createSprite } from "@/lib/core";
 import {
   Menubar,
@@ -21,6 +27,9 @@ import { CreateProjectDialog, ProjectLibrary } from "../ProjectLibrary";
 import { useToast } from "@/components/hooks/use-toast";
 import { useTemplates } from "@/components/hooks/useTemplates";
 import { ActionProgress } from "./types";
+import { ImportAssetLoadingDialog } from "./ImportAssetLoadingDialog";
+import { ClearAssetAlertDialog } from "./ClearAssetAlertDialog";
+import { Icons } from "@/components/icons";
 
 export function SceneEditor() {
   const initEditor = useEditorStore((state) => state.initEditor);
@@ -43,6 +52,9 @@ export function SceneEditor() {
   const [isOpenTemplateLibrary, setIsOpenTemplateLibrary] = useState(false);
   const [isOpenExportVideoDialog, setIsOpenExportVideoDialog] = useState(false);
   const [isOpenPreviewVideoDialog, setIsOpenPreviewVideoDialog] =
+    useState(false);
+  const [importAssetLoading, setImportAssetLoading] = useState(false);
+  const [isOpenClearAssetAlertDialog, setIsOpenClearAssetAlertDialog] =
     useState(false);
   const previewVideoDialogRef = useRef(null);
   const [previewVideoRange, setPreviewVideoRange] = useState<number[]>([]);
@@ -145,6 +157,13 @@ export function SceneEditor() {
       });
   };
 
+  const handleReplayPreview = async () => {
+    if (director.current.hasStarted()) {
+      await director.current.cut();
+    }
+    handlePreviewScenes(...previewVideoRange);
+  };
+
   const handleExportScenes = async (start = 0, end?: number) => {
     resetActionProgress();
     setIsOpenExportVideoDialog(true);
@@ -200,8 +219,26 @@ export function SceneEditor() {
   };
 
   const handleImportAsset = async () => {
-    await importAssetToDB();
-    // TODO: loading + 提示
+    setImportAssetLoading(true);
+    try {
+      await importAssetToDB();
+    } catch (error) {
+      toast({
+        title: "导入失败！",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setImportAssetLoading(false);
+    }
+  };
+
+  const handleClearAssetDB = async () => {
+    await clearAssetDB();
+    toast({
+      title: "清空成功！",
+      duration: 1500,
+    });
   };
 
   useEffect(() => {
@@ -233,11 +270,12 @@ export function SceneEditor() {
       <Menubar>
         <MenubarMenu>
           <MenubarTrigger className="data-[disabled]:text-gray-400">
-            项目
+            <Icons.library className="size-4 mr-0.5"></Icons.library>
+            作品
           </MenubarTrigger>
           <MenubarContent>
             <MenubarItem onClick={() => setIsOpenCreateProjectDialog(true)}>
-              创建新项目
+              创建新作品
             </MenubarItem>
             <MenubarItem onClick={() => setIsOpenProjectLibrary(true)}>
               打开...
@@ -252,6 +290,7 @@ export function SceneEditor() {
             className="data-[disabled]:text-gray-400"
             disabled={!project}
           >
+            <Icons.scene className="size-4 mr-0.5"></Icons.scene>
             场景
           </MenubarTrigger>
           <MenubarContent>
@@ -287,6 +326,7 @@ export function SceneEditor() {
             className="data-[disabled]:text-gray-400"
             disabled={!project}
           >
+            <Icons.images className="size-4 mr-0.5"></Icons.images>
             素材
           </MenubarTrigger>
           <MenubarContent>
@@ -310,8 +350,14 @@ export function SceneEditor() {
             </MenubarItem>
             <MenubarSeparator />
             <MenubarItem onClick={handleImportAsset}>导入素材库...</MenubarItem>
-            <MenubarItem onClick={() => selectAsset()}>
+            <MenubarItem onClick={() => selectAsset(undefined, true)}>
               管理素材库...
+            </MenubarItem>
+            <MenubarItem
+              className="text-destructive"
+              onClick={() => setIsOpenClearAssetAlertDialog(true)}
+            >
+              清空素材库
             </MenubarItem>
           </MenubarContent>
         </MenubarMenu>
@@ -320,6 +366,7 @@ export function SceneEditor() {
             disabled={scenes.length === 0}
             className="data-[disabled]:text-gray-400"
           >
+            <Icons.preview className="size-4 mr-0.5"></Icons.preview>
             预览
           </MenubarTrigger>
           <MenubarContent>
@@ -349,6 +396,7 @@ export function SceneEditor() {
             disabled={scenes.length === 0}
             className="data-[disabled]:text-gray-400"
           >
+            <Icons.download className="size-4 mr-0.5"></Icons.download>
             导出
           </MenubarTrigger>
           <MenubarContent>
@@ -403,6 +451,7 @@ export function SceneEditor() {
         progress={actionProgress}
         ref={previewVideoDialogRef}
         isOpen={isOpenPreviewVideoDialog}
+        onReplay={handleReplayPreview}
         onClose={handleClosePreviewVideoDialog}
         onExport={handlePreviewToExport}
       ></PreviewVideoDialog>
@@ -410,6 +459,14 @@ export function SceneEditor() {
         isOpen={isOpenCreateProjectDialog}
         onClose={() => setIsOpenCreateProjectDialog(false)}
       ></CreateProjectDialog>
+      <ImportAssetLoadingDialog
+        isOpen={importAssetLoading}
+      ></ImportAssetLoadingDialog>
+      <ClearAssetAlertDialog
+        isOpen={isOpenClearAssetAlertDialog}
+        onConfirm={handleClearAssetDB}
+        onClose={() => setIsOpenClearAssetAlertDialog(false)}
+      ></ClearAssetAlertDialog>
     </div>
   );
 }

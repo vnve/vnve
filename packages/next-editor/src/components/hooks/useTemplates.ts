@@ -36,7 +36,7 @@ export function useTemplates() {
       const newScene = createTemplateScene();
 
       editor.addScene(newScene, index);
-      editor.setActiveScene(newScene);
+      editor.setActiveSceneByName(newScene.name);
     };
 
   const handleAddCustomTemplate = async (
@@ -46,7 +46,7 @@ export function useTemplates() {
     const newScene = await Scene.fromJSON(JSON.parse(templateContent), false);
 
     editor.addScene(newScene, index);
-    editor.setActiveScene(newScene);
+    editor.setActiveSceneByName(newScene.name);
   };
 
   return {

@@ -32,9 +32,6 @@ export default defineConfig({
           },
         ],
       },
-      workbox: {
-        globPatterns: ["**/*.{js,css,html,webp,jpg,png,mp3,wav}"],
-      },
     }),
     splitVendorChunkPlugin(),
   ],

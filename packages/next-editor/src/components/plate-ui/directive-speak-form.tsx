@@ -54,12 +54,6 @@ export function DirectiveSpeakForm({
   });
 
   useEffect(() => {
-    form.reset({
-      ...speak,
-    });
-  }, [speak, form]);
-
-  useEffect(() => {
     if (form.formState.isDirty) {
       onChangeSpeak({
         ...speak,
@@ -105,7 +99,7 @@ export function DirectiveSpeakForm({
             <FormItem className="space-y-1">
               <FormLabel>语速（字/分钟）</FormLabel>
               <FormDescription>
-                角色发言的速度，默认值参考阅读速度xxx
+                角色发言的速度，默认值参考平均阅读速度
               </FormDescription>
               <FormControl>
                 <Input

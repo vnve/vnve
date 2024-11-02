@@ -33,6 +33,7 @@ export function AssetLibrary() {
   const isOpen = useAssetStore((state) => state.isOpen);
   const confirm = useAssetStore((state) => state.confirm);
   const cancel = useAssetStore((state) => state.cancel);
+  const disableSelect = useAssetStore((state) => state.disableSelect);
   const defaultType = useAssetStore((state) => state.type);
   const [assetType, setAssetType] = useState(defaultType);
   const [editingAsset, setEditingAsset] = useState<DBAsset | null>(null);
@@ -132,6 +133,10 @@ export function AssetLibrary() {
   };
 
   const handleSelectAssetState = (state: DBAssetState) => {
+    if (disableSelect) {
+      return;
+    }
+
     confirm({
       ...selectingAsset,
       stateId: state.id,

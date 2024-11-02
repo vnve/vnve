@@ -49,8 +49,8 @@ const formSchema = z.discriminatedUnion("directive", [
       targetName: z.string({
         message: "请选择动画对象",
       }),
-      source: z.string({
-        message: "请选择目标状态",
+      source: z.string().min(1, {
+        message: "请输入目标状态",
       }),
       duration: z.number().optional(),
       sequential: z.boolean().optional(),
@@ -96,6 +96,14 @@ const formSchema = z.discriminatedUnion("directive", [
         }),
       }),
     });
+  }),
+  z.object({
+    directive: z.literal(DirectiveName.AddFilter),
+    params: z.object({
+      filterName: z.string({
+        message: "请选择滤镜",
+      }),
+    }),
   }),
 ]);
 
@@ -184,7 +192,7 @@ export function DirectiveForm({
                   </SelectContent>
                 </Select>
               </FormControl>
-              <FormMessage />
+              {/* <FormMessage /> */}
             </FormItem>
           )}
         />

@@ -52,7 +52,9 @@ export const DirectiveSoundFormFields = forwardRef<
   const { selectAsset } = useAssetLibrary();
   const [targetNameSelectOpen, setTargetNameSelectOpen] = useState(false);
 
-  const handleOpenAndAddSound = async () => {
+  const handleOpenAndAddSound = async (
+    onChangeSound: (name: string) => void,
+  ) => {
     setTargetNameSelectOpen(false);
     const asset = await selectAsset(DBAssetType.Audio);
 
@@ -62,7 +64,7 @@ export const DirectiveSoundFormFields = forwardRef<
       editor.addSound(sound);
       // 需延迟到options更新完，才能去更新form的值，否则无法生效
       setTimeout(() => {
-        form.setValue("params.targetName", sound.name);
+        onChangeSound(sound.name);
       }, 150);
     }
   };
@@ -137,17 +139,13 @@ export const DirectiveSoundFormFields = forwardRef<
                         </SelectGroup>
                       ),
                   )}
-                  {optionGroups.every(
-                    (group) => group.options.length === 0,
-                  ) && (
-                    <div
-                      onClick={handleOpenAndAddSound}
-                      className="cursor-pointer select-none py-1.5 pl-2 pr-8 text-sm hover:bg-slate-100 rounded-sm"
-                      data-disable-click-outside
-                    >
-                      +从素材库中选择并添加到当前场景
-                    </div>
-                  )}
+                  <div
+                    onClick={() => handleOpenAndAddSound(field.onChange)}
+                    className="cursor-pointer select-none py-1.5 pl-2 pr-8 text-sm hover:bg-slate-100 rounded-sm"
+                    data-disable-click-outside
+                  >
+                    +从素材库中选择并添加到当前场景
+                  </div>
                 </SelectContent>
               </Select>
             </FormControl>

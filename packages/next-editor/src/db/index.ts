@@ -150,3 +150,8 @@ export async function importAssetToDB() {
     }
   }
 }
+
+export async function clearAssetDB() {
+  await assetSourceDB.clear();
+  await assetDB.clear();
+}

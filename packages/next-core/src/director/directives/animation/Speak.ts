@@ -5,6 +5,7 @@ import { Speaker, SpeakerDirectiveOptions } from "./Speaker";
 import { Voice, VoiceDirectiveOptions } from "../sound";
 import { Scene } from "../../../scene";
 import { merge } from "lodash-es";
+import { readingTime } from "../../lib/reading";
 
 export type SpeakDirectiveEffect = "typewriter" | "fadeIn";
 
@@ -32,17 +33,24 @@ export class Speak extends AnimationDirective<PIXI.Text> {
         interval: 0.2,
         sequential: true,
         effect: "typewriter",
+        alignWithVoice: true,
       },
       options,
     );
     const { speaker, voice } = this.options;
 
-    if (speaker) {
+    if (speaker?.targetName) {
       this.speakerDirective = new Speaker(speaker, stage);
     }
 
-    if (voice) {
-      this.voiceDirective = new Voice(voice, this.stage as Scene);
+    if (voice?.targetName) {
+      this.voiceDirective = new Voice(
+        {
+          ...voice,
+          sequential: true, // speak中的voice子指令默认串行，方便文字和语音时长
+        },
+        this.stage as Scene,
+      );
     }
   }
 
@@ -123,40 +131,22 @@ export class Speak extends AnimationDirective<PIXI.Text> {
   public getDuration(): number {
     const { sequential, text, wordsPerMin, interval, alignWithVoice } =
       this.options;
-    let duration = this.readingTime(text, wordsPerMin) + (interval ?? 0);
+    let duration;
 
-    if (alignWithVoice) {
-      const voiceDuration = this.voiceDirective?.getDuration() ?? 0;
-
-      duration = Math.max(duration, voiceDuration);
+    if (this.voiceDirective && alignWithVoice) {
+      duration = this.voiceDirective.getDuration() ?? 0;
+    } else {
+      duration = this.readingTime(text, wordsPerMin) + (interval ?? 0);
     }
 
     return sequential ? duration : 0;
   }
 
-  private readingTime(text: string, wordsPerMin = 600) {
+  private readingTime(text: string, wordsPerMin = 500) {
     if (!text) {
       return 0;
     }
 
-    text = text.trim();
-    // step 1: count the number of Chinese characters
-    const charArray = text.match(/[\u4e00-\u9fa5]/g);
-    let charCount = 0;
-    if (charArray != null) {
-      charCount = charArray.length;
-    }
-    // step 2: replace all the Chinese characters with blank
-    text = text.replace(/[\u4e00-\u9fa5]/g, " ");
-    // step 3:replace newlines with blank
-    text = text.replace(/[\r\n]/g, " ");
-    // step 4:replace special characters with blank
-    text = text.replace(/\W+/g, " ");
-    // step 5: count the number of total English words
-    const totalEnWords = text.trim().split(/\s+/g).length;
-    const totalWords = totalEnWords + charCount;
-    const wordsPerSecond = wordsPerMin / 60;
-
-    return parseFloat((totalWords / wordsPerSecond).toFixed(1));
+    return readingTime(text, { wordsPerMin }).seconds;
   }
 }

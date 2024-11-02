@@ -22,6 +22,7 @@ import { DirectiveType } from "@/config";
 import { triggerFloatingDirective } from "../plugin/directive";
 import { ToolbarButton } from "./toolbar";
 import { DirectiveSpeakForm } from "./directive-speak-form";
+import { DirectiveVoiceForm } from "./directive-voice-form";
 
 const Narrator = {
   name: "Narrator",
@@ -55,10 +56,9 @@ export function FixedToolbarButtons({ speak, onChangeSpeak, children }) {
       ...speak,
       speaker: {
         ...speak.speaker,
-        speakerTargetName:
-          hitCharacter.name === Narrator.name ? undefined : hitCharacter?.name,
+        speakerTargetName: hitCharacter?.name,
         name:
-          hitCharacter.name === Narrator.name ? "" : hitCharacter?.label || "",
+          hitCharacter?.name === Narrator.name ? "" : hitCharacter?.label || "",
       },
     });
   };
@@ -75,10 +75,10 @@ export function FixedToolbarButtons({ speak, onChangeSpeak, children }) {
     <div className="w-full flex flex-wrap">
       <ToolbarGroup noSeparator>
         <Select
-          value={speak.speaker.speakerTargetName}
+          value={speak.speaker.speakerTargetName || ""}
           onValueChange={handleSelectCharacter}
         >
-          <SelectTrigger className="w-[130px] h-8">
+          <SelectTrigger className="w-[100px] md:w-[130px] h-8">
             <SelectValue placeholder="选择发言角色" />
           </SelectTrigger>
           <SelectContent>
@@ -107,19 +107,33 @@ export function FixedToolbarButtons({ speak, onChangeSpeak, children }) {
             ></DirectiveSpeakForm>
           </PopoverContent>
         </Popover>
+        <Popover>
+          <PopoverTrigger asChild>
+            <ToolbarButton className="px-1" tooltip="配音设置">
+              <Icons.mic className="!size-4 cursor-pointer mx-1" />
+            </ToolbarButton>
+          </PopoverTrigger>
+          <PopoverContent onFocusOutside={(e) => e.preventDefault()}>
+            <DirectiveVoiceForm
+              speak={speak}
+              onChangeSpeak={onChangeSpeak}
+            ></DirectiveVoiceForm>
+          </PopoverContent>
+        </Popover>
         <ToolbarButton
           className="px-1 text-xs"
           onClick={() => handleSelectDirectiveType(DirectiveType.Animation)}
           tooltip="插入动画"
         >
-          <Icons.squarePlus className="!size-4 mr-0.5" /> 动画
+          <Icons.squarePlus className="!size-4 md:mr-0.5 hidden md:flex" />
+          动画
         </ToolbarButton>
         <ToolbarButton
           className="px-1 text-xs"
           onClick={() => handleSelectDirectiveType(DirectiveType.Sound)}
           tooltip="插入音频"
         >
-          <Icons.squarePlus className="!size-4 mr-0.5" />
+          <Icons.squarePlus className="!size-4 md:mr-0.5 hidden md:flex" />
           音频
         </ToolbarButton>
         <InsertDropdownMenu />

@@ -1,7 +1,5 @@
 import {
-  Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -19,13 +17,7 @@ import {
 import { assetDB, DBAssetType, getAssetSourceURL } from "@/db";
 import { useEditorStore } from "@/store";
 import { DirectiveName, Sprite } from "@vnve/next-core";
-import {
-  useEffect,
-  useImperativeHandle,
-  useState,
-  ForwardedRef,
-  forwardRef,
-} from "react";
+import { useEffect, useImperativeHandle, useState, forwardRef } from "react";
 import { UseFormReturn, useWatch } from "react-hook-form";
 import { Input } from "../ui/input";
 import { DirectiveNameMap } from "@/config";
@@ -194,7 +186,7 @@ export const DirectiveAnimationFormFields = forwardRef<
                     (group) => group.options.length === 0,
                   ) && (
                     <div className="select-none py-1.5 pl-2 pr-8 text-sm opacity-50">
-                      请先在画布中添加角色、背景等元素
+                      请先在画布中添加角色、背景等素材
                     </div>
                   )}
                 </SelectContent>
@@ -243,7 +235,7 @@ export const DirectiveAnimationFormFields = forwardRef<
                   type="number"
                   min={0}
                   step={0.1}
-                  placeholder="请输入动画时长"
+                  placeholder="自定义动画时长"
                   value={field.value ?? ""}
                   onChange={(e) => {
                     const value = Number(e.target.value);

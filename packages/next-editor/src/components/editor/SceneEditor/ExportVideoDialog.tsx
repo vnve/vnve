@@ -50,7 +50,12 @@ export function ExportVideoDialog({
           <video src={url} className="w-full aspect-[16/9]" controls></video>
         )}
         <DialogFooter>
-          {url && <Button onClick={handleDownloadVideo}>保存视频</Button>}
+          {url && (
+            <Button onClick={handleDownloadVideo}>
+              <Icons.download className="size-4 mr-1"></Icons.download>
+              保存视频
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

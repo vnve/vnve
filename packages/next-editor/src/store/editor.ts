@@ -1,13 +1,7 @@
 import { create } from "zustand";
-import { Child, Editor, Graphics, Scene, Text } from "@vnve/next-core";
+import { Child, Editor, Scene, Text } from "@vnve/next-core";
 import { immer } from "zustand/middleware/immer";
-import { immerable } from "immer";
 import { DBProject } from "@/db";
-
-// TODO: immerable ?
-// Editor[immerable] = true;
-// Scene[immerable] = true;
-// Child[immerable] = true;
 
 export const useEditorStore = create<{
   project: Pick<DBProject, "id" | "name"> | null;
@@ -41,7 +35,6 @@ export const useEditorStore = create<{
         });
       },
       initEditor(view: HTMLCanvasElement) {
-        console.log("initEditor");
         editor = new Editor({
           view,
           onChangeActiveChild(child) {

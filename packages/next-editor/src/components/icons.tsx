@@ -73,6 +73,13 @@ import {
   SquarePlus,
   Folder,
   Bookmark,
+  Mic,
+  Download,
+  SquarePen,
+  LibraryBig,
+  Wallpaper,
+  Images,
+  MonitorPlay,
 } from "lucide-react";
 
 import type { EyeOff, LucideIcon } from "lucide-react";
@@ -247,6 +254,13 @@ export const Icons = {
   squarePlus: SquarePlus,
   folder: Folder,
   bookmark: Bookmark,
+  mic: Mic,
+  download: Download,
+  edit: SquarePen,
+  library: LibraryBig,
+  scene: Wallpaper,
+  images: Images,
+  preview: MonitorPlay,
 
   // www
   gitHub: (props: LucideProps) => (

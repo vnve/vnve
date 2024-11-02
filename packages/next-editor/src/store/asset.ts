@@ -5,18 +5,21 @@ import { immer } from "zustand/middleware/immer";
 export const useAssetStore = create<{
   isOpen: boolean;
   type: DBAssetType | null;
+  disableSelect: boolean;
   confirm: (asset?: DBAsset) => void | null;
   cancel: () => void | null;
   setConfirm: (confirm: (asset?: DBAsset) => void) => void;
   setCancel: (cancel: () => void) => void;
   setOpen: (open: boolean) => void;
   setType: (type: DBAssetType) => void;
+  setDisableSelect: (disableSelect: boolean) => void;
 }>()(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   immer<any>((set) => {
     return {
       isOpen: false,
       type: null,
+      disableSelect: false,
       confirm: null,
       cancel: null,
       setConfirm(confirm: (asset?: DBAsset) => void) {
@@ -37,6 +40,11 @@ export const useAssetStore = create<{
       setType(type: DBAssetType) {
         set((state) => {
           state.type = type;
+        });
+      },
+      setDisableSelect(disableSelect: boolean) {
+        set((state) => {
+          state.disableSelect = disableSelect;
         });
       },
     };

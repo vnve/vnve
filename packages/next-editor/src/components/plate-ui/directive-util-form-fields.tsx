@@ -35,7 +35,7 @@ export const DirectiveUtilFormFields = forwardRef<
     ref,
     () => ({
       getDirectiveLabel: () => {
-        return `${DirectiveNameMap[formDirective]}:${formWaitDuration ?? 0}s`;
+        return `${DirectiveNameMap[formDirective]}:${formWaitDuration ?? 0}秒`;
       },
     }),
     [formWaitDuration, formDirective],
@@ -47,14 +47,14 @@ export const DirectiveUtilFormFields = forwardRef<
       name="params.duration"
       render={({ field }) => (
         <FormItem className="space-y-1">
-          <FormLabel>等待时间(秒)</FormLabel>
+          <FormLabel>停顿时间(秒)</FormLabel>
           <FormControl>
             <Input
               type="number"
               min={0}
               step={0.1}
-              placeholder="请输入等待时间"
-              value={field.value ?? ""}
+              placeholder="请输入停顿时间"
+              value={field.value ?? 0}
               onChange={(e) => {
                 const value = Number(e.target.value);
                 field.onChange(value);

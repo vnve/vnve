@@ -66,13 +66,13 @@ export function ProjectLibrary({
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[425px] max-h-[80vh] overflow-auto">
         <DialogHeader>
-          <DialogTitle>项目列表</DialogTitle>
+          <DialogTitle>作品列表</DialogTitle>
           <DialogDescription></DialogDescription>
         </DialogHeader>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>项目名称</TableHead>
+              <TableHead>作品名称</TableHead>
               <TableHead className="w-[80px]">操作</TableHead>
             </TableRow>
           </TableHeader>

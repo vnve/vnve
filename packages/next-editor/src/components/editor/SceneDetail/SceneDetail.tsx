@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { DirectiveInput } from "./DirectiveInput";
 import { Button } from "@/components/ui/button";
 import { useEditorStore } from "@/store";
@@ -32,9 +32,11 @@ import { Switch } from "@/components/ui/switch";
 
 export function SceneDetail() {
   const editor = useEditorStore((state) => state.editor);
+  const project = useEditorStore((state) => state.project);
   const activeScene = useEditorStore((state) => state.activeScene);
   const [isOpenSaveAsTemplateDialog, setIsOpenSaveAsTemplateDialog] =
     useState(false);
+  const scrollAreaRef = useRef(null);
 
   const handleChangeSpeak = (speak) => {
     editor.updateActiveScene((scene) => {
@@ -58,6 +60,7 @@ export function SceneDetail() {
       },
       index,
     );
+    scrollToBottom();
   };
 
   const handleInsertDialogue = (index: number, dialogue: Dialogue) => {
@@ -140,12 +143,20 @@ export function SceneDetail() {
     editor.swapDialogue(fromIndex, toIndex);
   };
 
+  const scrollToBottom = () => {
+    setTimeout(() => {
+      if (scrollAreaRef.current) {
+        scrollAreaRef.current.scrollToBottom();
+      }
+    }, 100);
+  };
+
   return (
-    <>
-      {activeScene && (
-        <Card className="w-full flex-1 h-full rounded-md">
-          <CardContent className="h-full p-2">
-            <ScrollArea className="w-full h-full pr-2">
+    <Card className="w-full flex-1 h-full border-0 md:border shadow-none md:shadow rounded-md">
+      <CardContent className="h-full p-1 md:p-2">
+        {activeScene ? (
+          <>
+            <ScrollArea className="w-full h-full pr-2" ref={scrollAreaRef}>
               <div className="flex flex-col m-1 mr-0 pr-1">
                 <div className="flex flex-col gap-1">
                   <Label
@@ -276,11 +287,7 @@ export function SceneDetail() {
                     );
                   })}
                 </div>
-                <Button
-                  className="mt-2"
-                  size="sm"
-                  onClick={() => handleAddDialogue()}
-                >
+                <Button className="mt-2" onClick={() => handleAddDialogue()}>
                   新增对白
                 </Button>
               </div>
@@ -290,9 +297,13 @@ export function SceneDetail() {
               onClose={() => setIsOpenSaveAsTemplateDialog(false)}
               sceneName={activeScene.name}
             ></SaveAsTemplateDialog>
-          </CardContent>
-        </Card>
-      )}
-    </>
+          </>
+        ) : (
+          <div className="h-full text-lg flex items-center justify-center text-muted-foreground/50">
+            {project ? "请先创建场景" : "请先创建或打开作品"}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }

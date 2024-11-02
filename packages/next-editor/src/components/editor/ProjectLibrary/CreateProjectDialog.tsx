@@ -22,7 +22,7 @@ import { projectDB } from "@/db";
 import { useEditorStore } from "@/store";
 
 const formSchema = z.object({
-  projectName: z.string().min(1, "项目名称不能为空"),
+  projectName: z.string().min(1, "作品名称不能为空"),
 });
 
 export function CreateProjectDialog({
@@ -69,7 +69,7 @@ export function CreateProjectDialog({
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>创建新项目</DialogTitle>
+          <DialogTitle>创建新作品</DialogTitle>
           <DialogDescription></DialogDescription>
         </DialogHeader>
 
@@ -80,9 +80,9 @@ export function CreateProjectDialog({
               name="projectName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>项目名称</FormLabel>
+                  <FormLabel>作品名称</FormLabel>
                   <FormControl>
-                    <Input placeholder="输入项目名称" {...field} />
+                    <Input placeholder="输入作品名称" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

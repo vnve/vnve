@@ -17,11 +17,13 @@ export const PreviewVideoDialog = forwardRef(
     {
       progress,
       isOpen,
+      onReplay,
       onClose,
       onExport,
     }: {
       progress: ActionProgress;
       isOpen: boolean;
+      onReplay: () => void;
       onClose: () => void;
       onExport: () => void;
     },
@@ -56,7 +58,13 @@ export const PreviewVideoDialog = forwardRef(
           </DialogHeader>
 
           <DialogFooter>
-            <Button onClick={onExport}>立即导出</Button>
+            <Button variant="ghost" onClick={onReplay}>
+              <Icons.refresh className="size-5" />
+            </Button>
+            <Button onClick={onExport}>
+              <Icons.download className="size-4 mr-1" />
+              导出视频
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

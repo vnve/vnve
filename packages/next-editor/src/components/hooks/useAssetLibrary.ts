@@ -6,8 +6,13 @@ export function useAssetLibrary() {
   const setCancel = useAssetStore((state) => state.setCancel);
   const setOpen = useAssetStore((state) => state.setOpen);
   const setType = useAssetStore((state) => state.setType);
-  const selectAsset: (type?: DBAssetType) => Promise<DBAsset | undefined> = (
+  const setDisableSelect = useAssetStore((state) => state.setDisableSelect);
+  const selectAsset: (
     type?: DBAssetType,
+    disableSelect?: boolean,
+  ) => Promise<DBAsset | undefined> = (
+    type?: DBAssetType,
+    disableSelect?: boolean,
   ) =>
     new Promise((resolve) => {
       setConfirm((asset: DBAsset) => {
@@ -22,6 +27,7 @@ export function useAssetLibrary() {
 
       setOpen(true);
       setType(type);
+      setDisableSelect(disableSelect);
     });
 
   return {

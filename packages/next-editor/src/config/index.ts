@@ -15,16 +15,18 @@ interface DirectiveNameOption {
 
 export const DirectiveNameMap: Record<DirectiveName, string> = {
   [DirectiveName.Speak]: "发言",
-  [DirectiveName.Speaker]: "发言人",
+  [DirectiveName.Speaker]: "发言角色",
   [DirectiveName.ChangeSource]: "变更",
   [DirectiveName.Show]: "显示",
   [DirectiveName.Hide]: "隐藏",
   [DirectiveName.FadeIn]: "淡入",
   [DirectiveName.FadeOut]: "淡出",
+  [DirectiveName.ShakeX]: "左右晃动",
+  [DirectiveName.ShakeY]: "上下晃动",
   [DirectiveName.Play]: "播放",
   [DirectiveName.Pause]: "暂停",
   [DirectiveName.Stop]: "停止",
-  [DirectiveName.Wait]: "等待",
+  [DirectiveName.Wait]: "停顿",
   [DirectiveName.FadeInTransition]: "淡入过渡",
   [DirectiveName.AddFilter]: "添加滤镜",
   [DirectiveName.RemoveFilter]: "移除滤镜",
@@ -35,6 +37,8 @@ export const AnimationDirectiveNameList: DirectiveName[] = [
   DirectiveName.Hide,
   DirectiveName.FadeIn,
   DirectiveName.FadeOut,
+  DirectiveName.ShakeX,
+  DirectiveName.ShakeY,
 ];
 
 export const AnimationDirectiveNameOptions: DirectiveNameOption[] =
@@ -137,3 +141,26 @@ export function getDirectiveType(name: DirectiveName): DirectiveType {
     return DirectiveType.Transition;
   }
 }
+
+export const FilterOptions = [
+  {
+    name: "纯黑",
+    value: "BlackMaskFilter",
+  },
+  {
+    name: "模糊",
+    value: "BlurFilter",
+  },
+  {
+    name: "噪点",
+    value: "NoiseFilter",
+  },
+  {
+    name: "老电影",
+    value: "OldFilmFilter",
+  },
+  {
+    name: "暗角",
+    value: "VignetteFilter",
+  },
+];

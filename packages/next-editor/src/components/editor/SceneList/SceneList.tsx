@@ -23,8 +23,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useTemplates } from "@/components/hooks/useTemplates";
 import { Scene } from "@vnve/next-core";
+import { useEffect, useRef } from "react";
 
-export function SceneList() {
+export function SceneList({ onOpenSceneDetailDialog }) {
   const editor = useEditorStore((state) => state.editor);
   const activeScene = useEditorStore((state) => state.activeScene);
   const scenes = useEditorStore((state) => state.scenes);
@@ -34,6 +35,13 @@ export function SceneList() {
     handleAddDefaultTemplate,
     handleAddCustomTemplate,
   } = useTemplates();
+  const newSceneRef = useRef(null);
+
+  useEffect(() => {
+    if (newSceneRef.current) {
+      newSceneRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [scenes.length]);
 
   const handleRemoveScene = (scene) => {
     if (scene.name === activeScene?.name) {
@@ -47,6 +55,7 @@ export function SceneList() {
     const copiedScene = editor.cloneSceneByName(scene.name);
 
     editor.addScene(copiedScene, index);
+    editor.setActiveSceneByName(copiedScene.name);
   };
 
   const handleSwapScene = (fromIndex, toIndex) => {
@@ -54,9 +63,9 @@ export function SceneList() {
   };
 
   return (
-    <Card className="flex-1 h-full rounded-md">
-      <CardContent className="h-full p-2">
-        <ScrollArea className="h-full">
+    <Card className="flex-1 max-h-[50%] sm:max-h-full rounded-md">
+      <CardContent className="h-full p-1">
+        <ScrollArea className="h-full p-2">
           <Table>
             <TableHeader>
               <TableRow>
@@ -68,15 +77,17 @@ export function SceneList() {
               {scenes.map((scene, index) => (
                 <TableRow
                   key={scene.name}
-                  onClick={() => {
-                    editor.setActiveSceneByName(scene.name);
-                  }}
+                  ref={activeScene?.name === scene.name ? newSceneRef : null}
                   className={`${
                     activeScene?.name === scene.name ? "bg-muted" : ""
                   } cursor-pointer`}
                 >
-                  <TableCell>
-                    <span className="font-medium mr-2">{index + 1}.</span>
+                  <TableCell
+                    onClick={() => {
+                      editor.setActiveSceneByName(scene.name);
+                    }}
+                  >
+                    <span className="font-medium mr-1">{index + 1}.</span>
                     {scene.label}
                   </TableCell>
                   <TableCell className="flex gap-1 justify-end">
@@ -100,6 +111,12 @@ export function SceneList() {
                         <Icons.more className="size-4 cursor-pointer" />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
+                        <DropdownMenuItem
+                          className="flex md:hidden"
+                          onClick={onOpenSceneDetailDialog}
+                        >
+                          编辑
+                        </DropdownMenuItem>
                         <DropdownMenuSub>
                           <DropdownMenuSubTrigger>插入</DropdownMenuSubTrigger>
                           <DropdownMenuPortal>

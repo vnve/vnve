@@ -1,5 +1,5 @@
 import { useEditorStore } from "@/store";
-import { Child, Sprite } from "@vnve/next-core";
+import { Child, Sound, Sprite } from "@vnve/next-core";
 import { useMemo } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { DBAssetType } from "@/db";
@@ -57,11 +57,21 @@ export function ChildList() {
     ];
   }, [activeScene]);
 
-  const handleSelectChild = (child: Child) => {
+  const handleSelectChild = (child: Child | Sound) => {
+    if ((child as Sound).assetType === DBAssetType.Audio) {
+      return;
+    }
+
     editor.setActiveChildByName(child.name);
   };
 
-  const handleRemoveChild = (child: Child) => {
+  const handleRemoveChild = (child: Child | Sound) => {
+    if ((child as Sound).assetType === DBAssetType.Audio) {
+      editor.removeSoundByName(child.name);
+
+      return;
+    }
+
     editor.removeChildByName(child.name);
 
     if (activeChild?.name === child.name) {
@@ -103,32 +113,40 @@ export function ChildList() {
                           {child.label}
                         </div>
                         <div className="flex space-x-2 items-center">
-                          {child.visible ? (
-                            <Icons.viewing
-                              onClick={() => handleToggleChildVisible(child)}
-                              className="size-4 cursor-pointer"
-                            />
-                          ) : (
-                            <Icons.viewingOff
-                              onClick={() => handleToggleChildVisible(child)}
-                              className="size-4 cursor-pointer"
-                            />
-                          )}
+                          {child.assetType !== DBAssetType.Audio && (
+                            <>
+                              {child.visible ? (
+                                <Icons.viewing
+                                  onClick={() =>
+                                    handleToggleChildVisible(child)
+                                  }
+                                  className="size-4 cursor-pointer"
+                                />
+                              ) : (
+                                <Icons.viewingOff
+                                  onClick={() =>
+                                    handleToggleChildVisible(child)
+                                  }
+                                  className="size-4 cursor-pointer"
+                                />
+                              )}
 
-                          {child.interactive ? (
-                            <Icons.lockOpen
-                              onClick={() =>
-                                handleToggleChildInteractive(child)
-                              }
-                              className="size-4 cursor-pointer"
-                            />
-                          ) : (
-                            <Icons.lock
-                              onClick={() =>
-                                handleToggleChildInteractive(child)
-                              }
-                              className="size-4 cursor-pointer"
-                            />
+                              {child.interactive ? (
+                                <Icons.lockOpen
+                                  onClick={() =>
+                                    handleToggleChildInteractive(child)
+                                  }
+                                  className="size-4 cursor-pointer"
+                                />
+                              ) : (
+                                <Icons.lock
+                                  onClick={() =>
+                                    handleToggleChildInteractive(child)
+                                  }
+                                  className="size-4 cursor-pointer"
+                                />
+                              )}
+                            </>
                           )}
                           <Icons.trash2
                             onClick={() => handleRemoveChild(child)}

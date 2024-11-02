@@ -7,13 +7,21 @@
     <title>VNVE - 视觉小说视频编辑器 🎥 </title>
     <meta name="description" content="为视觉小说（互动视频、GalGame）量身定制的视频创作工具，在你的浏览器上立刻开始视频创作！">
     <style>
-      #loader {
+      #loader, #sw-loader {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 99999;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
         width: 100%;
         height: 100vh;
+        background-color: #ffffff;
+      }
+      #sw-loader {
+        z-index: 99998;
       }
       .loader {
         width: 48px;
@@ -51,14 +59,12 @@
         window.addEventListener("load", function () {
           navigator.serviceWorker.register("/sw.js").then(
             function (registration) {
-              // TODO: 需要确保注册成功
-              console.log(
-                "ServiceWorker registration successful with scope: ",
-                registration.scope,
-              );
+              if (registration.active) {
+                document.body.removeChild(document.getElementById("sw-loader"));
+              }
             },
-            function (err) {
-              console.log("ServiceWorker registration failed: ", err);
+            function () {
+              document.getElementById("sw-tip").innerText = "sw装载失败，请刷新重试";
             },
           );
         });
@@ -70,6 +76,10 @@
       <span class="loader"></span>
       <span style="font-size: 16px;">首次访问速度较慢，请耐心等待...</span>
       <span style="font-size: 14px;">（建议使用科学上网，获得最佳体验）</span>
+    </div>
+    <div id="sw-loader">
+      <span class="loader"></span>
+      <span id="sw-tip" style="font-size: 16px;">sw装载中，请耐心等待...</span>
     </div>
     <div id="root"></div>
     <script>

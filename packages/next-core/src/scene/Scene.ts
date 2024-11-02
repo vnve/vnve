@@ -32,7 +32,7 @@ export class Scene extends PIXI.Container {
     this.config = {
       speak: {
         targetName: "",
-        wordsPerMin: 600,
+        wordsPerMin: 500,
         interval: 0.2,
         effect: "typewriter",
         speaker: {
