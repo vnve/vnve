@@ -24,6 +24,7 @@ import {
   AnimationDirectiveNameList,
   DirectiveNameOptionGroups,
   DirectiveType,
+  FilterDirectiveNameList,
   SoundDirectiveNameList,
   UtilDirectiveNameList,
 } from "@/config";
@@ -41,6 +42,14 @@ import {
   DirectiveSoundFormFields,
   DirectiveSoundFormFieldsHandle,
 } from "./directive-sound-form-fields";
+import {
+  DirectiveFilterFormFields,
+  DirectiveFilterFormFieldsHandle,
+} from "./directive-filter-form-fields";
+import {
+  DirectiveTransitionFormFields,
+  DirectiveTransitionFormFieldsHandle,
+} from "./directive-transition-form-fields";
 
 const formSchema = z.discriminatedUnion("directive", [
   z.object({
@@ -85,6 +94,7 @@ const formSchema = z.discriminatedUnion("directive", [
       volume: z.number().optional(),
       loop: z.boolean().optional(),
       untilEnd: z.boolean().optional(),
+      sequential: z.boolean().optional(),
     }),
   }),
   ...[DirectiveName.Pause, DirectiveName.Stop].map((name) => {
@@ -94,15 +104,36 @@ const formSchema = z.discriminatedUnion("directive", [
         targetName: z.string({
           message: "请选择音频对象",
         }),
+        sequential: z.boolean().optional(),
       }),
     });
   }),
   z.object({
     directive: z.literal(DirectiveName.AddFilter),
     params: z.object({
+      targetName: z.string({
+        message: "请选择滤镜对象",
+      }),
       filterName: z.string({
         message: "请选择滤镜",
       }),
+      sequential: z.boolean().optional(),
+    }),
+  }),
+  z.object({
+    directive: z.literal(DirectiveName.RemoveFilter),
+    params: z.object({
+      targetName: z.string({
+        message: "请选择滤镜对象",
+      }),
+      sequential: z.boolean().optional(),
+    }),
+  }),
+  z.object({
+    directive: z.literal(DirectiveName.FadeInTransition),
+    params: z.object({
+      duration: z.number().optional(),
+      sequential: z.boolean().optional(),
     }),
   }),
 ]);
@@ -132,6 +163,8 @@ export function DirectiveForm({
   const animationFieldsRef = useRef<DirectiveAnimationFormFieldsHandle>(null);
   const utilFieldsRef = useRef<DirectiveUtilFormFieldsHandle>(null);
   const soundFieldsRef = useRef<DirectiveSoundFormFieldsHandle>(null);
+  const filterFieldsRef = useRef<DirectiveFilterFormFieldsHandle>(null);
+  const transitionFieldsRef = useRef<DirectiveTransitionFormFieldsHandle>(null);
 
   const directiveNameGroup = useMemo(() => {
     return DirectiveNameOptionGroups.find(
@@ -158,6 +191,10 @@ export function DirectiveForm({
       label = utilFieldsRef.current.getDirectiveLabel();
     } else if (soundFieldsRef.current) {
       label = soundFieldsRef.current.getDirectiveLabel();
+    } else if (filterFieldsRef.current) {
+      label = filterFieldsRef.current.getDirectiveLabel();
+    } else if (transitionFieldsRef.current) {
+      label = transitionFieldsRef.current.getDirectiveLabel();
     }
 
     onSubmitDirective({
@@ -206,6 +243,15 @@ export function DirectiveForm({
         )}
         {SoundDirectiveNameList.includes(formDirective as DirectiveName) && (
           <DirectiveSoundFormFields form={form} ref={soundFieldsRef} />
+        )}
+        {FilterDirectiveNameList.includes(formDirective as DirectiveName) && (
+          <DirectiveFilterFormFields form={form} ref={filterFieldsRef} />
+        )}
+        {formDirective === DirectiveName.FadeInTransition && (
+          <DirectiveTransitionFormFields
+            form={form}
+            ref={transitionFieldsRef}
+          />
         )}
         {formDirective && formDirective !== DirectiveName.Wait && (
           <FormField

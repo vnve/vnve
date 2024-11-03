@@ -76,9 +76,7 @@ export function DirectiveSpeakForm({
             render={({ field }) => (
               <FormItem className="space-y-1">
                 <FormLabel>自定义角色名</FormLabel>
-                <FormDescription>
-                  用于自定义在对话中显示的角色名
-                </FormDescription>
+                <FormDescription>用于自定义对话中显示的角色名</FormDescription>
                 <FormControl>
                   <Input
                     className="h-8"
@@ -126,7 +124,7 @@ export function DirectiveSpeakForm({
           render={({ field }) => (
             <FormItem className="space-y-1">
               <FormLabel>停顿时长（秒）</FormLabel>
-              <FormDescription>角色发言完成后的停顿时长</FormDescription>
+              <FormDescription>角色发言后的停顿时长</FormDescription>
               <FormControl>
                 <Input
                   className="h-8"

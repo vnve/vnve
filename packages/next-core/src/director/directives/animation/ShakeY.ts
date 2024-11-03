@@ -6,19 +6,24 @@ export class ShakeY extends AnimationDirective {
   constructor(options: AnimationDirectiveOptions, stage: PIXI.Container) {
     super(options, stage);
     const target = this.target as PIXI.Sprite;
-    const shakeAmplitude = target.height ? target.height * 0.1 : 0;
+    const shakeAmplitude = target.height ? target.height * 0.05 : 0;
+    const origin = target.y;
+    const top = origin - shakeAmplitude;
+    const bottom = origin + shakeAmplitude;
 
     this.options = merge(
       {
         toVars: {
-          keyframes: Array.from({ length: 6 }, (_, i) => ({
-            [`${i * 20}%`]: {
-              y:
-                i % 2 === 0
-                  ? target.y + shakeAmplitude
-                  : target.y - shakeAmplitude,
-            },
-          })).reduce((acc, curr) => ({ ...acc, ...curr }), {}),
+          keyframes: {
+            "0%": { y: origin },
+            "15%": { y: top },
+            "30%": { y: bottom },
+            "45%": { y: top },
+            "60%": { y: bottom },
+            "75%": { y: top },
+            "90%": { y: bottom },
+            "100%": { y: origin },
+          },
           duration: 0.5,
           ease: "none",
         },

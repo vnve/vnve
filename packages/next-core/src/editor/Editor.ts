@@ -646,38 +646,27 @@ export class Editor {
         shouldAppend = true;
       };
 
-      let speakTextList: string[] = [];
-
       // 合并中间态指令
       // 遍历合并生成speak指令，遇到sequential则需要生成新的speak指令
       tempList.forEach((item) => {
         if (item.type === "directive") {
           const value = item.value as DirectiveConfig;
 
-          if (
-            (value.directive === DirectiveName.Wait ||
-              value.params.sequential) &&
-            speakTextList.length > 0
-          ) {
-            insertSpeak(speakTextList);
-            speakTextList = [];
-          }
-
           directives.push(value);
         } else {
-          speakTextList.push(item.value as string);
+          insertSpeak([item.value as string]);
         }
       });
 
-      // 遍历结束，合并剩余的文本生成一个speak指令
-      if (speakTextList.length > 0) {
-        insertSpeak(speakTextList);
+      // // 遍历结束，合并剩余的文本生成一个speak指令
+      // if (speakTextList.length > 0) {
+      //   insertSpeak(speakTextList);
 
-        // 只存在一个Speak时，需要移动到首位优先执行
-        if (!shouldAppend && directives.length > 0) {
-          directives.unshift(directives.pop() as DirectiveConfig);
-        }
-      }
+      //   // 只存在一个Speak时，需要移动到首位优先执行
+      //   if (!shouldAppend && directives.length > 0) {
+      //     directives.unshift(directives.pop() as DirectiveConfig);
+      //   }
+      // }
     }
 
     return {

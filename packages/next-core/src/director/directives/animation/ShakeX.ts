@@ -6,19 +6,24 @@ export class ShakeX extends AnimationDirective {
   constructor(options: AnimationDirectiveOptions, stage: PIXI.Container) {
     super(options, stage);
     const target = this.target as PIXI.Sprite;
-    const shakeAmplitude = target.width ? target.width * 0.1 : 0;
+    const shakeAmplitude = target.width ? target.width * 0.05 : 0;
+    const origin = target.x;
+    const left = origin - shakeAmplitude;
+    const right = origin + shakeAmplitude;
 
     this.options = merge(
       {
         toVars: {
-          keyframes: Array.from({ length: 6 }, (_, i) => ({
-            [`${i * 20}%`]: {
-              x:
-                i % 2 === 0
-                  ? target.x + shakeAmplitude
-                  : target.x - shakeAmplitude,
-            },
-          })).reduce((acc, curr) => ({ ...acc, ...curr }), {}),
+          keyframes: {
+            "0%": { x: origin },
+            "15%": { x: left },
+            "30%": { x: right },
+            "45%": { x: left },
+            "60%": { x: right },
+            "75%": { x: left },
+            "90%": { x: right },
+            "100%": { x: origin },
+          },
           duration: 0.5,
           ease: "none",
         },

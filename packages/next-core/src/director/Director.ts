@@ -6,6 +6,7 @@ import * as Directives from "./directives";
 import { Connector } from "../connector";
 import { log, approximatelyEqual } from "../util";
 import { soundController } from "./lib/SoundController";
+import { ZoomOut } from "./directives/animation/ZoomOut";
 
 // register the plugin
 gsap.registerPlugin(PixiPlugin);
@@ -40,6 +41,12 @@ export enum DirectiveName {
   FadeOut = "FadeOut",
   ShakeX = "ShakeX",
   ShakeY = "ShakeY",
+  ZoomIn = "ZoomIn",
+  ZoomOut = "ZoomOut",
+  EnterFromLeft = "EnterFromLeft",
+  LeaveFromLeft = "LeaveFromLeft",
+  EnterFromRight = "EnterFromRight",
+  LeaveFromRight = "LeaveFromRight",
   Wait = "Wait",
   Play = "Play",
   Pause = "Pause",
@@ -225,7 +232,7 @@ export class Director {
     sceneScript: SceneScript,
     prevSceneDuration: number,
   ): number {
-    const { config: sceneConfig, scene } = sceneScript;
+    const { scene } = sceneScript;
     const { directives } = sceneScript;
     let duration = prevSceneDuration;
 

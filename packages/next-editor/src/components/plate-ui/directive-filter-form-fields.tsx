@@ -15,12 +15,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
-import { Input } from "../ui/input";
 import { UseFormReturn, useWatch } from "react-hook-form";
 import { DirectiveNameMap, FilterOptions } from "@/config";
 import { useEditorStore } from "@/store";
 import { DBAssetType } from "@/db";
-import { Sprite } from "@vnve/next-core";
+import { DirectiveName, Sprite } from "@vnve/next-core";
 
 export interface DirectiveFilterFormFieldsHandle {
   getDirectiveLabel: () => string;
@@ -30,7 +29,7 @@ interface DirectiveFilterFormFieldsProps {
   form: UseFormReturn;
 }
 
-export const DirectiveTransitionFormFields = forwardRef<
+export const DirectiveFilterFormFields = forwardRef<
   DirectiveFilterFormFieldsHandle,
   DirectiveFilterFormFieldsProps
 >(({ form }, ref) => {
@@ -39,10 +38,6 @@ export const DirectiveTransitionFormFields = forwardRef<
   const formDirective = useWatch({
     control: form.control,
     name: "directive",
-  });
-  const formWaitDuration = useWatch({
-    control: form.control,
-    name: "params.duration",
   });
 
   useEffect(() => {
@@ -90,10 +85,28 @@ export const DirectiveTransitionFormFields = forwardRef<
     ref,
     () => ({
       getDirectiveLabel: () => {
-        return `${DirectiveNameMap[formDirective]}:${formWaitDuration ?? 0}秒`;
+        const labels = [DirectiveNameMap[formDirective]];
+        const formTargetName = form.getValues("params.targetName");
+        const target = targetOptionGroups
+          .flatMap((group) => group.options)
+          .find((option) => option.value === formTargetName);
+        const targetLabel = target ? target.label : "全场景";
+        labels.push(targetLabel);
+
+        const formFilterName = form.getValues("params.filterName");
+
+        if (formFilterName) {
+          const filter = FilterOptions.find(
+            (option) => option.value === formFilterName,
+          );
+          const filterLabel = filter ? filter.name : "";
+          labels.push(filterLabel);
+        }
+
+        return labels.join(":");
       },
     }),
-    [formWaitDuration, formDirective],
+    [form, formDirective, targetOptionGroups],
   );
 
   return (
@@ -130,30 +143,32 @@ export const DirectiveTransitionFormFields = forwardRef<
           </FormItem>
         )}
       />
-      <FormField
-        control={form.control}
-        name="params.filterName"
-        render={({ field }) => (
-          <FormItem className="space-y-1">
-            <FormLabel>滤镜效果</FormLabel>
-            <FormControl>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <SelectTrigger className="h-8">
-                  <SelectValue placeholder="请选择滤镜效果" />
-                </SelectTrigger>
-                <SelectContent>
-                  {FilterOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      {formDirective === DirectiveName.AddFilter && (
+        <FormField
+          control={form.control}
+          name="params.filterName"
+          render={({ field }) => (
+            <FormItem className="space-y-1">
+              <FormLabel>滤镜效果</FormLabel>
+              <FormControl>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger className="h-8">
+                    <SelectValue placeholder="请选择滤镜效果" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {FilterOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      )}
     </>
   );
 });

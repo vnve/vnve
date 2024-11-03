@@ -34,7 +34,7 @@ export const DirectiveElement = withRef<
   return (
     <PlateElement
       className={cn(
-        "inline-block cursor-pointer rounded-md bg-muted px-1.5 py-0.5 align-baseline text-sm font-medium select-none",
+        "inline-block cursor-pointer rounded-md bg-muted px-1.5 py-0.5 align-baseline text-sm font-medium select-none mx-0.5",
         selected && focused && "ring-2 ring-ring",
         element.children[0].bold === true && "font-bold",
         element.children[0].italic === true && "italic",
