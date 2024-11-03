@@ -27,6 +27,7 @@ import { Icons } from "@/components/icons";
 import FileSelector from "./FileSelector";
 import { AssetStateCard } from "./AssetCard";
 import { getFileInfo } from "@/lib/utils";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const formSchema = z.object({
   id: z.number().optional(),
@@ -105,9 +106,23 @@ export function AssetForm({
 
   return (
     <div>
-      <h3 className="text-base font-bold mb-4">
+      <h3 className="text-base font-bold mb-2">
         {asset.id ? "编辑" : "新增"}
         {assetTypeName}
+        <Alert className="p-2 mt-1">
+          <AlertDescription className="text-muted-foreground font-normal flex gap-1 items-center">
+            <Icons.tip className="size-4" />
+            {[
+              DBAssetType.Background,
+              DBAssetType.Character,
+              DBAssetType.Thing,
+              DBAssetType.Dialog,
+            ].includes(asset.type) && <span>画布的尺寸为1920*1080</span>}
+            {asset.type === DBAssetType.Audio && (
+              <span>音频采样率建议&gt;=44100Hz</span>
+            )}
+          </AlertDescription>
+        </Alert>
       </h3>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
@@ -126,7 +141,7 @@ export function AssetForm({
           />
 
           <FormItem>
-            <FormLabel>
+            <FormLabel className="flex items-center">
               {assetTypeName}状态
               <Button
                 size="sm"
@@ -199,11 +214,8 @@ export function AssetForm({
             <FormMessage />
           </FormItem>
           <div className="flex gap-2">
-            <Button size="sm" type="submit">
-              确定
-            </Button>
+            <Button type="submit">确定</Button>
             <Button
-              size="sm"
               type="button"
               className="mr-2"
               variant="outline"

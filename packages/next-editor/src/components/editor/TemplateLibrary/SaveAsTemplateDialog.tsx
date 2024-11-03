@@ -65,7 +65,7 @@ export function SaveAsTemplateDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>保存为模板</DialogTitle>
           <DialogDescription></DialogDescription>

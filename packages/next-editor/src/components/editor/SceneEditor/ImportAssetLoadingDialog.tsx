@@ -13,10 +13,13 @@ export function ImportAssetLoadingDialog({ isOpen }: { isOpen: boolean }) {
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent
-        className="sm:max-w-[425px]"
         disableClose={true}
         onPointerDownOutside={(e) => e.preventDefault()}
       >
+        <DialogHeader className="hidden">
+          <DialogTitle></DialogTitle>
+          <DialogDescription></DialogDescription>
+        </DialogHeader>
         <div className="w-full flex gap-2 justify-center items-center">
           <div className="font-bold text-xl">导入中</div>
           <Loader></Loader>

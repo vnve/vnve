@@ -13,11 +13,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import { projectDB } from "@/db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Icons } from "@/components/icons";
 import { useEditorStore } from "@/store";
+import { useRef } from "react";
 
 export function ProjectLibrary({
   isOpen,
@@ -29,6 +29,7 @@ export function ProjectLibrary({
   const editor = useEditorStore((state) => state.editor);
   const setProject = useEditorStore((state) => state.setProject);
   const projectList = useLiveQuery(() => projectDB.reverse().toArray());
+  const openLoading = useRef(false);
 
   const handleOpenChange = (value) => {
     if (!value) {
@@ -37,6 +38,12 @@ export function ProjectLibrary({
   };
 
   const handleOpenProject = async (id: number) => {
+    if (openLoading.current) {
+      return;
+    }
+
+    openLoading.current = true;
+
     const project = await projectDB.get(id);
 
     editor.clear();
@@ -47,6 +54,10 @@ export function ProjectLibrary({
     }
     setProject(project);
     onClose();
+
+    setTimeout(() => {
+      openLoading.current = false;
+    }, 100);
   };
 
   const handleDelete = async (id: number) => {
@@ -64,7 +75,7 @@ export function ProjectLibrary({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[425px] max-h-[80vh] overflow-auto">
+      <DialogContent className="max-h-[80vh] overflow-auto">
         <DialogHeader>
           <DialogTitle>作品列表</DialogTitle>
           <DialogDescription></DialogDescription>

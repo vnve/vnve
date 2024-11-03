@@ -169,6 +169,7 @@ export function AssetLibrary() {
       return (
         <AssetStateList
           asset={selectingAsset}
+          onEdit={(asset) => handleEditAsset(asset)}
           onSelectState={handleSelectAssetState}
           onCancel={handleCancelSelectAssetState}
         />
@@ -193,7 +194,7 @@ export function AssetLibrary() {
               </TabsList>
             </Tabs>
             <Button size="sm" onClick={handleAddAsset}>
-              <Icons.add className="w-3.5 h-3.5" />
+              <Icons.squarePlus className="w-3.5 h-3.5 mr-0.5" />
               新增
             </Button>
           </div>

@@ -80,6 +80,7 @@ import {
   Wallpaper,
   Images,
   MonitorPlay,
+  Lightbulb,
 } from "lucide-react";
 
 import type { EyeOff, LucideIcon } from "lucide-react";
@@ -261,6 +262,7 @@ export const Icons = {
   scene: Wallpaper,
   images: Images,
   preview: MonitorPlay,
+  tip: Lightbulb,
 
   // www
   gitHub: (props: LucideProps) => (

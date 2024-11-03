@@ -39,7 +39,7 @@ export function TemplateLibrary({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[425px] max-h-[80vh] overflow-auto">
+      <DialogContent className="max-h-[80vh] overflow-auto">
         <DialogHeader>
           <DialogTitle>模板列表</DialogTitle>
           <DialogDescription></DialogDescription>

@@ -28,6 +28,20 @@ export default function FileSelector({
     return "";
   }, [url, selectedFileUrl]);
 
+  const fileAccept = useMemo(() => {
+    switch (type) {
+      case DBAssetType.Background:
+      case DBAssetType.Character:
+      case DBAssetType.Thing:
+      case DBAssetType.Dialog:
+        return ".webp, .png, .jpg";
+      case DBAssetType.Audio:
+        return ".mp3, .wav";
+      default:
+        return "";
+    }
+  }, [type]);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (selectedFileUrl) {
@@ -62,6 +76,7 @@ export default function FileSelector({
         ref={fileInputRef}
         onChange={handleFileChange}
         className="hidden"
+        accept={fileAccept}
       />
       <div className="size-full flex justify-center items-center text-sm invisible group-hover:visible bg-muted/80 absolute left-0 right-0 z-20">
         <FileUp className="size-4" />
