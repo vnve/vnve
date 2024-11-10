@@ -114,7 +114,7 @@ export function useFloatingDirective({
     const at = editor.selection;
     const [, hitPath] = findNode<TDirectiveElement>(editor, {
       at,
-      match: { type: editor.getType(DirectivePlugin), id: editingDirective.id },
+      match: { type: editor.getType(DirectivePlugin) },
     });
     tf.edit.directive({
       value,

@@ -14,6 +14,7 @@ export interface SpeakDirectiveOptions extends AnimationDirectiveOptions {
   wordsPerMin?: number;
   interval?: number;
   append?: boolean;
+  customReadingTime?: number;
   effect?: SpeakDirectiveEffect;
   alignWithVoice?: boolean;
   dialogTargetName?: string;
@@ -129,20 +130,19 @@ export class Speak extends AnimationDirective<PIXI.Text> {
   }
 
   public getDuration(): number {
-    const { sequential, text, wordsPerMin, interval, alignWithVoice } =
-      this.options;
-    let duration;
-
-    if (this.voiceDirective && alignWithVoice) {
-      duration = this.voiceDirective.getDuration() ?? 0;
-    } else {
-      duration = this.readingTime(text, wordsPerMin) + (interval ?? 0);
-    }
+    const { sequential, text, wordsPerMin, interval } = this.options;
+    const duration = this.readingTime(text, wordsPerMin) + (interval ?? 0);
 
     return sequential ? duration : 0;
   }
 
   private readingTime(text: string, wordsPerMin = 500) {
+    const { customReadingTime } = this.options;
+
+    if (typeof customReadingTime === "number") {
+      return customReadingTime;
+    }
+
     if (!text) {
       return 0;
     }

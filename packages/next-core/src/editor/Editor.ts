@@ -614,8 +614,29 @@ export class Editor {
       });
 
       let shouldAppend = false; // 首次发言，不需要append
+      let voiceDuration: number | undefined;
+      let allText = "";
+
+      // TODO: 待优化, 文本和语音对齐时
+      // 根据语音时长，计算每段文本的时长, 然后分配到每个speak指令中
+      if (dialogueSpeakConfig.voice?.targetName) {
+        allText = tempList
+          .filter((item) => item.type === "speak")
+          .map((item) => item.value as string)
+          .join("");
+
+        voiceDuration = scene.sounds.find(
+          (item) => item.name === dialogueSpeakConfig.voice?.targetName,
+        )?.buffer?.duration;
+      }
+
       const insertSpeak = (list: string[]) => {
         const text = list.join("");
+        let customReadingTime;
+
+        if (allText && voiceDuration) {
+          customReadingTime = (text.length / allText.length) * voiceDuration;
+        }
 
         directives.push({
           directive: DirectiveName.Speak,
@@ -623,6 +644,7 @@ export class Editor {
             targetName: sceneSpeakConfig.targetName,
             text,
             append: shouldAppend,
+            customReadingTime,
             wordsPerMin: dialogueSpeakConfig.wordsPerMin,
             interval: dialogueSpeakConfig.interval,
             effect: dialogueSpeakConfig.effect,
@@ -637,17 +659,18 @@ export class Editor {
                     dialogueSpeakConfig.speaker?.autoMaskOtherSpeakers,
                 }
               : undefined,
-            voice: dialogueSpeakConfig.voice?.targetName
+            voice: shouldAppend
+              ? undefined
+              : dialogueSpeakConfig.voice?.targetName
               ? dialogueSpeakConfig.voice
-              : undefined,
+              : undefined, // 仅第一个speak指令，需要播放语音
           },
         });
 
         shouldAppend = true;
       };
 
-      // 合并中间态指令
-      // 遍历合并生成speak指令，遇到sequential则需要生成新的speak指令
+      // 重新处理，生成指令列表
       tempList.forEach((item) => {
         if (item.type === "directive") {
           const value = item.value as DirectiveConfig;
@@ -657,16 +680,6 @@ export class Editor {
           insertSpeak([item.value as string]);
         }
       });
-
-      // // 遍历结束，合并剩余的文本生成一个speak指令
-      // if (speakTextList.length > 0) {
-      //   insertSpeak(speakTextList);
-
-      //   // 只存在一个Speak时，需要移动到首位优先执行
-      //   if (!shouldAppend && directives.length > 0) {
-      //     directives.unshift(directives.pop() as DirectiveConfig);
-      //   }
-      // }
     }
 
     return {
@@ -678,12 +691,13 @@ export class Editor {
 
   public async exportScreenplay(start = 0, end?: number): Promise<Screenplay> {
     const scenes = this.exportScenes(start, end);
-    const sceneScripts = scenes.map(this.genSceneScript);
 
     // 预加载所有场景资源
     for (const scene of scenes) {
       await scene.load();
     }
+
+    const sceneScripts = scenes.map(this.genSceneScript);
 
     return {
       config: {}, // TODO: 作品全局配置

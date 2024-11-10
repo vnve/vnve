@@ -1,13 +1,7 @@
 import { useEditorStore } from "@/store";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAssetLibrary } from "@/components/hooks/useAssetLibrary";
-import {
-  clearAssetDB,
-  DBAssetType,
-  importAssetToDB,
-  projectDB,
-  templateDB,
-} from "@/db";
+import { clearAssetDB, DBAssetType, importAssetToDB, projectDB } from "@/db";
 import { createSprite } from "@/lib/core";
 import {
   Menubar,
@@ -15,10 +9,9 @@ import {
   MenubarItem,
   MenubarMenu,
   MenubarSeparator,
-  MenubarShortcut,
   MenubarTrigger,
 } from "@/components/ui/menubar";
-import { Compositor, Previewer, Director, Scene } from "@vnve/next-core";
+import { Compositor, Previewer, Director } from "@vnve/next-core";
 import { Card, CardContent } from "@/components/ui/card";
 import { TemplateLibrary } from "../TemplateLibrary";
 import { ExportVideoDialog } from "./ExportVideoDialog";
@@ -67,6 +60,7 @@ export function SceneEditor() {
     currentTime: 0,
     duration: 0,
   });
+  const [saveTimeString, setSaveTimeString] = useState("");
   const { toast } = useToast();
 
   const resetActionProgress = () => {
@@ -99,24 +93,33 @@ export function SceneEditor() {
     }
   };
 
-  const handleSaveProject = async () => {
-    try {
-      await projectDB.update(project.id, {
-        content: editor.saveAsJSON(),
-        time: Date.now(),
-      });
-      toast({
-        title: "保存成功！",
-        duration: 1500,
-      });
-    } catch (error) {
-      toast({
-        title: "保存失败！",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
+  const handleSaveProject = useCallback(
+    async (silent?: boolean) => {
+      try {
+        const date = new Date();
+        await projectDB.update(project.id, {
+          content: editor.saveAsJSON(),
+          time: date.getTime(),
+        });
+
+        setSaveTimeString(date.toLocaleString());
+
+        if (!silent) {
+          toast({
+            title: "保存成功！",
+            duration: 1500,
+          });
+        }
+      } catch (error) {
+        toast({
+          title: "保存失败！",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
+    },
+    [toast, editor, project],
+  );
 
   const handleAddSprite = (assetType: DBAssetType) => async () => {
     const asset = await selectAsset(assetType);
@@ -242,6 +245,21 @@ export function SceneEditor() {
   };
 
   useEffect(() => {
+    if (project) {
+      const interval = setInterval(
+        async () => {
+          handleSaveProject(true);
+        },
+        1000 * 60 * 1,
+      );
+
+      return () => {
+        clearInterval(interval);
+      };
+    }
+  }, [project, handleSaveProject]);
+
+  useEffect(() => {
     window.addEventListener("resize", adjustCanvasWidth);
 
     adjustCanvasWidth();
@@ -280,9 +298,17 @@ export function SceneEditor() {
             <MenubarItem onClick={() => setIsOpenProjectLibrary(true)}>
               打开...
             </MenubarItem>
-            <MenubarItem disabled={!project} onClick={handleSaveProject}>
+            <MenubarItem
+              disabled={!project}
+              onClick={() => handleSaveProject()}
+            >
               保存
             </MenubarItem>
+            {saveTimeString && (
+              <MenubarItem className="text-muted-foreground">
+                自动保存于{saveTimeString}
+              </MenubarItem>
+            )}
           </MenubarContent>
         </MenubarMenu>
         <MenubarMenu>

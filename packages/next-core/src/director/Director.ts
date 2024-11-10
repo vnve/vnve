@@ -197,7 +197,6 @@ export class Director {
   public cut() {
     return new Promise((resolve) => {
       this.started = false;
-      this.reset();
       this.cutResolver = resolve;
     });
   }
@@ -215,6 +214,8 @@ export class Director {
     }
     this.ticker.time = 0;
     this.ticker.lastTime = -1;
+    this.ticker.ctx = {};
+    this.ticker.asyncHandlers = [];
   }
 
   private parseScreenplay(screenplay: Screenplay): number {

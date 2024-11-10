@@ -61,13 +61,30 @@
             function (registration) {
               if (registration.active) {
                 document.body.removeChild(document.getElementById("sw-loader"));
+              } else {
+                navigator.serviceWorker.addEventListener("controllerchange", () => {
+                  document.body.removeChild(document.getElementById("sw-loader"));
+                });
               }
             },
             function () {
               document.getElementById("sw-tip").innerText = "sw装载失败，请刷新重试";
             },
           );
+
+          navigator.serviceWorker.addEventListener("message", (event) => {
+            if (event.data.action === "refresh") {
+              const refreshMessage = confirm("有新版本可用，是否刷新页面？");
+
+              if (refreshMessage) {
+                window.location.reload();
+              }
+            }
+          });
         });
+      } else {
+        document.getElementById("sw-tip").innerText =
+    "当前浏览器不支持sw，请更换浏览器";
       }
     </script>
   </head>

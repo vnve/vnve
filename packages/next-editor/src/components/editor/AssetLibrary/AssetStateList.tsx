@@ -18,14 +18,14 @@ export function AssetStateList({
     <div className="h-[calc(100%-2.5rem)] flex flex-col">
       <h3 className="text-base font-bold mb-4 flex justify-between items-center">
         选择默认状态
-        <Button
+        {/* <Button
           className="ml-2 mr-auto"
           variant="outline"
           size="sm"
           onClick={() => onEdit(asset)}
         >
           编辑状态
-        </Button>
+        </Button> */}
         <Button variant="outline" size="sm" onClick={onCancel}>
           返回列表
         </Button>
