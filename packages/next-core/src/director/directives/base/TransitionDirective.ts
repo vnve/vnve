@@ -9,7 +9,7 @@ export interface TransitionDirectiveOptions extends DirectiveOptions {
 }
 
 export class TransitionDirective extends Directive {
-  protected options: TransitionDirectiveOptions;
+  protected declare options: TransitionDirectiveOptions;
 
   constructor(options: TransitionDirectiveOptions, stage: PIXI.Container) {
     super(options, stage);

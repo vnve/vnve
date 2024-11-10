@@ -10,7 +10,7 @@ export interface ChangeSourceDirectiveOptions
 }
 
 export class ChangeSource extends AnimationDirective<Sprite> {
-  protected options: ChangeSourceDirectiveOptions;
+  protected declare options: ChangeSourceDirectiveOptions;
 
   constructor(options: ChangeSourceDirectiveOptions, stage: PIXI.Container) {
     super(options, stage);

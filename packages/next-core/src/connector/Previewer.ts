@@ -1,6 +1,5 @@
 import { Connector, ConnectorOptions, FrameData } from "./Connector";
 import { wait } from "../util";
-import * as PIXI from "pixi.js";
 // import PreviewAudioProcessor from "./PreviewAudioProcessor?url";
 
 export interface PreviewerOptions extends ConnectorOptions {
@@ -8,7 +7,7 @@ export interface PreviewerOptions extends ConnectorOptions {
 }
 
 export class Previewer extends Connector {
-  protected options: PreviewerOptions;
+  protected declare options: PreviewerOptions;
   private context: CanvasRenderingContext2D;
   private audioContext: AudioContext;
   private audioPlayTime: number;

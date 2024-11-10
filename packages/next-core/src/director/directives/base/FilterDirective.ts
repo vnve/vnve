@@ -9,9 +9,9 @@ export interface FilterDirectiveOptions extends DirectiveOptions {
 }
 
 export abstract class FilterDirective extends Directive {
-  protected stage: PIXI.Container;
+  protected declare stage: PIXI.Container;
   protected target?: PIXI.DisplayObject;
-  protected options: FilterDirectiveOptions;
+  protected declare options: FilterDirectiveOptions;
 
   constructor(options: FilterDirectiveOptions, stage: PIXI.Container) {
     super(options, stage);

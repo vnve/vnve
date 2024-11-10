@@ -1,7 +1,7 @@
 import * as Mp4Muxer from "mp4-muxer";
-import { float32ArrayToAudioBuffer, log, waitUntil } from "../util";
+import { log, waitUntil } from "../util";
 import { Connector, ConnectorOptions, FrameData } from "./Connector";
-import { CompositorWorkerMessageType } from "./Compositor";
+import { CompositorWorkerMessageType } from "./types";
 
 function noop(e: Error) {
   log.error("noop error", e);

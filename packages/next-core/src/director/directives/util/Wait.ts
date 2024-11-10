@@ -7,7 +7,7 @@ export interface WaitDirectiveOptions extends DirectiveOptions {
 }
 
 export class Wait extends Directive {
-  protected options: WaitDirectiveOptions;
+  protected declare options: WaitDirectiveOptions;
 
   constructor(options: WaitDirectiveOptions, stage: PIXI.Container) {
     super(options, stage);

@@ -17,22 +17,22 @@ export default defineConfig({
     legacy({
       targets: ["defaults", "not IE 11"],
     }),
-    VitePWA({
-      manifest: {
-        name: "VNVE",
-        short_name: "VNVE",
-        description: "Visual Novel Video Editor",
-        theme_color: "#319795",
-        background_color: "#319795",
-        icons: [
-          {
-            src: "/next/logo.png",
-            sizes: "512x512",
-            type: "image/png",
-          },
-        ],
-      },
-    }),
+    // VitePWA({
+    //   manifest: {
+    //     name: "VNVE",
+    //     short_name: "VNVE",
+    //     description: "Visual Novel Video Editor",
+    //     theme_color: "#319795",
+    //     background_color: "#319795",
+    //     icons: [
+    //       {
+    //         src: "/next/logo.png",
+    //         sizes: "512x512",
+    //         type: "image/png",
+    //       },
+    //     ],
+    //   },
+    // }),
     splitVendorChunkPlugin(),
   ],
 });

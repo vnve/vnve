@@ -23,7 +23,7 @@ export interface SpeakDirectiveOptions extends AnimationDirectiveOptions {
 }
 
 export class Speak extends AnimationDirective<PIXI.Text> {
-  protected options: SpeakDirectiveOptions;
+  protected declare options: SpeakDirectiveOptions;
   private speakerDirective?: Speaker;
   private voiceDirective?: Voice;
 

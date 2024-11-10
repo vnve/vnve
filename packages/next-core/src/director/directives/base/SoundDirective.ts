@@ -6,7 +6,7 @@ export interface SoundDirectiveOptions extends DirectiveOptions {
 }
 
 export abstract class SoundDirective extends Directive {
-  protected stage: Scene;
+  protected declare stage: Scene;
   protected target: Sound;
 
   constructor(options: SoundDirectiveOptions, stage: Scene) {

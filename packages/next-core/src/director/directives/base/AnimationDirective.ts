@@ -13,7 +13,7 @@ export abstract class AnimationDirective<
   T extends PIXI.DisplayObject = PIXI.DisplayObject,
 > extends Directive {
   protected target: T;
-  protected options: AnimationDirectiveOptions;
+  protected declare options: AnimationDirectiveOptions;
 
   constructor(options: AnimationDirectiveOptions, stage: PIXI.Container) {
     super(options, stage);

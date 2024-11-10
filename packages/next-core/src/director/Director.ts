@@ -6,7 +6,6 @@ import * as Directives from "./directives";
 import { Connector } from "../connector";
 import { log, approximatelyEqual } from "../util";
 import { soundController } from "./lib/SoundController";
-import { ZoomOut } from "./directives/animation/ZoomOut";
 
 // register the plugin
 gsap.registerPlugin(PixiPlugin);

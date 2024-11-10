@@ -32,7 +32,7 @@ export interface SpeakerDirectiveOptions extends AnimationDirectiveOptions {
 }
 
 export class Speaker extends AnimationDirective<PIXI.Text> {
-  protected options: SpeakerDirectiveOptions;
+  protected declare options: SpeakerDirectiveOptions;
   protected speakerTarget?: PIXI.DisplayObject | null;
 
   constructor(options: SpeakerDirectiveOptions, stage: PIXI.Container) {

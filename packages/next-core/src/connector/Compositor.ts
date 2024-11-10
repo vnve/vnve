@@ -1,13 +1,7 @@
 import { Connector, ConnectorOptions, FrameData } from "./Connector";
 import CompositorWorker from "./Compositor.worker?worker&inline";
 import { DEFAULT_AUDIO_CONFIG, DEFAULT_VIDEO_CONFIG } from "../util";
-
-export enum CompositorWorkerMessageType {
-  LOADED = "loaded",
-  INIT = "init",
-  SEND = "send",
-  FINISH = "finish",
-}
+import { CompositorWorkerMessageType } from "./types";
 
 /**
  * WebCodecs Video Compositor

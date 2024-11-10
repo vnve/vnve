@@ -10,7 +10,7 @@ export interface PlayDirectiveOptions extends SoundDirectiveOptions {
 }
 
 export class Play extends SoundDirective {
-  protected options: PlayDirectiveOptions;
+  protected declare options: PlayDirectiveOptions;
   constructor(options: PlayDirectiveOptions, stage: Scene) {
     super(options, stage);
     this.options = options;

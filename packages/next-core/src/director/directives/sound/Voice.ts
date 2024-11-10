@@ -7,7 +7,7 @@ export interface VoiceDirectiveOptions extends SoundDirectiveOptions {
 }
 
 export class Voice extends SoundDirective {
-  protected options: VoiceDirectiveOptions;
+  protected declare options: VoiceDirectiveOptions;
   constructor(options: VoiceDirectiveOptions, stage: Scene) {
     super(options, stage);
     this.options = options;

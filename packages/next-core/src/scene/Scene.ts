@@ -22,7 +22,7 @@ export class Scene extends PIXI.Container {
   public config: SceneConfig;
   public dialogues: Dialogue[];
   public sounds: Sound[];
-  public children: Child[];
+  public declare children: Child[];
 
   constructor(options?: SceneOption) {
     super();

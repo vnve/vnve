@@ -7,7 +7,7 @@ export interface AddFilterDirectiveOptions extends FilterDirectiveOptions {
 }
 
 export class AddFilter extends FilterDirective {
-  protected options: AddFilterDirectiveOptions;
+  protected declare options: AddFilterDirectiveOptions;
 
   constructor(options: AddFilterDirectiveOptions, stage: PIXI.Container) {
     super(options, stage);
