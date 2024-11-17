@@ -1,6 +1,4 @@
 import {
-  assetDB,
-  assetSourceDB,
   DBAsset,
   DBAssetTypeNameMap,
   DBAssetType,
@@ -27,7 +25,7 @@ import { Icons } from "@/components/icons";
 import FileSelector from "./FileSelector";
 import { AssetStateCard } from "./AssetCard";
 import { getFileInfo } from "@/lib/utils";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const formSchema = z.object({
   id: z.number().optional(),
@@ -63,7 +61,7 @@ export function AssetForm({
   onCancel,
 }: {
   asset: DBAsset;
-  onSubmit: (asset: any) => void;
+  onSubmit: (asset: DBAsset) => void;
   onCancel: () => void;
 }) {
   const assetTypeName = useMemo(
@@ -85,7 +83,7 @@ export function AssetForm({
   });
 
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
-    onSubmit(values);
+    onSubmit(values as DBAsset);
   };
 
   const handleChangeFile = (file: File, index: number) => {
@@ -120,6 +118,9 @@ export function AssetForm({
             ].includes(asset.type) && <span>画布的尺寸为1920*1080</span>}
             {asset.type === DBAssetType.Audio && (
               <span>音频采样率建议&gt;=44100Hz</span>
+            )}
+            {asset.type === DBAssetType.Font && (
+              <span>请使用woff/woff2/ttf字体格式</span>
             )}
           </AlertDescription>
         </Alert>

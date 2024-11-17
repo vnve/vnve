@@ -63,7 +63,7 @@ export function SceneList({ onOpenSceneDetailDialog }) {
   };
 
   return (
-    <Card className="flex-1 max-h-[50%] sm:max-h-full rounded-md">
+    <Card className="flex-1 shrink-0 max-h-[50%] sm:max-h-full rounded-md">
       <CardContent className="h-full p-1">
         <ScrollArea className="h-full p-2">
           <Table>

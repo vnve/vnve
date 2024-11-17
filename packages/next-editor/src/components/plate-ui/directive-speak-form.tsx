@@ -159,6 +159,7 @@ export function DirectiveSpeakForm({
                   <SelectContent>
                     <SelectItem value="typewriter">打字机</SelectItem>
                     <SelectItem value="fadeIn">渐入</SelectItem>
+                    <SelectItem value="none">无</SelectItem>
                   </SelectContent>
                 </Select>
               </FormControl>

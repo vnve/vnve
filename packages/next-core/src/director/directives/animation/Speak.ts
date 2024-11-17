@@ -7,7 +7,7 @@ import { Scene } from "../../../scene";
 import { merge } from "lodash-es";
 import { readingTime } from "../../lib/reading";
 
-export type SpeakDirectiveEffect = "typewriter" | "fadeIn";
+export type SpeakDirectiveEffect = "typewriter" | "fadeIn" | "none";
 
 export interface SpeakDirectiveOptions extends AnimationDirectiveOptions {
   text: string;
@@ -78,6 +78,9 @@ export class Speak extends AnimationDirective<PIXI.Text> {
       case "fadeIn":
         this.fadeIn(fromText, toText);
         break;
+      case "none":
+        this.none(fromText, toText);
+        break;
     }
 
     this.speakerDirective?.execute();
@@ -127,6 +130,10 @@ export class Speak extends AnimationDirective<PIXI.Text> {
         ease: "none",
       },
     );
+  }
+
+  private none(_fromText: string, toText: string) {
+    this.target.text = toText;
   }
 
   public getDuration(): number {

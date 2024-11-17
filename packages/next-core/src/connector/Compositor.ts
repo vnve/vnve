@@ -68,7 +68,7 @@ export class Compositor extends Connector {
 
   private async genAudioData(
     timestamp: number,
-    audioBuffers?: AudioBuffer[], // TODO: 直接使用audioInfo，避免重复转换
+    audioBuffers?: AudioBuffer[],
   ): Promise<AudioData> {
     const sampleRate = this.audioConfig.sampleRate;
     const numberOfChannels = this.audioConfig.numberOfChannels;

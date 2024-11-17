@@ -8,6 +8,7 @@ import {
   DBAssetType,
   DBAssetTypeOptions,
   DBAssetState,
+  getAssetSourceURL,
 } from "@/db";
 import { useAssetStore } from "@/store";
 import {
@@ -24,6 +25,7 @@ import { AssetStateList } from "./AssetStateList";
 import { Icons } from "@/components/icons";
 import { AssetCard } from "./AssetCard";
 import { getFileInfo } from "@/lib/utils";
+import { loadFont } from "@/lib/font";
 
 export type DBAssetForm = DBAsset & {
   states: (DBAssetState & { file?: File })[];
@@ -89,6 +91,11 @@ export function AssetLibrary() {
       state.ext = ext;
 
       delete state.file;
+
+      // 字体特殊逻辑，立刻加载至页面
+      if (asset.type === DBAssetType.Font) {
+        loadFont(state.name, getAssetSourceURL(state));
+      }
     }
 
     await assetDB.add(asset as unknown as DBAsset);
@@ -111,6 +118,11 @@ export function AssetLibrary() {
 
         state.id = id;
         state.ext = ext;
+
+        // 字体特殊逻辑，立刻加载至页面
+        if (asset.type === DBAssetType.Font) {
+          loadFont(state.name, getAssetSourceURL(state));
+        }
       }
 
       delete state.file;
@@ -121,9 +133,15 @@ export function AssetLibrary() {
 
   const handleSubmitAddAsset = async (asset: DBAssetForm) => {
     if (asset.id) {
-      updateAssetToDB(asset);
+      await updateAssetToDB(asset);
+
+      // 如果存在选中，更新当前选中素材状态
+      if (selectingAsset) {
+        const editedAsset = await assetDB.get(asset.id);
+        setSelectingAsset(editedAsset);
+      }
     } else {
-      addAssetToDB(asset);
+      await addAssetToDB(asset);
     }
     setEditingAsset(null);
   };

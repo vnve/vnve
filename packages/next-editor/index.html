@@ -26,7 +26,7 @@
       .loader {
         width: 48px;
         height: 48px;
-        border: 5px solid rgb(49, 151, 149);
+        border: 5px solid #000;
         border-bottom-color: transparent;
         border-radius: 50%;
         display: inline-block;
@@ -71,16 +71,6 @@
               document.getElementById("sw-tip").innerText = "sw装载失败，请刷新重试";
             },
           );
-
-          navigator.serviceWorker.addEventListener("message", (event) => {
-            if (event.data.action === "refresh") {
-              const refreshMessage = confirm("有新版本可用，是否刷新页面？");
-
-              if (refreshMessage) {
-                window.location.reload();
-              }
-            }
-          });
         });
       } else {
         document.getElementById("sw-tip").innerText =

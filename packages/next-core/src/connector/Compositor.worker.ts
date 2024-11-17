@@ -26,7 +26,6 @@ export class Compositor extends Connector {
   }
 
   public async handle(frameData: FrameData): Promise<void> {
-    // TODO: to promise and do errorReject
     const { videoFrame, audioData, timestamp } = frameData;
     // video encode
     if (videoFrame) {

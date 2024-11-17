@@ -207,6 +207,10 @@ const FONT_DATA = {
       ch: "方舟像素",
       en: "Ark Pixel 12px Monospaced zh_cn",
     },
+    {
+      ch: "DW Pica Roman V",
+      en: "DW Pica Roman V",
+    },
   ],
 };
 
@@ -229,4 +233,16 @@ export enum SUPPORTED_FONT_WEIGHT {
 export enum SUPPORTED_FONT_STYLE {
   NORMAL = "normal",
   ITALIC = "italic",
+}
+
+export async function loadFont(
+  fontName: string,
+  fontSource: string | ArrayBuffer,
+) {
+  const fontFile = new FontFace(
+    fontName,
+    typeof fontSource === "string" ? `url(${fontSource})` : fontSource,
+  );
+  document.fonts.add(fontFile);
+  await fontFile.load();
 }

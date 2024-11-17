@@ -344,7 +344,7 @@ export class Director {
         this.ticker.time = frameTimeMS / 1000; // 拓展字段，记录当前tick的时间
         this.ticker.update(frameTimeMS); // 手动触发ticker更新
 
-        // // 等待所有异步任务完成
+        // 等待所有异步任务完成
         await Promise.all(this.ticker.asyncHandlers);
 
         if (this.connecter?.connection) {

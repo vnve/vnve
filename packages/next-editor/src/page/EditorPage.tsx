@@ -26,7 +26,7 @@ export function EditorPage() {
     <>
       <div className="h-screen flex flex-col">
         <header className="sticky top-0 z-10 flex h-[53px] items-center gap-1 border-b bg-background px-4">
-          <h1 className="text-xl font-semibold">Playground</h1>
+          <h1 className="text-xl font-semibold">V N V E</h1>
           <Icons.gitHub
             className="ml-auto size-5 cursor-pointer"
             onClick={() => {

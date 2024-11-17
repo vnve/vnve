@@ -9,6 +9,7 @@ import {
 import { Icons } from "@/components/icons";
 import AudioPlayer from "./AudioPlayer";
 import { ImageViewer } from "./ImageViewer";
+import { FontViewer } from "./FontViewer";
 import { useMemo } from "react";
 
 const AssetStateCardWidthMap = {
@@ -17,6 +18,7 @@ const AssetStateCardWidthMap = {
   [DBAssetType.Thing]: "200px",
   [DBAssetType.Dialog]: "240px",
   [DBAssetType.Audio]: "150px",
+  [DBAssetType.Font]: "150px",
 };
 
 const ImgAssetClassNameMap = {
@@ -55,6 +57,10 @@ export function AssetStatePreviewer({
 
   if (type === DBAssetType.Audio) {
     return <AudioPlayer url={sourceUrl} />;
+  }
+
+  if (type === DBAssetType.Font) {
+    return <FontViewer fontName={state?.name} fontUrl={sourceUrl} />;
   }
 
   return null;
