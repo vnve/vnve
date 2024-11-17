@@ -1,9 +1,0 @@
-.SfxModal-Wrapper {
-    z-index: 99999 !important;
-}
-.SfxPopper-wrapper {
-    z-index: 99999 !important;
-}
-.chakra-popover__popper {
-  z-index: 99999 !important;
-}
