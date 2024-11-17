@@ -1,1 +1,18 @@
-{"name":"VNVE","short_name":"VNVE","start_url":"/","display":"standalone","background_color":"#319795","lang":"en","scope":"/","description":"Visual Novel Video Editor","theme_color":"#319795","icons":[{"src":"/logo.png","sizes":"512x512","type":"image/png"}]}
+{
+    "name": "VNVE",
+    "short_name": "VNVE",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "lang": "en",
+    "scope": "/",
+    "description": "视频小说视频编辑器 (Visual Novel Video Editor)",
+    "theme_color": "#ffffff",
+    "icons": [
+        {
+            "src": "/logo.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
