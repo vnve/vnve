@@ -46,13 +46,6 @@ jobs:
         run: pnpm i --frozen-lockfile
       - name: Build Editor
         run: pnpm run build:editor
-      - name: Setup Pages
-        uses: actions/configure-pages@v3
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
-        with:
-          # Upload Dist
-          path: './packages/editor/dist'
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
