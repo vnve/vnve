@@ -1,16 +1,16 @@
 import { assetDB, assetSourceDB, DBAssetType } from "./db";
-import schoolDay from "../assets/preset/background/school/day.webp";
+// import schoolDay from "../assets/preset/background/school/day.webp";
 
 const PresetAssets = [
   {
     type: DBAssetType.Background,
     assets: [
       {
-        name: "school",
+        name: "学校",
         states: [
           {
-            name: "day",
-            url: schoolDay,
+            name: "白天",
+            url: "",
           },
         ],
       },

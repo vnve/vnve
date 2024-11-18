@@ -2,7 +2,7 @@ import { useEditorStore } from "@/store";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAssetLibrary } from "@/components/hooks/useAssetLibrary";
 import { clearAssetDB, DBAssetType, importAssetToDB, projectDB } from "@/db";
-import { createSprite } from "@/lib/core";
+import { createSprite, getDisableAudio } from "@/lib/core";
 import {
   Menubar,
   MenubarContent,
@@ -141,7 +141,7 @@ export function SceneEditor() {
       width: 1920,
       height: 1080,
       fps: 30,
-      // disableAudio: true,
+      disableAudio: getDisableAudio(),
     });
 
     director.current.connect(previewer);
@@ -176,7 +176,7 @@ export function SceneEditor() {
       width: 1920,
       height: 1080,
       fps: 30,
-      // disableAudio: true,
+      disableAudio: getDisableAudio(),
     });
 
     director.current.connect(compositor);

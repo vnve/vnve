@@ -106,7 +106,7 @@ export function SceneList({ onOpenSceneDetailDialog }) {
                         下移
                       </Icons.moveDown>
                     )}
-                    <DropdownMenu>
+                    <DropdownMenu modal={false}>
                       <DropdownMenuTrigger>
                         <Icons.more className="size-4 cursor-pointer" />
                       </DropdownMenuTrigger>

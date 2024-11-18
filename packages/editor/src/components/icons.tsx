@@ -206,7 +206,7 @@ export const Icons = {
   ungroup: Ungroup,
   comment: MessageSquare,
   commentAdd: MessageSquarePlus,
-  delete: Trash,
+  delete: Trash2,
   dragHandle: GripVertical,
   editing: Edit2,
   emoji: Smile,

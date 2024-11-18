@@ -30,7 +30,7 @@ import {
 import { DirectiveSpeakForm } from "@/components/plate-ui/directive-speak-form";
 import { Switch } from "@/components/ui/switch";
 
-export function SceneDetail() {
+export function SceneDetail({ onClose }: { onClose?: () => void }) {
   const editor = useEditorStore((state) => state.editor);
   const project = useEditorStore((state) => state.project);
   const activeScene = useEditorStore((state) => state.activeScene);
@@ -209,6 +209,16 @@ export function SceneDetail() {
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
+                      {onClose && (
+                        <Button
+                          className="-mr-3"
+                          size="sm"
+                          variant="ghost"
+                          onClick={onClose}
+                        >
+                          <Icons.close className="size-4"></Icons.close>
+                        </Button>
+                      )}
                     </div>
                   </Label>
                   <Input

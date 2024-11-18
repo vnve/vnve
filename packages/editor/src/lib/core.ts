@@ -45,3 +45,13 @@ export function createSound(asset: DBAsset) {
 
   return sound;
 }
+
+let disableAudio = false;
+
+export function setDisableAudio(value: boolean) {
+  disableAudio = value;
+}
+
+export function getDisableAudio() {
+  return disableAudio;
+}

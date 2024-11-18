@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { projectDB } from "@/db";
 import { useEditorStore } from "@/store";
+import { useToast } from "@/components/hooks/use-toast";
 
 const formSchema = z.object({
   projectName: z.string().min(1, "作品名称不能为空"),
@@ -34,6 +35,7 @@ export function CreateProjectDialog({
 }) {
   const editor = useEditorStore((state) => state.editor);
   const setProject = useEditorStore((state) => state.setProject);
+  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -63,6 +65,12 @@ export function CreateProjectDialog({
     });
     onClose();
     form.reset();
+
+    toast({
+      title: "新作品创建成功!",
+      description: "可以开始添加场景了～",
+      duration: 1500,
+    });
   };
 
   return (
