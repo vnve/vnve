@@ -3,8 +3,9 @@ import { Filter, copyFromJSON, copyTo, toJSON } from "./Filter";
 import { uuid } from "../../util";
 
 export class OldFilmFilter extends RawOldFilmFilter implements Filter {
-  public label: string = "";
+  public label = "";
   public name = uuid();
+  public type = "OldFilmFilter";
 
   public clone(exact = false) {
     const cloned = new OldFilmFilter();

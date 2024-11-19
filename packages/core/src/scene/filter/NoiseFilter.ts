@@ -3,8 +3,9 @@ import { Filter, copyFromJSON, copyTo, toJSON } from "./Filter";
 import { uuid } from "../../util";
 
 export class NoiseFilter extends PIXI.NoiseFilter implements Filter {
-  public label: string = "";
+  public label = "";
   public name = uuid();
+  public type = "NoiseFilter";
 
   public clone(exact = false) {
     const cloned = new NoiseFilter();

@@ -3,8 +3,9 @@ import { Filter, copyFromJSON, copyTo, toJSON } from "./Filter";
 import { uuid } from "../../util";
 
 export class VignetteFilter extends OldFilmFilter implements Filter {
-  public label: string = "";
+  public label = "";
   public name = uuid();
+  public type = "VignetteFilter";
 
   constructor() {
     super();

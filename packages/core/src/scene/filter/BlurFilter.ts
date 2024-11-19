@@ -3,8 +3,9 @@ import { Filter, copyFromJSON, copyTo, toJSON } from "./Filter";
 import { uuid } from "../../util";
 
 export class BlurFilter extends PIXI.BlurFilter implements Filter {
-  public label: string = "";
+  public label = "";
   public name = uuid();
+  public type = "BlurFilter";
 
   public clone(exact = false) {
     const cloned = new BlurFilter();

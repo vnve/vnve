@@ -5,11 +5,11 @@ import { Graphics } from "./Graphics";
 import { Filter, reviveFilters } from "../filter";
 
 export abstract class DisplayChild {
-  abstract label: string;
-  abstract type: string;
-  abstract clone(exact?: boolean): DisplayChild;
-  abstract load(): Promise<void>;
-  abstract toJSON(): AnyJSON;
+  public declare label: string;
+  public declare type: string;
+  public abstract clone(exact?: boolean): DisplayChild;
+  public abstract load(): Promise<void>;
+  public abstract toJSON(): AnyJSON;
 }
 
 export type Child = Sprite | Text | Graphics;
@@ -39,7 +39,7 @@ export function copyTo(
 
 export function toJSON(child: Child, ignoreWH = false) {
   let json: AnyJSON = {
-    __type: child.constructor.name,
+    __type: child.type,
     name: child.name,
     label: child.label,
     type: child.type,

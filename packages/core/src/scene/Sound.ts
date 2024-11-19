@@ -7,6 +7,7 @@ export interface ISoundOption {
 export class Sound {
   public name: string;
   public label: string;
+  public type: string;
   public source: string;
   public assetID: number;
   public assetType: string;
@@ -16,6 +17,7 @@ export class Sound {
   constructor(options: ISoundOption) {
     this.name = uuid();
     this.label = "";
+    this.type = "Sound";
     this.source = options.source;
     this.assetID = 0;
     this.assetType = "";
@@ -43,7 +45,7 @@ export class Sound {
     copyTo(this, json as Sound, true);
 
     return {
-      __type: "Sound",
+      __type: this.type,
       ...json,
       source: this.source,
       assetID: this.assetID,
