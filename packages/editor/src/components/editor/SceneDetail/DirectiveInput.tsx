@@ -27,11 +27,11 @@ export function DirectiveInput({ value, onChange, onFocus, children }) {
       }),
       DeletePlugin,
     ],
+    // TODO: placeholder对拼音输入支持性不好，暂时不使用
     override: {
-      components: withPlaceholders({
+      components: {
         [DirectivePlugin.key]: DirectiveElement,
-        [ParagraphPlugin.key]: ParagraphElement,
-      }),
+      },
     },
     value: value.lines,
   });

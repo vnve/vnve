@@ -69,7 +69,7 @@ export function CreateProjectDialog({
     toast({
       title: "新作品创建成功!",
       description: "可以开始添加场景了～",
-      duration: 1500,
+      duration: 1000,
     });
   };
 

@@ -24,14 +24,16 @@ import { AssetForm } from "./AssetForm";
 import { AssetStateList } from "./AssetStateList";
 import { Icons } from "@/components/icons";
 import { AssetCard } from "./AssetCard";
-import { getFileInfo } from "@/lib/utils";
+import { cn, getFileInfo } from "@/lib/utils";
 import { loadFont } from "@/lib/font";
+import { useMedia } from "@/components/hooks/useMedia";
 
 export type DBAssetForm = DBAsset & {
   states: (DBAssetState & { file?: File })[];
 };
 
 export function AssetLibrary() {
+  const isSm = useMedia("(min-width: 640px)");
   const isOpen = useAssetStore((state) => state.isOpen);
   const confirm = useAssetStore((state) => state.confirm);
   const cancel = useAssetStore((state) => state.cancel);
@@ -213,7 +215,7 @@ export function AssetLibrary() {
             </Tabs>
             <Button size="sm" onClick={handleAddAsset}>
               <Icons.squarePlus className="w-3.5 h-3.5 mr-0.5" />
-              新增
+              {isSm && "新增"}
             </Button>
           </div>
           <ScrollArea className="flex-grow">
@@ -238,7 +240,9 @@ export function AssetLibrary() {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="min-w-[90vw] h-[90vh] flex flex-col">
+      <DialogContent
+        className={cn("min-w-[90vw] h-[90vh] flex flex-col", !isSm && "px-2")}
+      >
         <DialogHeader>
           <DialogTitle>素材库</DialogTitle>
           <DialogDescription></DialogDescription>

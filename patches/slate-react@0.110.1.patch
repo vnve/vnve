@@ -1,0 +1,26 @@
+diff --git a/dist/index.es.js b/dist/index.es.js
+index 74451539c6ae9c6f80bc9e3f7893a302a34511bd..c6166eec621373008406659736bb358dd06e949a 100644
+--- a/dist/index.es.js
++++ b/dist/index.es.js
+@@ -2247,7 +2247,7 @@ var ZeroWidthString = props => {
+   if (isMarkPlaceholder) {
+     attributes['data-slate-mark-placeholder'] = true;
+   }
+-  return /*#__PURE__*/React.createElement("span", _objectSpread$4({}, attributes), !(IS_ANDROID || IS_IOS) || !isLineBreak ? '\uFEFF' : null, isLineBreak ? /*#__PURE__*/React.createElement("br", null) : null);
++  return /*#__PURE__*/React.createElement("span", _objectSpread$4({}, attributes), !IS_ANDROID || !isLineBreak ? '\uFEFF' : null, isLineBreak ? /*#__PURE__*/React.createElement("br", null) : null);
+ };
+ 
+ function ownKeys$3(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+diff --git a/dist/index.js b/dist/index.js
+index 8d4e2ba2af6023096c5aa7322af5e816e652ddf9..7bbe6be8218b578cc44562244a15cfcb4a21904f 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -2539,7 +2539,7 @@ var ZeroWidthString = function ZeroWidthString(props) {
+   if (isMarkPlaceholder) {
+     attributes['data-slate-mark-placeholder'] = true;
+   }
+-  return /*#__PURE__*/React.createElement("span", _objectSpread$4({}, attributes), !(IS_ANDROID || IS_IOS) || !isLineBreak ? "\uFEFF" : null, isLineBreak ? /*#__PURE__*/React.createElement("br", null) : null);
++  return /*#__PURE__*/React.createElement("span", _objectSpread$4({}, attributes), !IS_ANDROID || !isLineBreak ? "\uFEFF" : null, isLineBreak ? /*#__PURE__*/React.createElement("br", null) : null);
+ };
+ 
+ function ownKeys$3(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }

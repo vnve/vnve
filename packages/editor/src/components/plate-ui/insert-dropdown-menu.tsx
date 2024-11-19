@@ -21,6 +21,7 @@ import {
 import { ToolbarButton } from "./toolbar";
 import { triggerFloatingDirective } from "../plugin/directive";
 import { DirectiveType } from "@/config";
+import { useMedia } from "../hooks/useMedia";
 
 const items = [
   {
@@ -61,6 +62,7 @@ const items = [
 ];
 
 export function InsertDropdownMenu(props: DropdownMenuProps) {
+  const isSm = useMedia("(min-width: 640px)");
   const editor = useEditorRef();
   const openState = useOpenState();
 
@@ -69,7 +71,10 @@ export function InsertDropdownMenu(props: DropdownMenuProps) {
       directiveType: type,
     });
 
-    focusEditor(editor);
+    // 移动端不需要focus
+    if (isSm) {
+      focusEditor(editor);
+    }
   }
 
   return (

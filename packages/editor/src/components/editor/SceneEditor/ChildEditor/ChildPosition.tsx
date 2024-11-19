@@ -55,7 +55,7 @@ export function ChildPosition() {
   return (
     <ScrollArea className="h-full pr-2">
       {activeChild && (
-        <div className="flex flex-col gap-2">
+        <div>
           <fieldset className="rounded-md border p-1">
             <legend className="-ml-1 px-1 text-sm font-medium">层级</legend>
             <div className="flex justify-between items-center">
@@ -99,7 +99,7 @@ export function ChildPosition() {
               </div>
             </div>
           </fieldset>
-          <fieldset className="rounded-md border p-1">
+          <fieldset className="rounded-md border p-1 mt-2">
             <legend className="-ml-1 px-1 text-sm font-medium">水平位置</legend>
             <Button
               size="sm"
@@ -137,7 +137,7 @@ export function ChildPosition() {
               右
             </Button>
           </fieldset>
-          <fieldset className="rounded-md border p-1">
+          <fieldset className="rounded-md border p-1 mt-2">
             <legend className="-ml-1 px-1 text-sm font-medium">垂直位置</legend>
             <Button
               size="sm"

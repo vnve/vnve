@@ -19,6 +19,7 @@ import {
   TDirectiveValue,
 } from "./DirectivePlugin";
 import { useAssetStore } from "@/store";
+import { useMedia } from "@/components/hooks/useMedia";
 
 export function useFloatingDirective({
   triggerFloatingLinkHotkeys,
@@ -27,6 +28,7 @@ export function useFloatingDirective({
   triggerFloatingLinkHotkeys: string;
   floatingOptions: UseVirtualFloatingOptions;
 }) {
+  const isSm = useMedia("(min-width: 640px)");
   const { editor, api, tf, useOption, setOption, getOptions } =
     useEditorPlugin(DirectivePlugin);
   const mode = useOption("mode");
@@ -56,8 +58,6 @@ export function useFloatingDirective({
       if (isOpenAssetLibrary) {
         return;
       }
-
-      console.log("outside click", target);
 
       if (["insert", "edit"].includes(getOptions().mode)) {
         api.floatingDirective.hide();
@@ -141,10 +141,19 @@ export function useFloatingDirective({
 
   return {
     props: {
-      style: {
-        ...floating.style,
-        zIndex: 50,
-      },
+      style: isSm
+        ? {
+            ...floating.style,
+            zIndex: 50,
+          }
+        : {
+            ...floating.style,
+            position: "fixed",
+            left: "50%",
+            top: "50%",
+            transform: "translate(-50%, -50%)",
+            zIndex: 50,
+          },
     },
     ref: useComposedRef<HTMLDivElement>(floating.refs.setFloating, ref),
     onSubmit,

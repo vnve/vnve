@@ -19,6 +19,10 @@ self.addEventListener("fetch", function (event) {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
+          if (!response.ok) {
+            throw new Error("response is not ok");
+          }
+
           return caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, response.clone());
             return response;
@@ -26,13 +30,14 @@ self.addEventListener("fetch", function (event) {
         })
         .catch(() => {
           return caches.match(event.request).then((cachedResponse) => {
-            return cachedResponse || new Response("Offline", { status: 503 });
+            return (
+              cachedResponse || new Response("网络异常请重试", { status: 503 })
+            );
           });
         }),
     );
   }
 
-  // 匹配当前域名下的html, js, css, image, audio资源
   const shouldCache =
     url.startsWith(self.location.origin) &&
     /\.(js|css|png|jpg|jpeg|gif|webp|mp3|wav|aac|m4a)$/.test(url);

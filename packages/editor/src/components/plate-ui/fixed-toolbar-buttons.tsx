@@ -23,6 +23,7 @@ import { triggerFloatingDirective } from "../plugin/directive";
 import { ToolbarButton } from "./toolbar";
 import { DirectiveSpeakForm } from "./directive-speak-form";
 import { DirectiveVoiceForm } from "./directive-voice-form";
+import { useMedia } from "../hooks/useMedia";
 
 const Narrator = {
   name: "Narrator",
@@ -30,6 +31,7 @@ const Narrator = {
 };
 
 export function FixedToolbarButtons({ speak, onChangeSpeak, children }) {
+  const isSm = useMedia("(min-width: 640px)");
   const activeScene = useEditorStore((state) => state.activeScene);
   const characters = useMemo(() => {
     const results = [Narrator];
@@ -68,7 +70,9 @@ export function FixedToolbarButtons({ speak, onChangeSpeak, children }) {
       directiveType: type,
     });
 
-    focusEditor(editor);
+    if (isSm) {
+      focusEditor(editor);
+    }
   };
 
   return (

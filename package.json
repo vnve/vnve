@@ -43,5 +43,10 @@
   "engines": {
     "node": ">=18",
     "pnpm": ">=8"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "slate-react@0.110.1": "patches/slate-react@0.110.1.patch"
+    }
   }
 }
