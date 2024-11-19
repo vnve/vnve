@@ -11,8 +11,10 @@ import {
   useEditorPlugin,
   useElement,
 } from "@udecode/plate-common/react";
+import { IS_APPLE } from "@udecode/plate-common";
 import { useFocused, useSelected } from "slate-react";
 import { triggerFloatingDirective } from "../plugin/directive";
+import { useMounted } from "../hooks/use-mounted";
 
 export const DirectiveElement = withRef<
   typeof PlateElement,
@@ -24,6 +26,7 @@ export const DirectiveElement = withRef<
   const element = useElement<TDirectiveElement>();
   const selected = useSelected();
   const focused = useFocused();
+  const mounted = useMounted();
   const { editor } = useEditorPlugin(DirectivePlugin);
   const onClickElement = () => {
     triggerFloatingDirective(editor, {
@@ -46,9 +49,21 @@ export const DirectiveElement = withRef<
       ref={ref}
       {...props}
     >
-      {prefix}
-      {element.value.label || ""}
-      {children}
+      {mounted && IS_APPLE ? (
+        // Mac OS IME https://github.com/ianstormtaylor/slate/issues/3490
+        <React.Fragment>
+          {children}
+          {prefix}
+          {element.value.label || ""}
+        </React.Fragment>
+      ) : (
+        // Others like Android https://github.com/ianstormtaylor/slate/pull/5360
+        <React.Fragment>
+          {prefix}
+          {element.value.label || ""}
+          {children}
+        </React.Fragment>
+      )}
     </PlateElement>
   );
 });

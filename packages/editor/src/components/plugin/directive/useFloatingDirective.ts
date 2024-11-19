@@ -139,21 +139,23 @@ export function useFloatingDirective({
     }, 0);
   };
 
+  const style: React.CSSProperties = isSm
+    ? {
+        ...floating.style,
+        zIndex: 50,
+      }
+    : {
+        ...floating.style,
+        position: "fixed",
+        left: "50%",
+        top: "50%",
+        transform: "translate(-50%, -50%)",
+        zIndex: 50,
+      };
+
   return {
     props: {
-      style: isSm
-        ? {
-            ...floating.style,
-            zIndex: 50,
-          }
-        : {
-            ...floating.style,
-            position: "fixed",
-            left: "50%",
-            top: "50%",
-            transform: "translate(-50%, -50%)",
-            zIndex: 50,
-          },
+      style,
     },
     ref: useComposedRef<HTMLDivElement>(floating.refs.setFloating, ref),
     onSubmit,
