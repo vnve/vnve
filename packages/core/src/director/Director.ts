@@ -341,7 +341,7 @@ export class Director {
       const frameTimeMS = (frameIndex / fps) * 1000;
 
       if (this.started) {
-        this.ticker.time = frameTimeMS / 1000; // 拓展字段，记录当前tick的时间
+        this.ticker.time = frameTimeMS / 1000; // 拓展字段，记录当前tick的时间, 单位秒
         this.ticker.update(frameTimeMS); // 手动触发ticker更新
 
         // 等待所有异步任务完成

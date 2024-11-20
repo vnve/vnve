@@ -1,12 +1,20 @@
 import { DBAsset, DBAssetType, getAssetSourceURL } from "@/db";
-import { Editor, LayerZIndex, Sound, Sprite } from "@vnve/core";
+import { Editor, LayerZIndex, Sound, Sprite, AnimatedGIF } from "@vnve/core";
 
 export async function createSprite(asset: DBAsset, editor: Editor) {
   const states = asset.states;
   const state = states.find((state) => state.id === asset.stateId) ?? states[0];
-  const sprite = new Sprite({
-    source: getAssetSourceURL(state),
-  });
+  let sprite: Sprite | AnimatedGIF;
+
+  if (state.ext === "gif") {
+    sprite = new AnimatedGIF({
+      source: getAssetSourceURL(state),
+    });
+  } else {
+    sprite = new Sprite({
+      source: getAssetSourceURL(state),
+    });
+  }
 
   sprite.label = asset.name;
   sprite.assetID = asset.id;

@@ -60,8 +60,36 @@ export function SceneEditor() {
     currentTime: 0,
     duration: 0,
   });
+  const progressAnimationId = useRef(0);
   const [saveTimeString, setSaveTimeString] = useState("");
   const { toast } = useToast();
+  const updateActionProgress = (progress, currentTime, duration) => {
+    if (progress >= 100) {
+      setActionProgress({
+        value: progress,
+        currentTime,
+        duration,
+      });
+      if (progressAnimationId.current) {
+        clearTimeout(progressAnimationId.current);
+      }
+      progressAnimationId.current = 0;
+      return;
+    }
+
+    if (progressAnimationId.current) {
+      return;
+    }
+
+    progressAnimationId.current = setTimeout(() => {
+      setActionProgress({
+        value: progress,
+        currentTime,
+        duration,
+      });
+      progressAnimationId.current = 0;
+    }, 1000 / 30);
+  };
 
   const resetActionProgress = () => {
     setActionProgress({
@@ -266,11 +294,7 @@ export function SceneEditor() {
     initEditor(canvasRef.current);
     director.current = new Director({
       onProgress(progress, currentTime, duration) {
-        setActionProgress({
-          value: progress,
-          currentTime,
-          duration,
-        });
+        updateActionProgress(progress, currentTime, duration);
       },
     });
 

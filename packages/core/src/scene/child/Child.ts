@@ -2,6 +2,7 @@ import * as PIXI from "pixi.js";
 import { Sprite } from "./Sprite";
 import { Text } from "./Text";
 import { Graphics } from "./Graphics";
+import { AnimatedGIF } from "./AnimatedGIF";
 import { Filter, reviveFilters } from "../filter";
 
 export abstract class DisplayChild {
@@ -12,7 +13,7 @@ export abstract class DisplayChild {
   public abstract toJSON(): AnyJSON;
 }
 
-export type Child = Sprite | Text | Graphics;
+export type Child = Sprite | Text | Graphics | AnimatedGIF;
 
 export function copyTo(
   from: Child,
