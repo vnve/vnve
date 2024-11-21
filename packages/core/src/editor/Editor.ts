@@ -183,7 +183,7 @@ export class Editor {
   }
 
   public removeScene(scene: Scene) {
-    this.scenes.splice(this.scenes.indexOf(scene), 1);
+    this.scenes = this.scenes.filter((item) => item !== scene);
     if (this.activeScene === scene) {
       this.stageRemoveChild(this.activeScene);
       this.activeScene.destroy();

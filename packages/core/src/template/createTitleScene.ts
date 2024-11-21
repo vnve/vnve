@@ -30,7 +30,90 @@ export function createTitleScene() {
   scene.addChild(titleText);
   scene.addChild(subtitleText);
 
-  // TODO: 增加动画指令
+  scene.dialogues = [
+    {
+      speak: {
+        wordsPerMin: 500,
+        interval: 0.2,
+        effect: "typewriter",
+        speaker: {
+          targetName: "",
+          name: "",
+          autoShowSpeaker: {
+            inEffect: "Show",
+          },
+          autoMaskOtherSpeakers: {
+            alpha: 0.5,
+          },
+          speakerTargetName: "Narrator",
+        },
+      },
+      lines: [
+        {
+          children: [
+            {
+              text: "",
+            },
+            {
+              children: [
+                {
+                  text: "",
+                },
+              ],
+              type: "directive",
+              value: {
+                directive: "FadeIn",
+                params: {
+                  targetName: titleText.name,
+                },
+                label: "渐入:主标题",
+              },
+            },
+            {
+              text: "",
+            },
+            {
+              children: [
+                {
+                  text: "",
+                },
+              ],
+              type: "directive",
+              value: {
+                directive: "FadeIn",
+                params: {
+                  targetName: subtitleText.name,
+                },
+                label: "渐入:副标题",
+              },
+            },
+            {
+              text: "",
+            },
+            {
+              children: [
+                {
+                  text: "",
+                },
+              ],
+              type: "directive",
+              value: {
+                directive: "Wait",
+                params: {
+                  duration: 3,
+                },
+                label: "停顿:3秒",
+              },
+            },
+            {
+              text: "",
+            },
+          ],
+          type: "p",
+        },
+      ],
+    },
+  ];
 
   return scene;
 }

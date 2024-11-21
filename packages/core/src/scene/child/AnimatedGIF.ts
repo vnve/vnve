@@ -11,7 +11,13 @@ import {
 } from "pixi.js";
 import { parseGIF, decompressFrames, ParsedFrame } from "gifuct-js";
 import { uuid } from "../../util";
-import { copyFromJSON, copyTo, DisplayChild, toJSON } from "./Child";
+import {
+  copyFromJSON,
+  copyTo,
+  DisplayChild,
+  shouldIgnoreWH,
+  toJSON,
+} from "./Child";
 
 /** Represents a single frame of a GIF. Includes image and timing data. */
 interface FrameObject {
@@ -327,12 +333,6 @@ export class AnimatedGIF extends Sprite implements DisplayChild {
     // Draw the first frame
     this.dirty = true;
     this.currentFrame = 0;
-    // TODO: 应当只有预览或者导出的情况，才能加入Ticker.shared回调
-    // 否则会导致预览画布受到影响
-    // 问题2: 重复运行会shared回调失效
-    if (rest.autoPlay) {
-      this.play();
-    }
   }
 
   /** Stops the animation. */
@@ -542,28 +542,20 @@ export class AnimatedGIF extends Sprite implements DisplayChild {
     this.onLoop = forceClear;
   }
 
-  private shouldUseCustomDimensions() {
-    return (
-      this.texture.width === this.width && this.texture.height === this.height
-    );
-  }
-
   public clone(exact = false): AnimatedGIF {
     const cloned = new AnimatedGIF({ source: this.source });
 
     cloned.assetID = this.assetID;
     cloned.assetType = this.assetType;
 
-    // 当与texture宽高一致时，说明没有自定义宽高，不复制宽高
-    // 因为texture默认宽高为1,1，统一复制宽高会导致还原异常
-    copyTo(this, cloned, exact, this.shouldUseCustomDimensions());
+    copyTo(this, cloned, exact, shouldIgnoreWH(this));
 
     return cloned;
   }
 
   public toJSON() {
     return {
-      ...toJSON(this, this.shouldUseCustomDimensions()),
+      ...toJSON(this, shouldIgnoreWH(this)),
       source: this.source,
       assetID: this.assetID,
       assetType: this.assetType,

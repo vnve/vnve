@@ -100,6 +100,9 @@ importers:
       mp4-muxer:
         specifier: ^2.2.2
         version: 2.3.0
+      mp4box:
+        specifier: ^0.5.3
+        version: 0.5.3
       nanoid:
         specifier: ^5.0.5
         version: 5.0.5
@@ -7536,6 +7539,10 @@ packages:
     dependencies:
       '@types/dom-webcodecs': 0.1.9
       '@types/wicg-file-system-access': 2020.9.8
+    dev: false
+
+  /mp4box@0.5.3:
+    resolution: {integrity: sha512-RIvyFZdPDIg3+mL6vUdPBSyQRrEfKO3ryAeJ4xJJV7HBHQUH3KfLlZRzfSpBHCd/HqR63HfbrWQI/CwXDvYENQ==}
     dev: false
 
   /ms@2.1.2:

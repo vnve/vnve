@@ -34,7 +34,7 @@ export default function FileSelector({
       case DBAssetType.Character:
       case DBAssetType.Thing:
       case DBAssetType.Dialog:
-        return ".webp, .png, .jpg, .gif";
+        return ".webp, .png, .jpg, .jpeg, .gif, .mp4";
       case DBAssetType.Audio:
         return ".mp3, .wav, .m4a, .aac";
       default:

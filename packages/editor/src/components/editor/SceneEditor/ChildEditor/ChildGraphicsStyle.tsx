@@ -9,7 +9,6 @@ import { createSprite } from "@/lib/core";
 
 export function ChildGraphicsStyle() {
   const editor = useEditorStore((state) => state.editor);
-  const activeScene = useEditorStore((state) => state.activeScene);
   const activeChild = useEditorStore((state) => state.activeChild) as Graphics;
   const { selectAsset } = useAssetLibrary();
 

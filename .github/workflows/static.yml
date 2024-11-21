@@ -37,7 +37,7 @@ jobs:
         uses: actions/setup-node@v4.0.0
         with:
           # Version Spec of the version to use. Examples: 12.x, 10.15.1, >=10.15.0.
-          node-version: 18.x
+          node-version: 20.x
           # Used to specify a package manager for caching in the default directory. Supported values: npm, yarn, pnpm.
           cache: pnpm
           # Used to specify the path to a dependency file: package-lock.json, yarn.lock, etc. Supports wildcards or a list of file names for caching multiple dependencies.
@@ -45,7 +45,7 @@ jobs:
       - name: Install Deps
         run: pnpm i --frozen-lockfile
       - name: Build Editor
-        run: pnpm run build:editor
+        run: pnpm run build
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:

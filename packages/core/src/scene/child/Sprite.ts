@@ -1,6 +1,12 @@
 import * as PIXI from "pixi.js";
 import { uuid } from "../../util";
-import { DisplayChild, copyFromJSON, copyTo, toJSON } from "./Child";
+import {
+  DisplayChild,
+  copyFromJSON,
+  copyTo,
+  shouldIgnoreWH,
+  toJSON,
+} from "./Child";
 import { Assets } from "../../assets";
 
 interface SpriteOptions {
@@ -29,12 +35,6 @@ export class Sprite extends PIXI.Sprite implements DisplayChild {
     this.source = source;
   }
 
-  private shouldUseCustomDimensions() {
-    return (
-      this.texture.width === this.width && this.texture.height === this.height
-    );
-  }
-
   public async load() {
     if (this.source) {
       this.texture = await Assets.load(this.source);
@@ -47,16 +47,14 @@ export class Sprite extends PIXI.Sprite implements DisplayChild {
     cloned.assetID = this.assetID;
     cloned.assetType = this.assetType;
 
-    // 当与texture宽高一致时，说明没有自定义宽高，不复制宽高
-    // 因为texture默认宽高为1,1，统一复制宽高会导致还原异常
-    copyTo(this, cloned, exact, this.shouldUseCustomDimensions());
+    copyTo(this, cloned, exact, shouldIgnoreWH(this));
 
     return cloned;
   }
 
   public toJSON() {
     return {
-      ...toJSON(this, this.shouldUseCustomDimensions()),
+      ...toJSON(this, shouldIgnoreWH(this)),
       source: this.source,
       assetID: this.assetID,
       assetType: this.assetType,

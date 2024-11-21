@@ -173,10 +173,6 @@ export class Scene extends PIXI.Container {
         await child.load();
       }
 
-      // if (typeof child.play === "function") {
-      //   child.play();
-      // }
-
       if (child.children && child.children.length > 0) {
         for (const grandchild of child.children) {
           await traverseChild(grandchild as Child);

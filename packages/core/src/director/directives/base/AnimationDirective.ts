@@ -2,6 +2,7 @@ import * as PIXI from "pixi.js";
 import gsap from "gsap";
 import { Directive, DirectiveOptions } from "./Directive";
 import { TweenVars } from "./type";
+import { AnimatedGIF } from "../../../scene";
 
 export interface AnimationDirectiveOptions extends DirectiveOptions {
   targetName: string;
@@ -30,6 +31,11 @@ export abstract class AnimationDirective<
 
     // 理论上所有动画指令都需要显示目标
     this.target.visible = true;
+
+    // 针对GIF/Video，存在播放方法，显示时执行播放
+    if (typeof (this.target as unknown as AnimatedGIF).play === "function") {
+      (this.target as unknown as AnimatedGIF).play();
+    }
 
     if (fromVars && toVars) {
       gsap.fromTo(this.target, fromVars, toVars);
