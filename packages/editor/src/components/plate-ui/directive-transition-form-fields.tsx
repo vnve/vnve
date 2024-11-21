@@ -42,7 +42,7 @@ export const DirectiveTransitionFormFields = forwardRef<
                 type="number"
                 min={0}
                 step={0.1}
-                placeholder="自定义转场时长"
+                placeholder="不填则使用默认值"
                 value={field.value ?? ""}
                 onChange={(e) => {
                   const value = Number(e.target.value);
