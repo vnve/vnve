@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { FileUp } from "lucide-react";
 import { cn, getFileInfo } from "@/lib/utils";
 import { AssetStatePreviewer } from "./AssetCard";
-import { DBAssetType } from "@/db";
+import { DBAssetType, genFileAccept } from "@/db";
 
 export default function FileSelector({
   type,
@@ -45,17 +45,7 @@ export default function FileSelector({
   }, [ext, selectedFileExt]);
 
   const fileAccept = useMemo(() => {
-    switch (type) {
-      case DBAssetType.Background:
-      case DBAssetType.Character:
-      case DBAssetType.Thing:
-      case DBAssetType.Dialog:
-        return ".webp, .png, .jpg, .jpeg, .gif, .mp4";
-      case DBAssetType.Audio:
-        return ".mp3, .wav, .m4a, .aac";
-      default:
-        return "";
-    }
+    return genFileAccept(type);
   }, [type]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);

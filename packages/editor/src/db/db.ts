@@ -108,6 +108,22 @@ export function getAssetSourceURL(assetState: DBAssetState) {
   return `https://s/${assetState.id}.${assetState.ext}`;
 }
 
+export function genFileAccept(type: DBAssetType) {
+  switch (type) {
+    case DBAssetType.Background:
+    case DBAssetType.Character:
+    case DBAssetType.Thing:
+    case DBAssetType.Dialog:
+      return ".webp, .png, .jpg, .jpeg, .gif, .mp4";
+    case DBAssetType.Audio:
+      return ".mp3, .wav, .m4a, .aac";
+    case DBAssetType.Font:
+      return ".ttf, .woff, .woff2";
+    default:
+      return "";
+  }
+}
+
 export async function importAssetToDB() {
   const dirHandle = await window.showDirectoryPicker();
 
@@ -132,22 +148,26 @@ export async function importAssetToDB() {
           if (stateHandle.kind === "file") {
             const source = await stateHandle.getFile();
             const { name, ext } = getFileInfo(source);
-            const id = await assetSourceDB.add({
-              mime: source.type,
-              blob: source,
-              ext,
-            });
+            const fileAccept = genFileAccept(assetType.value);
 
-            await assetDB
-              .where("id")
-              .equals(assetId)
-              .modify((asset) => {
-                asset.states.push({
-                  id,
-                  name,
-                  ext,
-                });
+            if (fileAccept.includes(ext)) {
+              const id = await assetSourceDB.add({
+                mime: source.type,
+                blob: source,
+                ext,
               });
+
+              await assetDB
+                .where("id")
+                .equals(assetId)
+                .modify((asset) => {
+                  asset.states.push({
+                    id,
+                    name,
+                    ext,
+                  });
+                });
+            }
           }
         }
       }
