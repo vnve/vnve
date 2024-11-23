@@ -241,6 +241,7 @@ export function AssetLibrary() {
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent
+        id="asset-library"
         className={cn("min-w-[90vw] h-[90vh] flex flex-col", !isSm && "px-2")}
       >
         <DialogHeader>

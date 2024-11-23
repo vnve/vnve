@@ -31,7 +31,7 @@ export function ChildBasicStyle() {
         <div className="flex-1 flex gap-1 items-center">
           <Label className="w-5">宽</Label>
           <Input
-            value={activeChild.width}
+            value={activeChild.width.toFixed(0)}
             onChange={handleInputValueChange("width", "number")}
             type="number"
             min={0}
@@ -42,7 +42,7 @@ export function ChildBasicStyle() {
         <div className="flex-1 flex gap-1 items-center">
           <Label className="w-5">高</Label>
           <Input
-            value={activeChild.height}
+            value={activeChild.height.toFixed(0)}
             onChange={handleInputValueChange("height", "number")}
             type="number"
             min={0}

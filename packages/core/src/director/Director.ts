@@ -272,7 +272,7 @@ export class Director {
         ) {
           log.debug(
             "execute directive:",
-            directive,
+            directive.constructor.name,
             time,
             directive.executeTime,
           );

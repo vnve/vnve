@@ -166,8 +166,8 @@ export const DirectiveSoundFormFields = forwardRef<
                     type="number"
                     min={0}
                     step={1}
-                    placeholder="请输入开始时间"
-                    value={field.value ?? 0}
+                    placeholder="默认从0秒开始"
+                    value={field.value || ""}
                     onChange={(e) => {
                       const value = Number(e.target.value);
 

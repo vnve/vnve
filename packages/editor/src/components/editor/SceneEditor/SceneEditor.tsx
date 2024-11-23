@@ -2,7 +2,7 @@ import { useEditorStore } from "@/store";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAssetLibrary } from "@/components/hooks/useAssetLibrary";
 import { clearAssetDB, DBAssetType, importAssetToDB, projectDB } from "@/db";
-import { createSprite, getDisableAudio } from "@/lib/core";
+import { createSprite, createText, getDisableAudio } from "@/lib/core";
 import {
   Menubar,
   MenubarContent,
@@ -157,6 +157,12 @@ export function SceneEditor() {
 
       editor.addChild(sprite);
     }
+  };
+
+  const handleAddText = () => {
+    const text = createText(editor);
+
+    editor.addChild(text);
   };
 
   const handlePreviewScenes = async (start = 0, end?: number) => {
@@ -397,6 +403,9 @@ export function SceneEditor() {
               onClick={handleAddSprite(DBAssetType.Thing)}
             >
               添加物品
+            </MenubarItem>
+            <MenubarItem disabled={!activeScene} onClick={handleAddText}>
+              添加文字
             </MenubarItem>
             <MenubarSeparator />
             <MenubarItem onClick={handleImportAsset}>导入素材库...</MenubarItem>

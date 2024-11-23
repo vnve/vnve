@@ -40,22 +40,21 @@ export function useFloatingDirective({
     open: isOpen && ["insert", "edit"].includes(mode),
     ...floatingOptions,
   });
-  const focused = useFocused();
-  const isOpenAssetLibrary = useAssetStore((state) => state.isOpen);
+  // const focused = useFocused();
 
   const ref = useOnClickOutside(
     (e) => {
       const target = e.target as HTMLElement;
 
-      if (target && target.dataset.disableClickOutside) {
-        return;
-      }
-
       if (target === document.documentElement) {
         return;
       }
 
-      if (isOpenAssetLibrary) {
+      if (target.closest("[data-disable-click-outside]")) {
+        return;
+      }
+
+      if (target.closest("#asset-library")) {
         return;
       }
 

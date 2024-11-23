@@ -54,7 +54,7 @@ export const DirectiveUtilFormFields = forwardRef<
               min={0}
               step={0.1}
               placeholder="请输入停顿时间"
-              value={field.value ?? 0}
+              value={String(field.value)}
               onChange={(e) => {
                 const value = Number(e.target.value);
                 field.onChange(value);

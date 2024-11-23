@@ -236,7 +236,7 @@ export const DirectiveAnimationFormFields = forwardRef<
                   min={0}
                   step={0.1}
                   placeholder="不填则使用默认值"
-                  value={field.value ?? ""}
+                  value={field.value || ""}
                   onChange={(e) => {
                     const value = Number(e.target.value);
 

@@ -711,7 +711,7 @@ export class Editor {
     const now = performance.now();
     const scenes = this.scenes.slice(start, end).map((item) => item.clone());
 
-    log.info("editor export cost:", performance.now() - now, scenes);
+    log.info("editor export cost:", performance.now() - now);
 
     return scenes;
   }

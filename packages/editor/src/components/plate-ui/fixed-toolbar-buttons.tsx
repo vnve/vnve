@@ -75,6 +75,14 @@ export function FixedToolbarButtons({ speak, onChangeSpeak, children }) {
     }
   };
 
+  const handlePopoverInteractOutside = (e) => {
+    // 素材库中的点击不关闭popover
+    if (e.target.closest("#asset-library")) {
+      e.preventDefault();
+      return;
+    }
+  };
+
   return (
     <div className="w-full flex flex-wrap">
       <ToolbarGroup noSeparator>
@@ -117,7 +125,7 @@ export function FixedToolbarButtons({ speak, onChangeSpeak, children }) {
               <Icons.mic className="!size-4 cursor-pointer mx-1" />
             </ToolbarButton>
           </PopoverTrigger>
-          <PopoverContent onFocusOutside={(e) => e.preventDefault()}>
+          <PopoverContent onInteractOutside={handlePopoverInteractOutside}>
             <DirectiveVoiceForm
               speak={speak}
               onChangeSpeak={onChangeSpeak}

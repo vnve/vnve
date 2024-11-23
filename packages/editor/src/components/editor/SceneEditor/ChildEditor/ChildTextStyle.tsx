@@ -148,7 +148,7 @@ export function ChildTextStyle() {
         <div className="flex-1 shrink-0 flex gap-1 items-center">
           <Icons.fontSize className="w-5 h-5" />
           <Input
-            value={activeChild.style.fontSize}
+            value={String(activeChild.style.fontSize)}
             onChange={handleTextStyleInputValueChange("fontSize", "number")}
             type="number"
             min={1}

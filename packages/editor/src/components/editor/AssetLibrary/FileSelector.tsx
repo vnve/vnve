@@ -1,21 +1,25 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FileUp } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getFileInfo } from "@/lib/utils";
 import { AssetStatePreviewer } from "./AssetCard";
 import { DBAssetType } from "@/db";
 
 export default function FileSelector({
   type,
   url,
+  ext,
   className,
   onChange,
 }: {
   type: DBAssetType;
   url?: string;
+  ext?: string;
   className?: string;
   onChange: (file: File) => void;
 }) {
   const [selectedFileUrl, setSelectedFileUrl] = useState<string | null>(null);
+  const [selectedFileExt, setSelectedFileExt] = useState<string | null>(null);
+
   const fileUrl = useMemo(() => {
     if (selectedFileUrl) {
       return selectedFileUrl;
@@ -27,6 +31,18 @@ export default function FileSelector({
 
     return "";
   }, [url, selectedFileUrl]);
+
+  const fileExt = useMemo(() => {
+    if (selectedFileExt) {
+      return selectedFileExt;
+    }
+
+    if (ext) {
+      return ext;
+    }
+
+    return "";
+  }, [ext, selectedFileExt]);
 
   const fileAccept = useMemo(() => {
     switch (type) {
@@ -48,9 +64,10 @@ export default function FileSelector({
       URL.revokeObjectURL(selectedFileUrl);
     }
 
-    const file = event.target.files?.[0] || null;
+    const file = event.target.files?.[0];
 
     setSelectedFileUrl(URL.createObjectURL(file));
+    setSelectedFileExt(getFileInfo(file).ext);
     onChange(file);
   };
 
@@ -82,7 +99,7 @@ export default function FileSelector({
         <FileUp className="size-4" />
         <div>选择文件</div>
       </div>
-      <AssetStatePreviewer url={fileUrl} type={type} />
+      <AssetStatePreviewer url={fileUrl} type={type} ext={fileExt} />
     </div>
   );
 }

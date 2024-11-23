@@ -8,7 +8,6 @@ export enum DBAssetType {
   Thing = "Thing",
   Dialog = "Dialog",
   Audio = "Audio",
-  // Video = "Video",
   Font = "Font",
 }
 
@@ -94,7 +93,6 @@ export class VNVEDexie extends Dexie {
       asset: "++id, name, type, states",
       assetSource: "++id, mime, blob, ext",
       template: "++id, name, type, content",
-      draft: "++id, name, time, content",
       project: "++id, name, time, content",
     });
   }

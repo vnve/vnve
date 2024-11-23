@@ -1,3 +1,4 @@
+import { merge } from "lodash-es";
 import { Sound } from "../../scene";
 import { sliceAudioBuffer } from "../../util";
 import { PlayDirectiveOptions } from "../directives";
@@ -17,7 +18,7 @@ class SoundController {
     const record = this.soundRecordMap.get(sound.name);
 
     if (record) {
-      Object.assign(record, {
+      merge(record, {
         ...options,
         paused: false,
       });

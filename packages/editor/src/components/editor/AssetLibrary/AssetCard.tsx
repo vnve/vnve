@@ -11,6 +11,7 @@ import AudioPlayer from "./AudioPlayer";
 import { ImageViewer } from "./ImageViewer";
 import { FontViewer } from "./FontViewer";
 import { useMemo } from "react";
+import { VideoViewer } from "./VideoViewer";
 
 const AssetStateCardWidthMap = {
   [DBAssetType.Background]: "240px",
@@ -31,10 +32,12 @@ const ImgAssetClassNameMap = {
 export function AssetStatePreviewer({
   type,
   url,
+  ext,
   state,
 }: {
   type: DBAssetType;
   url?: string;
+  ext?: string;
   state?: DBAssetState;
 }) {
   const sourceUrl = useMemo(() => {
@@ -49,7 +52,25 @@ export function AssetStatePreviewer({
     return "";
   }, [url, state]);
 
+  const sourceExt = useMemo(() => {
+    if (ext) {
+      return ext;
+    }
+
+    if (state) {
+      return state.ext;
+    }
+
+    return "";
+  }, [ext, state]);
+
   if (Object.keys(ImgAssetClassNameMap).includes(type)) {
+    if (sourceExt === "mp4") {
+      return (
+        <VideoViewer url={sourceUrl} className={ImgAssetClassNameMap[type]} />
+      );
+    }
+
     return (
       <ImageViewer url={sourceUrl} className={ImgAssetClassNameMap[type]} />
     );

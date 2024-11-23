@@ -6,6 +6,7 @@ import {
   Sprite,
   AnimatedGIF,
   Video,
+  Text,
 } from "@vnve/core";
 
 export async function createSprite(asset: DBAsset, editor: Editor) {
@@ -49,6 +50,24 @@ export async function createSprite(asset: DBAsset, editor: Editor) {
   }
 
   return sprite;
+}
+
+export function createText(editor: Editor) {
+  const text = new Text("自定义文案", {
+    fill: 0xffffff,
+    breakWords: true,
+    wordWrap: true,
+    wordWrapWidth: 1600,
+    fontSize: 60,
+    leading: 15,
+  });
+
+  text.x = editor.options.width / 2 - text.width / 2;
+  text.y = editor.options.height / 2 - text.height / 2;
+  text.zIndex = LayerZIndex.Text;
+  text.label = "自定义文案" + text.name;
+
+  return text;
 }
 
 export function createSound(asset: DBAsset) {

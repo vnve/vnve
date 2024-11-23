@@ -7,7 +7,7 @@ export function EditorHeader() {
   return (
     <header className="sticky top-0 z-10 flex h-[53px] items-center justify-between gap-1 border-b bg-background px-4">
       <h1 className="text-xl font-bold">
-        {/* V N V E */}
+        V N V E
         {project && (
           <span className="text-xs text-muted-foreground">
             【{project.name}】

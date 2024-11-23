@@ -106,7 +106,7 @@ export function DirectiveSpeakForm({
                   min={0}
                   step={100}
                   placeholder="请输入语速"
-                  value={field.value}
+                  value={String(field.value)}
                   onChange={(e) => {
                     const value = Number(e.target.value);
 
@@ -132,7 +132,7 @@ export function DirectiveSpeakForm({
                   min={0}
                   step={0.1}
                   placeholder="请输入停顿时长"
-                  value={field.value}
+                  value={String(field.value)}
                   onChange={(e) => {
                     const value = Number(e.target.value);
 

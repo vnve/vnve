@@ -170,6 +170,7 @@ export function AssetForm({
                               <FileSelector
                                 className="w-full h-full"
                                 type={asset.type}
+                                ext={field.ext}
                                 url={
                                   field.id &&
                                   getAssetSourceURL(field as DBAssetState)
