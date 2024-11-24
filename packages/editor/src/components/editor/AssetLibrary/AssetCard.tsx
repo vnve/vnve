@@ -116,7 +116,7 @@ export function AssetStateCard({
               state={state}
             ></AssetStatePreviewer>
           </CardContent>
-          <CardFooter className="font-medium p-2 pt-0 flex justify-center text-sm">
+          <CardFooter className="font-medium p-2 pt-0 flex justify-center text-sm break-all">
             {state.name}
           </CardFooter>
         </>

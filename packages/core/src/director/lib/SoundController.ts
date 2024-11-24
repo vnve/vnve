@@ -10,8 +10,11 @@ class SoundController {
     {
       sound: Sound;
       paused: boolean;
-      elapsedTime: number; // 记录已经播放的时间，用于暂停重播
-    } & Omit<Required<PlayDirectiveOptions>, "targetName" | "sequential">
+      elapsedTime: number;
+    } & Omit<
+      Required<PlayDirectiveOptions>,
+      "targetName" | "sequential" | "executeTime"
+    >
   > = new Map();
 
   public play(sound: Sound, options: PlayDirectiveOptions) {
@@ -49,7 +52,7 @@ class SoundController {
     this.soundRecordMap.delete(sound.name);
   }
 
-  public update(time: number, fps: number) {
+  public update(_time: number, fps: number) {
     for (const record of this.soundRecordMap.values()) {
       const { sound, paused, elapsedTime, start, loop, volume } = record;
 
@@ -58,24 +61,32 @@ class SoundController {
       }
 
       if (sound.buffer) {
+        // 开始时间 = 已经播放过的时间
         let startTime = elapsedTime;
+
         const duration = sound.buffer.duration;
 
-        if (loop && startTime > duration - start) {
-          startTime = startTime % (duration - start);
+        if (startTime > duration - start) {
+          if (loop) {
+            startTime = startTime % (duration - start);
+          } else {
+            continue;
+          }
         }
 
+        const slicedDuration = 1 / fps;
         const sliceTask = sliceAudioBuffer(
           sound.buffer,
           startTime + start,
-          1 / fps,
+          slicedDuration,
           volume,
         );
 
+        // 叠加播放时间
+        record.elapsedTime = elapsedTime + slicedDuration;
+
         this.sliceTaskList.push(sliceTask);
       }
-
-      record.elapsedTime = time;
     }
   }
 

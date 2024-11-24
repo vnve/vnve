@@ -38,17 +38,24 @@ export class Speak extends AnimationDirective<PIXI.Text> {
       },
       options,
     );
-    const { speaker, voice } = this.options;
+    const { speaker, voice, executeTime } = this.options;
 
     if (speaker?.targetName) {
-      this.speakerDirective = new Speaker(speaker, stage);
+      this.speakerDirective = new Speaker(
+        {
+          ...speaker,
+          executeTime,
+        },
+        stage,
+      );
     }
 
     if (voice?.targetName) {
       this.voiceDirective = new Voice(
         {
           ...voice,
-          sequential: true, // speak中的voice子指令默认串行，方便文字和语音时长
+          executeTime,
+          sequential: true, // speak中的voice子指令默认串行，方便文字和语音时长对齐
         },
         this.stage as Scene,
       );

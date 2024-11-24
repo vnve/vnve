@@ -250,12 +250,17 @@ export class Director {
         continue;
       }
 
+      // 指令执行时机
+      const executeTime = duration;
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      const directive = new Directive(params, scene);
-
-      // 指令执行时机
-      directive.executeTime = duration;
+      const directive = new Directive(
+        {
+          ...params,
+          executeTime,
+        },
+        scene,
+      );
 
       this.ticker.add(() => {
         const time = this.ticker.time;

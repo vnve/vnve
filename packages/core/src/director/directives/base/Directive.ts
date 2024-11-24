@@ -1,6 +1,7 @@
 import * as PIXI from "pixi.js";
 
 export interface DirectiveOptions {
+  executeTime?: number;
   sequential?: boolean;
 }
 
@@ -13,7 +14,7 @@ export abstract class Directive {
   constructor(options: DirectiveOptions, stage: PIXI.Container) {
     this.options = options;
     this.stage = stage;
-    this.executeTime = 0;
+    this.executeTime = options.executeTime ?? 0;
     this.currentTime = 0;
   }
 

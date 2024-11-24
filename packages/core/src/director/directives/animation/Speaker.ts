@@ -56,7 +56,8 @@ export class Speaker extends AnimationDirective<PIXI.Text> {
   }
 
   public execute() {
-    const { name, autoShowSpeaker, autoMaskOtherSpeakers } = this.options;
+    const { name, autoShowSpeaker, autoMaskOtherSpeakers, executeTime } =
+      this.options;
 
     if (this.target) {
       this.target.visible = true;
@@ -71,6 +72,7 @@ export class Speaker extends AnimationDirective<PIXI.Text> {
       new InDirectiveClass(
         {
           ...autoShowSpeaker,
+          executeTime,
           targetName: this.speakerTarget.name!,
         },
         this.stage,
