@@ -5,11 +5,10 @@
 <h1 align="center">V N V E</h1>
 <p align="center"><strong>Visual Novel Video Editor</strong></p>
 <p align="center"><strong>视觉小说视频编辑器</strong></p>
-<p align="center"><strong>在浏览器中制作视觉小说视频 <a href="https://vnve.github.io/vnve/"> 🔗 </a></strong></p>
+<p align="center"><strong>在浏览器中制作视觉小说视频 <a href="https://vnve.github.io"> 🔗 </a></strong></p>
 <div align="center">
   <a href="https://discord.gg/sc9jpqBAbs"><img src="https://img.shields.io/badge/chat-discord-blue?style=flat&logo=discord" alt="discord chat"></a>
   <a href="https://www.npmjs.com/package/@vnve/core"><img src="https://img.shields.io/npm/dm/%40vnve/core" alt="downloads"></a>
-  <img src="https://github.com/vnve/vnve/actions/workflows/eslint.yml/badge.svg" alt="eslint">
   <img src="https://img.shields.io/github/commit-activity/m/vnve/vnve" alt="commit">
   <img src="https://github.com/vnve/vnve/actions/workflows/static.yml/badge.svg" alt="static">
 </div>
@@ -43,7 +42,7 @@
 - ...
 
 ## 在线用法
-访问: [vnve.github.io/vnve](https://vnve.github.io/vnve/)，立刻开始创作
+访问: [vnve.github.io](https://vnve.github.io)，立刻开始创作
 
 ### 演示视频
 https://github.com/vnve/vnve/assets/14970577/b7d97c9a-6b2c-4f93-a030-5a799dc49d16
