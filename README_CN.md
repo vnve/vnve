@@ -45,7 +45,9 @@
 访问: [vnve.github.io](https://vnve.github.io)，立刻开始创作
 
 ### 演示视频
-https://github.com/vnve/vnve/assets/14970577/b7d97c9a-6b2c-4f93-a030-5a799dc49d16
+https://github.com/user-attachments/assets/cea2f4b2-e446-43bc-977a-cec295fdd8a0
+
+
 
 ## 代码用法
 你也可以通过调用npm包来直接创作视频
