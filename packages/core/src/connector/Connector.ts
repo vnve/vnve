@@ -1,3 +1,5 @@
+import { AudioInfo } from "./types";
+
 export interface ConnectorOptions {
   width: number;
   height: number;
@@ -11,9 +13,9 @@ export interface FrameData {
   timestamp: number;
   imageSource: CanvasImageSource;
   audioBuffers: AudioBuffer[];
-  // videoFrame & audioData only used in the worker
+  // videoFrame & audioInfo only used in the worker
   videoFrame?: VideoFrame;
-  audioData?: AudioData;
+  audioInfo?: AudioInfo;
 }
 
 export abstract class Connector {

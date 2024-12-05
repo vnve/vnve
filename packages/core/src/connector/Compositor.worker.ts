@@ -26,7 +26,7 @@ export class Compositor extends Connector {
   }
 
   public async handle(frameData: FrameData): Promise<void> {
-    const { videoFrame, audioData, timestamp } = frameData;
+    const { videoFrame, audioInfo, timestamp } = frameData;
     // video encode
     if (videoFrame) {
       // control encode speed
@@ -48,7 +48,10 @@ export class Compositor extends Connector {
     }
 
     // audio encode
-    if (audioData) {
+    if (audioInfo) {
+      const audioData = new AudioData({
+        ...audioInfo,
+      });
       this.audioEncoder?.encode(audioData);
       audioData.close();
     }

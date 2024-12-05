@@ -1,7 +1,7 @@
 import { Connector, ConnectorOptions, FrameData } from "./Connector";
 import CompositorWorker from "./Compositor.worker?worker&inline";
 import { DEFAULT_AUDIO_CONFIG, DEFAULT_VIDEO_CONFIG } from "../util";
-import { CompositorWorkerMessageType } from "./types";
+import { AudioInfo, CompositorWorkerMessageType } from "./types";
 
 /**
  * WebCodecs Video Compositor
@@ -66,10 +66,10 @@ export class Compositor extends Connector {
     });
   }
 
-  private async genAudioData(
+  private async genAudioInfo(
     timestamp: number,
     audioBuffers?: AudioBuffer[],
-  ): Promise<AudioData> {
+  ): Promise<AudioInfo> {
     const sampleRate = this.audioConfig.sampleRate;
     const numberOfChannels = this.audioConfig.numberOfChannels;
     const numberOfFrames = this.audioConfig.sampleRate * (1 / this.options.fps);
@@ -121,14 +121,14 @@ export class Compositor extends Connector {
       data = new Float32Array(numberOfFrames * numberOfChannels).fill(0);
     }
 
-    return new AudioData({
+    return {
       timestamp,
       sampleRate,
       numberOfChannels,
       numberOfFrames,
       data,
       format: "f32-planar",
-    });
+    };
   }
 
   public async handle(frameData: FrameData): Promise<void> {
@@ -139,12 +139,14 @@ export class Compositor extends Connector {
     });
     const transferList: Transferable[] = [videoFrame];
 
-    let audioData: AudioData | undefined;
+    let audioInfo: AudioInfo | undefined;
 
     if (!this.options.disableAudio) {
-      audioData = await this.genAudioData(timestamp, audioBuffers);
+      // windows上直接transfer传递AudioData会crash
+      // 传递到worker中再构建AudioData
+      audioInfo = await this.genAudioInfo(timestamp, audioBuffers);
 
-      transferList.push(audioData as unknown as Transferable);
+      transferList.push(audioInfo.data.buffer);
     }
 
     return this.getFromWorker(
@@ -152,7 +154,7 @@ export class Compositor extends Connector {
       {
         timestamp,
         videoFrame,
-        audioData,
+        audioInfo,
       } as FrameData,
       transferList,
     ) as Promise<void>;

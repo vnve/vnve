@@ -46,16 +46,20 @@
       }
     </style>
     <script>
+      function removeServiceWorkerLoader() {
+        document.body.removeChild(document.getElementById("sw-loader"));
+      }
+
       // 注册sw.js
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", function () {
           navigator.serviceWorker.register("/sw.js").then(
             function (registration) {
               if (registration.active) {
-                document.body.removeChild(document.getElementById("sw-loader"));
+                removeServiceWorkerLoader();
               } else {
                 navigator.serviceWorker.addEventListener("controllerchange", () => {
-                  document.body.removeChild(document.getElementById("sw-loader"));
+                  removeServiceWorkerLoader();
                 });
               }
             },
@@ -65,8 +69,10 @@
           );
         });
       } else {
-        document.getElementById("sw-tip").innerText =
-    "当前浏览器不支持sw，请更换浏览器";
+        window.addEventListener("DOMContentLoaded", function () {
+          document.getElementById("sw-tip").innerText =
+            "当前浏览器不支持sw，请更换浏览器";
+        });
       }
     </script>
   </head>
