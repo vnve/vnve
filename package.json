@@ -37,8 +37,8 @@
   "author": "ForeverSc",
   "license": "MIT",
   "engines": {
-    "node": ">=18",
-    "pnpm": ">=8"
+    "node": "20.x",
+    "pnpm": "8.x"
   },
   "pnpm": {
     "patchedDependencies": {
