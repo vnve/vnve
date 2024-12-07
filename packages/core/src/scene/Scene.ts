@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js";
 import { uuid } from "../util";
 import { reviveSounds, Sound } from "./Sound";
-import { Child, reviveChildren } from "./child";
+import { Child, reviveChildren, Sprite } from "./child";
 import { Filter, reviveFilters } from "./filter";
 import { cloneDeep } from "lodash-es";
 import { SceneConfig, SpeakDirectiveOptions } from "../director";
@@ -107,6 +107,16 @@ export class Scene extends PIXI.Container {
       this.dialogues[b],
       this.dialogues[a],
     ];
+  }
+
+  public getChildByLabel(label: string) {
+    return this.children.find((item) => item.label === label);
+  }
+
+  public countSpriteChildren(assetType: string) {
+    return this.children.filter(
+      (item) => (item as Sprite).assetType === assetType,
+    ).length;
   }
 
   public clone(): Scene {

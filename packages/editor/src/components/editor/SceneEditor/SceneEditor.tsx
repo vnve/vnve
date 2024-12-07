@@ -2,7 +2,12 @@ import { useEditorStore } from "@/store";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAssetLibrary } from "@/components/hooks/useAssetLibrary";
 import { clearAssetDB, DBAssetType, importAssetToDB, projectDB } from "@/db";
-import { createSprite, createText, getDisableAudio } from "@/lib/core";
+import {
+  createSprite,
+  createText,
+  getDisableAudio,
+  text2Scenes,
+} from "@/lib/core";
 import {
   Menubar,
   MenubarContent,
@@ -23,6 +28,7 @@ import { ActionProgress } from "./types";
 import { ImportAssetLoadingDialog } from "./ImportAssetLoadingDialog";
 import { ClearAssetAlertDialog } from "./ClearAssetAlertDialog";
 import { Icons } from "@/components/icons";
+import { openFilePicker, readTextFile } from "@/lib/utils";
 
 export function SceneEditor() {
   const initEditor = useEditorStore((state) => state.initEditor);
@@ -63,6 +69,7 @@ export function SceneEditor() {
   const progressAnimationId = useRef(0);
   const [saveTimeString, setSaveTimeString] = useState("");
   const { toast } = useToast();
+
   const updateActionProgress = (progress, currentTime, duration) => {
     if (progress >= 100) {
       setActionProgress({
@@ -255,6 +262,25 @@ export function SceneEditor() {
     handleExportScenes(...previewVideoRange);
   };
 
+  const handleImportScreenplay = async () => {
+    const files = await openFilePicker({ accept: ".txt" });
+    const file = files[0];
+
+    setImportAssetLoading(true);
+    try {
+      const text = await readTextFile(file);
+      await text2Scenes(text, editor);
+    } catch (error) {
+      toast({
+        title: "导入失败！",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setImportAssetLoading(false);
+    }
+  };
+
   const handleImportAsset = async () => {
     setImportAssetLoading(true);
     try {
@@ -371,6 +397,10 @@ export function SceneEditor() {
                 </MenubarItem>
               );
             })}
+            <MenubarSeparator />
+            <MenubarItem onClick={handleImportScreenplay}>
+              导入剧本...
+            </MenubarItem>
             <MenubarSeparator />
             <MenubarItem onClick={() => setIsOpenTemplateLibrary(true)}>
               管理模版...

@@ -89,8 +89,8 @@ export class VNVEDexie extends Dexie {
 
   constructor() {
     super("vnve2");
-    this.version(2).stores({
-      asset: "++id, name, type, states",
+    this.version(3).stores({
+      asset: "++id, name, type, states, [name+type]",
       assetSource: "++id, mime, blob, ext",
       template: "++id, name, type, content",
       project: "++id, name, time, content",
@@ -191,4 +191,29 @@ export async function loadDBFonts() {
       await loadFont(font.name, getAssetSourceURL(font));
     }
   }
+}
+
+export async function getAssetByName(
+  name: string,
+  stateName?: string,
+  type?: DBAssetType,
+): Promise<DBAsset | undefined> {
+  const params: { name: string; type?: DBAssetType } = { name };
+  if (type) {
+    params.type = type;
+  }
+  const query = await assetDB.where(params).first();
+
+  if (stateName) {
+    const hit = query.states.find((state) => state.name === stateName);
+
+    return hit
+      ? {
+          ...query,
+          stateId: hit.id,
+        }
+      : undefined;
+  }
+
+  return query;
 }

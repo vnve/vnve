@@ -23,3 +23,45 @@ export function getFileInfo(file: File) {
     ext,
   };
 }
+
+export function openFilePicker({ accept = "*", multiple = false } = {}) {
+  return new Promise((resolve, reject) => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = accept;
+    input.multiple = multiple;
+    input.style.display = "none";
+
+    input.addEventListener("change", (event) => {
+      const files = Array.from((event.target as HTMLInputElement).files || []);
+
+      if (files.length > 0) {
+        resolve(files);
+      } else {
+        reject(new Error("No files selected"));
+      }
+      document.body.removeChild(input);
+    });
+
+    input.addEventListener("error", () => {
+      reject(new Error("Error selecting files"));
+      document.body.removeChild(input);
+    });
+
+    document.body.appendChild(input);
+    input.click();
+  });
+}
+
+export function readTextFile(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target) {
+        resolve(event.target.result as string);
+      }
+    };
+    reader.onerror = reject;
+    reader.readAsText(file);
+  });
+}
