@@ -232,6 +232,9 @@ importers:
       dexie:
         specifier: ^3.2.4
         version: 3.2.4
+      dexie-export-import:
+        specifier: ^4.1.4
+        version: 4.1.4(dexie@3.2.4)
       dexie-react-hooks:
         specifier: ^1.1.7
         version: 1.1.7(@types/react@18.2.34)(dexie@3.2.4)(react@18.2.0)
@@ -5561,6 +5564,14 @@ packages:
 
   /detect-node-es@1.1.0:
     resolution: {integrity: sha512-ypdmJU/TbBby2Dxibuv7ZLW3Bs1QEmM7nHjEANfohJLvE0XVujisn1qPJcZxg+qDucsr+bP6fLD1rPS3AhJ7EQ==}
+    dev: false
+
+  /dexie-export-import@4.1.4(dexie@3.2.4):
+    resolution: {integrity: sha512-3bw171qUuOTWSYLXI7C/0M6p1X65Rho3tu1IvD9By8jn0+3t3dLSkDlZ1BC6MbABl3kRlhtGigzC+SF+qcS5Og==}
+    peerDependencies:
+      dexie: ^2.0.4 || ^3.0.0 || ^4.0.1
+    dependencies:
+      dexie: 3.2.4
     dev: false
 
   /dexie-react-hooks@1.1.7(@types/react@18.2.34)(dexie@3.2.4)(react@18.2.0):

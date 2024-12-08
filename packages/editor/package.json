@@ -51,6 +51,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "dexie": "^3.2.4",
+    "dexie-export-import": "^4.1.4",
     "dexie-react-hooks": "^1.1.7",
     "immer": "^10.1.1",
     "lucide-react": "^0.436.0",

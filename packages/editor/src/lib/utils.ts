@@ -5,9 +5,13 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function downloadFile(filename: string, fileSrc: string) {
+export function downloadFile(
+  filename: string,
+  fileSrc: string,
+  fileExt = "mp4",
+) {
   const a = document.createElement("a");
-  a.setAttribute("download", `${filename}.mp4`);
+  a.setAttribute("download", `${filename}.${fileExt}`);
   a.setAttribute("href", fileSrc);
   document.body.appendChild(a);
   a.click();

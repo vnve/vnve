@@ -1,7 +1,14 @@
 import { useEditorStore } from "@/store";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAssetLibrary } from "@/components/hooks/useAssetLibrary";
-import { clearAssetDB, DBAssetType, importAssetToDB, projectDB } from "@/db";
+import {
+  clearAssetDB,
+  DBAssetType,
+  exportDB,
+  importAssetToDB,
+  importDB,
+  projectDB,
+} from "@/db";
 import {
   createSprite,
   createText,
@@ -69,6 +76,34 @@ export function SceneEditor() {
   const progressAnimationId = useRef(0);
   const [saveTimeString, setSaveTimeString] = useState("");
   const { toast } = useToast();
+
+  const handleExportDB = async () => {
+    try {
+      await exportDB();
+    } catch (error) {
+      toast({
+        title: "导出作品失败！",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleImportDB = async () => {
+    setImportAssetLoading(true);
+
+    try {
+      await importDB();
+    } catch (error) {
+      toast({
+        title: "导入作品失败！",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setImportAssetLoading(false);
+    }
+  };
 
   const updateActionProgress = (progress, currentTime, duration) => {
     if (progress >= 100) {
@@ -365,6 +400,9 @@ export function SceneEditor() {
                 自动保存于{saveTimeString}
               </MenubarItem>
             )}
+            <MenubarSeparator />
+            <MenubarItem onClick={handleExportDB}>导出...</MenubarItem>
+            <MenubarItem onClick={handleImportDB}>导入...</MenubarItem>
           </MenubarContent>
         </MenubarMenu>
         <MenubarMenu>

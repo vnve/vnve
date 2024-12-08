@@ -1,6 +1,7 @@
 import { loadFont } from "@/lib/font";
-import { getFileInfo } from "@/lib/utils";
+import { downloadFile, getFileInfo, openFilePicker } from "@/lib/utils";
 import Dexie, { Table } from "dexie";
+import "dexie-export-import";
 
 export enum DBAssetType {
   Character = "Character",
@@ -224,4 +225,18 @@ export async function getAssetByName(
   }
 
   return query;
+}
+
+export async function exportDB() {
+  const blob = await db.export();
+  downloadFile("book", URL.createObjectURL(blob), "vnve");
+}
+
+export async function importDB() {
+  const files = await openFilePicker({ accept: ".vnve" });
+  const file = files[0];
+
+  if (file) {
+    await db.import(file);
+  }
 }
