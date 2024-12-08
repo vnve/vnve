@@ -3,6 +3,13 @@ import { useEditorStore } from "@/store";
 import { EditorChildPosition, Sprite } from "@vnve/core";
 import { Icons } from "@/components/icons";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { DBAssetType } from "@/db";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function ChildPosition() {
   const editor = useEditorStore((state) => state.editor);
@@ -50,6 +57,24 @@ export function ChildPosition() {
 
   const handleChangePosition = (type: EditorChildPosition) => () => {
     editor.setChildPosition(type);
+  };
+
+  const handleAutoChangePosition = () => {
+    //根据角色人数，自动排列
+    const characters = editor.activeScene.getChildrenByAssetType(
+      DBAssetType.Character,
+    );
+    const characterTotal = characters.length;
+    let characterIndex = 1;
+
+    for (const character of characters) {
+      character.x =
+        (editor.options.width / (characterTotal + 1)) * characterIndex -
+        character.width / 2;
+      character.y = editor.options.height - character.height;
+
+      characterIndex++;
+    }
   };
 
   return (
@@ -101,41 +126,63 @@ export function ChildPosition() {
           </fieldset>
           <fieldset className="rounded-md border p-1 mt-2">
             <legend className="-ml-1 px-1 text-sm font-medium">水平位置</legend>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={handleChangePosition("left")}
-            >
-              左
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={handleChangePosition("near-left")}
-            >
-              1/3
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={handleChangePosition("center")}
-            >
-              中
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={handleChangePosition("near-right")}
-            >
-              2/3
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={handleChangePosition("right")}
-            >
-              右
-            </Button>
+            <div className="flex justify-between">
+              <div>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={handleChangePosition("left")}
+                >
+                  左
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={handleChangePosition("near-left")}
+                >
+                  1/3
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={handleChangePosition("center")}
+                >
+                  中
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={handleChangePosition("near-right")}
+                >
+                  2/3
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={handleChangePosition("right")}
+                >
+                  右
+                </Button>
+              </div>
+              {(activeChild as Sprite).assetType === DBAssetType.Character && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={handleAutoChangePosition}
+                      >
+                        自动
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>根据角色人数，自动排列全部角色</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+            </div>
           </fieldset>
           <fieldset className="rounded-md border p-1 mt-2">
             <legend className="-ml-1 px-1 text-sm font-medium">垂直位置</legend>

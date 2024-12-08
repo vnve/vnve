@@ -113,10 +113,10 @@ export class Scene extends PIXI.Container {
     return this.children.find((item) => item.label === label);
   }
 
-  public countSpriteChildren(assetType: string) {
+  public getChildrenByAssetType(assetType: string) {
     return this.children.filter(
       (item) => (item as Sprite).assetType === assetType,
-    ).length;
+    );
   }
 
   public clone(): Scene {
