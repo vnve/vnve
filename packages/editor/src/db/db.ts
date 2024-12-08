@@ -51,12 +51,20 @@ export interface DBAssetSource {
   mime: string;
   blob: Blob;
   ext: string;
+  /**
+   * url字段仅提供给预设资源使用
+   */
+  url?: string;
 }
 
 export interface DBAssetState {
   id: number;
   name: string;
   ext: string;
+  /**
+   * url字段仅提供给预设资源使用
+   */
+  url?: string;
 }
 
 export interface DBAsset {
@@ -105,7 +113,7 @@ export const templateDB = db.template;
 export const projectDB = db.project;
 
 export function getAssetSourceURL(assetState: DBAssetState) {
-  return `https://s/${assetState.id}.${assetState.ext}`;
+  return assetState.url || `https://s/${assetState.id}.${assetState.ext}`;
 }
 
 export function genFileAccept(type: DBAssetType) {
