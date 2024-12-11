@@ -614,7 +614,7 @@ export class Editor {
       });
 
       let shouldAppend = false; // 首次发言，不需要append
-      let voiceDuration: number | undefined;
+      let allVoiceDuration: number | undefined;
       let allText = "";
 
       // TODO: 待优化, 文本和语音对齐时
@@ -625,17 +625,17 @@ export class Editor {
           .map((item) => item.value as string)
           .join("");
 
-        voiceDuration = scene.sounds.find(
+        allVoiceDuration = scene.sounds.find(
           (item) => item.name === dialogueSpeakConfig.voice?.targetName,
         )?.buffer?.duration;
       }
 
       const insertSpeak = (list: string[]) => {
         const text = list.join("");
-        let customReadingTime;
+        let voiceDuration;
 
-        if (allText && voiceDuration) {
-          customReadingTime = (text.length / allText.length) * voiceDuration;
+        if (allText && allVoiceDuration) {
+          voiceDuration = (text.length / allText.length) * allVoiceDuration;
         }
 
         directives.push({
@@ -644,7 +644,7 @@ export class Editor {
             targetName: sceneSpeakConfig.targetName,
             text,
             append: shouldAppend,
-            customReadingTime,
+            voiceDuration,
             wordsPerMin: dialogueSpeakConfig.wordsPerMin,
             interval: dialogueSpeakConfig.interval,
             effect: dialogueSpeakConfig.effect,
