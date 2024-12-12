@@ -125,13 +125,13 @@ export async function text2Scenes(text, editor: Editor) {
   const screenplay = [];
 
   paragraphs.forEach((item) => {
-    if (item.name === "场景") {
+    if (item.name === "标题") {
       screenplay.push({
         name: item.value,
         background: "",
         dialogues: [],
       });
-    } else if (item.name === "背景") {
+    } else if (item.name === "场景") {
       screenplay[screenplay.length - 1].background = item.value;
     } else {
       screenplay[screenplay.length - 1].dialogues.push(item);
