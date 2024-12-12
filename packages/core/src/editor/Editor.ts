@@ -67,7 +67,7 @@ export class Editor {
     this.activeTransformer = new Transformer({
       wireframeStyle: {
         thickness: 4,
-        color: 0x33cccc,
+        color: 0x00a1ff,
       },
     }).on("pointertap", () => {
       if (this.activeTransformer) {
