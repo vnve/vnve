@@ -30,7 +30,7 @@ export function getFileInfo(file: File) {
 
 export function openFilePicker({ accept = "*", multiple = false } = {}) {
   return new Promise((resolve, reject) => {
-    const input = document.createElement("input");
+    let input = document.createElement("input");
     input.type = "file";
     input.accept = accept;
     input.multiple = multiple;
@@ -45,12 +45,27 @@ export function openFilePicker({ accept = "*", multiple = false } = {}) {
         reject(new Error("No files selected"));
       }
       document.body.removeChild(input);
+      input = null;
     });
 
     input.addEventListener("error", () => {
       reject(new Error("Error selecting files"));
       document.body.removeChild(input);
     });
+
+    window.addEventListener(
+      "focus",
+      () => {
+        setTimeout(() => {
+          if (input) {
+            document.body.removeChild(input);
+            input = null;
+            reject(new Error("File deselected!"));
+          }
+        }, 300);
+      },
+      { once: true },
+    );
 
     document.body.appendChild(input);
     input.click();
