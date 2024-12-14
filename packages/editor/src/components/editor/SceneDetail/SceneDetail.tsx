@@ -163,7 +163,7 @@ export function SceneDetail({ onClose }: { onClose?: () => void }) {
                     htmlFor="sceneName"
                     className="flex justify-between items-center"
                   >
-                    <span>场景名称</span>
+                    <span>场景标题</span>
                     <div className="flex items-center">
                       <Popover>
                         <PopoverTrigger asChild>
@@ -224,7 +224,7 @@ export function SceneDetail({ onClose }: { onClose?: () => void }) {
                   <Input
                     type="text"
                     id="sceneName"
-                    placeholder="请输入场景名称"
+                    placeholder="请输入场景标题"
                     value={activeScene.label}
                     onChange={(event) =>
                       handleChangeSceneName(event.target.value)

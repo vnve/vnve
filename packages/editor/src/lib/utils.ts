@@ -53,19 +53,10 @@ export function openFilePicker({ accept = "*", multiple = false } = {}) {
       document.body.removeChild(input);
     });
 
-    window.addEventListener(
-      "focus",
-      () => {
-        setTimeout(() => {
-          if (input) {
-            document.body.removeChild(input);
-            input = null;
-            reject(new Error("File deselected!"));
-          }
-        }, 300);
-      },
-      { once: true },
-    );
+    input.addEventListener("cancel", () => {
+      reject(new Error("File deselected!"));
+      document.body.removeChild(input);
+    });
 
     document.body.appendChild(input);
     input.click();
