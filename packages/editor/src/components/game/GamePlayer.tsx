@@ -1,7 +1,9 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { useGameStore } from "@/store";
 import { useEffect, useRef } from "react";
 
 export function GamePlayer() {
+  const initGame = useGameStore((state) => state.initGame);
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const adjustCanvasWidth = () => {
@@ -31,6 +33,7 @@ export function GamePlayer() {
 
     adjustCanvasWidth();
 
+    initGame(canvasRef.current);
     canvasRef.current.onselectstart = function () {
       return false;
     };
@@ -38,7 +41,7 @@ export function GamePlayer() {
     return () => {
       window.removeEventListener("resize", adjustCanvasWidth);
     };
-  }, []);
+  }, [initGame]);
 
   return (
     <Card className="flex-1 rounded-md relative">

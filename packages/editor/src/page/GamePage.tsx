@@ -8,11 +8,11 @@ export function GamePage() {
     <div className="h-screen flex flex-col">
       <EditorHeader />
       <main className="grid flex-1 gap-2 overflow-auto p-2 grid-cols-[2fr_1fr] bg-muted/50">
-        <div className="relative h-[calc(100vh-53px-1rem)] flex flex-col gap-2">
+        <div className="relative flex flex-col gap-2">
           <GamePlayer />
           <GameController />
         </div>
-        <div className="relative flex h-full flex-col gap-2">
+        <div className="relative flex flex-col gap-2">
           <GameSetting />
         </div>
       </main>
