@@ -95,7 +95,7 @@ export function getDisableAudio() {
   return disableAudio;
 }
 
-function parseNames(str: string) {
+export function parseNames(str: string) {
   let name = str;
   let stateName;
   const match = str.match(/^(.+)\[(.+)\]$/);

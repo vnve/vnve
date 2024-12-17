@@ -14,9 +14,6 @@ gsap.registerPlugin(TextPlugin);
 // give the plugin a reference to the PIXI object
 PixiPlugin.registerPIXI(PIXI);
 
-//unhooks the GSAP ticker
-gsap.ticker.remove(gsap.updateRoot);
-
 interface RendererOptions {
   fps: number;
   width: number;
@@ -175,6 +172,8 @@ export class Director {
     }
     const now = performance.now();
 
+    //unhooks the GSAP ticker
+    gsap.ticker.remove(gsap.updateRoot);
     gsap.updateRoot(0); // 全局实例重置为0，否则重复执行时动画异常
 
     try {
@@ -184,6 +183,7 @@ export class Director {
 
       return await this.run(duration);
     } finally {
+      gsap.ticker.add(gsap.updateRoot); // 不影响gsap全局实例，播放完成恢复
       this.reset();
       log.info("action cost:", performance.now() - now);
       if (this.cutResolver) {

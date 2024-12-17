@@ -1,5 +1,5 @@
+import { Game } from "@/game";
 import { create } from "zustand";
-import { Game } from "@vnve/core";
 import { immer } from "zustand/middleware/immer";
 
 export const useGameStore = create<{
