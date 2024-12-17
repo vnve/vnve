@@ -37,6 +37,7 @@ import { ClearAssetAlertDialog } from "./ClearAssetAlertDialog";
 import { Icons } from "@/components/icons";
 import { openFilePicker, readTextFile } from "@/lib/utils";
 import { AiScreenplayDialog } from "./AiScreenplayDialog";
+import { convert2Scenes, genScenes } from "@/lib/llm";
 
 export function SceneEditor() {
   const initEditor = useEditorStore((state) => state.initEditor);
@@ -319,11 +320,26 @@ export function SceneEditor() {
     }
   };
 
-  const handleAiScreenplay = async (type: "transfer" | "generate") => {
-    if (type === "transfer") {
-      //
-    } else {
-      //
+  const handleAiScreenplay = async (
+    type: "convert" | "generate",
+    input: string,
+  ) => {
+    setIsOpenAiScreenplayDialog(false);
+    setImportAssetLoading(true);
+    try {
+      if (type === "convert") {
+        await convert2Scenes(input, editor);
+      } else {
+        await genScenes(input, editor);
+      }
+    } catch (error) {
+      toast({
+        title: `${type === "convert" ? "转换" : "生成"}失败！`,
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setImportAssetLoading(false);
     }
   };
 

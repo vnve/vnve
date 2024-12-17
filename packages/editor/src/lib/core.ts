@@ -132,6 +132,18 @@ export async function text2Scenes(text, editor: Editor) {
         dialogues: [],
       });
     } else if (item.name === "场景") {
+      // 缺失标题时，按照场景分隔
+      if (
+        !screenplay[screenplay.length - 1] ||
+        screenplay[screenplay.length - 1].background
+      ) {
+        screenplay.push({
+          name: "",
+          background: "",
+          dialogues: [],
+        });
+      }
+
       screenplay[screenplay.length - 1].background = item.value;
     } else {
       screenplay[screenplay.length - 1].dialogues.push(item);

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { useEffect, useState } from "react";
 
 export function AiScreenplayDialog({
   isOpen,
@@ -17,13 +18,20 @@ export function AiScreenplayDialog({
 }: {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (type: "transfer" | "generate") => void;
+  onConfirm: (type: "convert" | "generate", input: string) => void;
 }) {
   const handleOpenChange = (value) => {
     if (!value) {
       onClose();
     }
   };
+  const [inputText, setInputText] = useState("");
+
+  useEffect(() => {
+    if (isOpen) {
+      setInputText("");
+    }
+  }, [isOpen]);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
@@ -38,19 +46,21 @@ export function AiScreenplayDialog({
           </DialogTitle>
           <DialogDescription></DialogDescription>
         </DialogHeader>
-        <Tabs defaultValue="transfer">
+        <Tabs defaultValue="convert">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="transfer">转换剧本</TabsTrigger>
+            <TabsTrigger value="convert">转换剧本</TabsTrigger>
             <TabsTrigger value="generate">生成剧本</TabsTrigger>
           </TabsList>
-          <TabsContent value="transfer">
+          <TabsContent value="convert">
             <div className="space-y-2">
               <Textarea
                 placeholder="请在此处输入您的小说、故事内容"
                 rows={12}
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
               />
               <div className="flex justify-center">
-                <Button onClick={() => onConfirm("transfer")}>
+                <Button onClick={() => onConfirm("convert", inputText)}>
                   <Icons.wandSparkles className="size-4 mr-1" />
                   一键转换
                 </Button>
@@ -61,7 +71,7 @@ export function AiScreenplayDialog({
             <div className="space-y-2">
               <Textarea placeholder="请输入您的故事剧情大纲" rows={12} />
               <div className="flex justify-center">
-                <Button onClick={() => onConfirm("generate")}>
+                <Button onClick={() => onConfirm("generate", inputText)}>
                   <Icons.wandSparkles className="size-4 mr-1" />
                   一键生成
                 </Button>
