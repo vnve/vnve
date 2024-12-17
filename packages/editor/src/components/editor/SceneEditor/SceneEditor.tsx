@@ -36,6 +36,7 @@ import { ImportAssetLoadingDialog } from "./ImportAssetLoadingDialog";
 import { ClearAssetAlertDialog } from "./ClearAssetAlertDialog";
 import { Icons } from "@/components/icons";
 import { openFilePicker, readTextFile } from "@/lib/utils";
+import { AiScreenplayDialog } from "./AiScreenplayDialog";
 
 export function SceneEditor() {
   const initEditor = useEditorStore((state) => state.initEditor);
@@ -61,6 +62,8 @@ export function SceneEditor() {
     useState(false);
   const [importAssetLoading, setImportAssetLoading] = useState(false);
   const [isOpenClearAssetAlertDialog, setIsOpenClearAssetAlertDialog] =
+    useState(false);
+  const [isOpenAiScreenplayDialog, setIsOpenAiScreenplayDialog] =
     useState(false);
   const previewVideoDialogRef = useRef(null);
   const [previewVideoRange, setPreviewVideoRange] = useState<number[]>([]);
@@ -316,6 +319,14 @@ export function SceneEditor() {
     }
   };
 
+  const handleAiScreenplay = async (type: "transfer" | "generate") => {
+    if (type === "transfer") {
+      //
+    } else {
+      //
+    }
+  };
+
   const handleImportAsset = async () => {
     setImportAssetLoading(true);
     try {
@@ -438,6 +449,9 @@ export function SceneEditor() {
             <MenubarSeparator />
             <MenubarItem onClick={handleImportScreenplay}>
               导入剧本...
+            </MenubarItem>
+            <MenubarItem onClick={() => setIsOpenAiScreenplayDialog(true)}>
+              智能剧本...
             </MenubarItem>
             <MenubarSeparator />
             <MenubarItem onClick={() => setIsOpenTemplateLibrary(true)}>
@@ -594,6 +608,11 @@ export function SceneEditor() {
         onConfirm={handleClearAssetDB}
         onClose={() => setIsOpenClearAssetAlertDialog(false)}
       ></ClearAssetAlertDialog>
+      <AiScreenplayDialog
+        isOpen={isOpenAiScreenplayDialog}
+        onClose={() => setIsOpenAiScreenplayDialog(false)}
+        onConfirm={handleAiScreenplay}
+      ></AiScreenplayDialog>
     </div>
   );
 }

@@ -81,6 +81,8 @@ import {
   Images,
   MonitorPlay,
   Lightbulb,
+  WandSparkles,
+  Sparkles,
 } from "lucide-react";
 
 import type { EyeOff, LucideIcon } from "lucide-react";
@@ -263,6 +265,8 @@ export const Icons = {
   images: Images,
   preview: MonitorPlay,
   tip: Lightbulb,
+  wandSparkles: WandSparkles,
+  sparkles: Sparkles,
 
   // www
   gitHub: (props: LucideProps) => (
