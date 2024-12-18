@@ -291,7 +291,7 @@ export async function text2Scenes(
           ];
         }
 
-        scene.addDialogue({
+        editor.addDialogue({
           speak: {
             speaker,
           },
