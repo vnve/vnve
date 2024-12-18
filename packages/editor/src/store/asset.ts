@@ -14,8 +14,7 @@ export const useAssetStore = create<{
   setType: (type: DBAssetType) => void;
   setDisableSelect: (disableSelect: boolean) => void;
 }>()(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  immer<any>((set) => {
+  immer((set) => {
     return {
       isOpen: false,
       type: null,

@@ -79,7 +79,7 @@ export function SceneEditor() {
   const progressAnimationId = useRef(0);
   const [saveTimeString, setSaveTimeString] = useState("");
   const { toast } = useToast();
-  const { Loading, showLoading, hideLoading } = useLoading();
+  const { showLoading, hideLoading } = useLoading();
 
   const handleExportDB = async () => {
     try {
@@ -629,7 +629,6 @@ export function SceneEditor() {
         onClose={() => setIsOpenAiScreenplayDialog(false)}
         onConfirm={handleAiScreenplay}
       ></AiScreenplayDialog>
-      <Loading />
     </div>
   );
 }

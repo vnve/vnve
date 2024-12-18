@@ -12,6 +12,7 @@ import { useToast } from "@/components/hooks/use-toast";
 import { useMedia } from "@/components/hooks/useMedia";
 import { checkEnv } from "@vnve/core";
 import { setDisableAudio } from "@/lib/core";
+import { Loading } from "@/components/editor/Loading";
 
 export function EditorPage() {
   const [isOpenSceneDetailDialog, setIsOpenSceneDetailDialog] = useState(false);
@@ -80,6 +81,7 @@ export function EditorPage() {
       )}
       <AssetLibrary />
       <Toaster />
+      <Loading />
     </>
   );
 }

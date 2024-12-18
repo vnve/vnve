@@ -6,23 +6,14 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Loader } from "@/components/ui/loader";
-import { useState } from "react";
+import { useLoadingStore } from "@/store";
 
-export function useLoading() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [loadingText, setLoadingText] = useState("");
+export function Loading() {
+  const isOpen = useLoadingStore((state) => state.isOpen);
+  const loadingText = useLoadingStore((state) => state.loadingText);
 
-  const showLoading = (text: string) => {
-    setIsOpen(true);
-    setLoadingText(text);
-  };
-  const hideLoading = () => {
-    setIsOpen(false);
-    setLoadingText("");
-  };
-  const handleOpenChange = () => {};
-  const Loading = () => (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+  return (
+    <Dialog open={isOpen}>
       <DialogContent
         disableClose={true}
         onPointerDownOutside={(e) => e.preventDefault()}
@@ -38,10 +29,4 @@ export function useLoading() {
       </DialogContent>
     </Dialog>
   );
-
-  return {
-    Loading,
-    showLoading,
-    hideLoading,
-  };
 }
