@@ -32,12 +32,12 @@ import { CreateProjectDialog, ProjectLibrary } from "../ProjectLibrary";
 import { useToast } from "@/components/hooks/use-toast";
 import { useTemplates } from "@/components/hooks/useTemplates";
 import { ActionProgress } from "./types";
-import { ImportAssetLoadingDialog } from "./ImportAssetLoadingDialog";
 import { ClearAssetAlertDialog } from "./ClearAssetAlertDialog";
 import { Icons } from "@/components/icons";
 import { openFilePicker, readTextFile } from "@/lib/utils";
 import { AiScreenplayDialog } from "./AiScreenplayDialog";
 import { convert2Scenes, genScenes } from "@/lib/llm";
+import { useLoading } from "@/components/hooks/useLoading";
 
 export function SceneEditor() {
   const initEditor = useEditorStore((state) => state.initEditor);
@@ -61,7 +61,6 @@ export function SceneEditor() {
   const [isOpenExportVideoDialog, setIsOpenExportVideoDialog] = useState(false);
   const [isOpenPreviewVideoDialog, setIsOpenPreviewVideoDialog] =
     useState(false);
-  const [importAssetLoading, setImportAssetLoading] = useState(false);
   const [isOpenClearAssetAlertDialog, setIsOpenClearAssetAlertDialog] =
     useState(false);
   const [isOpenAiScreenplayDialog, setIsOpenAiScreenplayDialog] =
@@ -80,6 +79,7 @@ export function SceneEditor() {
   const progressAnimationId = useRef(0);
   const [saveTimeString, setSaveTimeString] = useState("");
   const { toast } = useToast();
+  const { Loading, showLoading, hideLoading } = useLoading();
 
   const handleExportDB = async () => {
     try {
@@ -94,7 +94,7 @@ export function SceneEditor() {
   };
 
   const handleImportDB = async () => {
-    setImportAssetLoading(true);
+    showLoading("作品导入中");
 
     try {
       await importDB();
@@ -105,7 +105,7 @@ export function SceneEditor() {
         variant: "destructive",
       });
     } finally {
-      setImportAssetLoading(false);
+      hideLoading();
     }
   };
 
@@ -305,7 +305,7 @@ export function SceneEditor() {
     const files = await openFilePicker({ accept: ".txt" });
     const file = files[0];
 
-    setImportAssetLoading(true);
+    showLoading("剧本导入中");
     try {
       const text = await readTextFile(file);
       await text2Scenes(text, editor);
@@ -316,7 +316,7 @@ export function SceneEditor() {
         variant: "destructive",
       });
     } finally {
-      setImportAssetLoading(false);
+      hideLoading();
     }
   };
 
@@ -325,7 +325,7 @@ export function SceneEditor() {
     input: string,
   ) => {
     setIsOpenAiScreenplayDialog(false);
-    setImportAssetLoading(true);
+    showLoading(type === "convert" ? "智能转换中" : "智能生成中");
     try {
       if (type === "convert") {
         await convert2Scenes(input, editor);
@@ -339,12 +339,12 @@ export function SceneEditor() {
         variant: "destructive",
       });
     } finally {
-      setImportAssetLoading(false);
+      hideLoading();
     }
   };
 
   const handleImportAsset = async () => {
-    setImportAssetLoading(true);
+    showLoading("素材导入中");
     try {
       await importAssetToDB();
     } catch (error) {
@@ -354,7 +354,7 @@ export function SceneEditor() {
         variant: "destructive",
       });
     } finally {
-      setImportAssetLoading(false);
+      hideLoading();
     }
   };
 
@@ -466,9 +466,12 @@ export function SceneEditor() {
             <MenubarItem onClick={handleImportScreenplay}>
               导入剧本...
             </MenubarItem>
-            <MenubarItem onClick={() => setIsOpenAiScreenplayDialog(true)}>
-              智能剧本...
-            </MenubarItem>
+            {/* TODO: 待优化，暂时使用key判断 */}
+            {location.search.includes("key=") && (
+              <MenubarItem onClick={() => setIsOpenAiScreenplayDialog(true)}>
+                智能剧本...
+              </MenubarItem>
+            )}
             <MenubarSeparator />
             <MenubarItem onClick={() => setIsOpenTemplateLibrary(true)}>
               管理模版...
@@ -616,9 +619,6 @@ export function SceneEditor() {
         isOpen={isOpenCreateProjectDialog}
         onClose={() => setIsOpenCreateProjectDialog(false)}
       ></CreateProjectDialog>
-      <ImportAssetLoadingDialog
-        isOpen={importAssetLoading}
-      ></ImportAssetLoadingDialog>
       <ClearAssetAlertDialog
         isOpen={isOpenClearAssetAlertDialog}
         onConfirm={handleClearAssetDB}
@@ -629,6 +629,7 @@ export function SceneEditor() {
         onClose={() => setIsOpenAiScreenplayDialog(false)}
         onConfirm={handleAiScreenplay}
       ></AiScreenplayDialog>
+      <Loading />
     </div>
   );
 }

@@ -6,11 +6,22 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Loader } from "@/components/ui/loader";
+import { useState } from "react";
 
-export function ImportAssetLoadingDialog({ isOpen }: { isOpen: boolean }) {
+export function useLoading() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [loadingText, setLoadingText] = useState("");
+
+  const showLoading = (text: string) => {
+    setIsOpen(true);
+    setLoadingText(text);
+  };
+  const hideLoading = () => {
+    setIsOpen(false);
+    setLoadingText("");
+  };
   const handleOpenChange = () => {};
-
-  return (
+  const Loading = () => (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent
         disableClose={true}
@@ -21,10 +32,16 @@ export function ImportAssetLoadingDialog({ isOpen }: { isOpen: boolean }) {
           <DialogDescription></DialogDescription>
         </DialogHeader>
         <div className="w-full flex gap-2 justify-center items-center">
-          <div className="font-bold text-xl">导入中</div>
+          <div className="font-bold text-xl">{loadingText}</div>
           <Loader></Loader>
         </div>
       </DialogContent>
     </Dialog>
   );
+
+  return {
+    Loading,
+    showLoading,
+    hideLoading,
+  };
 }

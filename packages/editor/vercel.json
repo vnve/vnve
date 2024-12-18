@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/openai/:path*",
+      "destination": "https://api.openai.com/v1/:path*"
+    },
+    {
+      "source": "/api/ark/:path*",
+      "destination": "https://ark.cn-beijing.volces.com/api/v3/:path*"
+    }
+  ]
+}

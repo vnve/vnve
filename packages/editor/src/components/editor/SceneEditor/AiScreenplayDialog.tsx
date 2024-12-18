@@ -46,7 +46,7 @@ export function AiScreenplayDialog({
           </DialogTitle>
           <DialogDescription></DialogDescription>
         </DialogHeader>
-        <Tabs defaultValue="convert">
+        <Tabs defaultValue="convert" onValueChange={() => setInputText("")}>
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="convert">转换剧本</TabsTrigger>
             <TabsTrigger value="generate">生成剧本</TabsTrigger>
@@ -69,7 +69,12 @@ export function AiScreenplayDialog({
           </TabsContent>
           <TabsContent value="generate">
             <div className="space-y-2">
-              <Textarea placeholder="请输入您的故事剧情大纲" rows={12} />
+              <Textarea
+                placeholder="请输入您的故事剧情大纲"
+                rows={12}
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+              />
               <div className="flex justify-center">
                 <Button onClick={() => onConfirm("generate", inputText)}>
                   <Icons.wandSparkles className="size-4 mr-1" />

@@ -111,7 +111,11 @@ function parseNames(str: string) {
   };
 }
 
-export async function text2Scenes(text, editor: Editor) {
+export async function text2Scenes(
+  text,
+  editor: Editor,
+  ignoreAssetMatchError = false,
+) {
   const paragraphs = text
     .split(/\n\s*\n/)
     .filter((item) => item.trim() !== "")
@@ -150,6 +154,8 @@ export async function text2Scenes(text, editor: Editor) {
     }
   });
 
+  console.log("screenplay", screenplay);
+
   for (const item of screenplay) {
     try {
       const scene = createDialogueScene();
@@ -166,16 +172,21 @@ export async function text2Scenes(text, editor: Editor) {
           stateName,
           DBAssetType.Background,
         );
-        if (!asset) {
-          throw new Error(
-            `素材库中没有找到名称为"${name}${
-              stateName ? `[${stateName}]` : ""
-            }"的背景素材`,
-          );
-        }
-        const background = await createSprite(asset, editor);
+        if (asset) {
+          const background = await createSprite(asset, editor);
 
-        editor.addChild(background);
+          editor.addChild(background);
+        } else {
+          const tip = `素材库中没有找到名称为"${name}${
+            stateName ? `[${stateName}]` : ""
+          }"的背景素材`;
+
+          if (ignoreAssetMatchError) {
+            console.warn(tip);
+          } else {
+            throw new Error(tip);
+          }
+        }
       }
 
       let characterIndex = 1;
@@ -206,56 +217,63 @@ export async function text2Scenes(text, editor: Editor) {
             stateName,
             DBAssetType.Character,
           );
-          if (!asset) {
-            throw new Error(
-              `素材库中没有找到名称为"${name}${
-                stateName ? `[${stateName}]` : ""
-              }"的角色素材`,
-            );
-          }
-          const speakerSprite = scene.getChildByLabel(name) as Sprite;
+          const tip = `素材库中没有找到名称为"${name}${
+            stateName ? `[${stateName}]` : ""
+          }"的角色素材`;
 
-          // 需要判断下此时场景中是否存在添加过的角色
-          if (speakerSprite) {
-            speaker.speakerTargetName = speakerSprite.name;
-            speaker.name = speakerSprite.label;
+          if (asset) {
+            const speakerSprite = scene.getChildByLabel(name) as Sprite;
 
-            // 存在状态名，需要插入一条切换指令
-            if (stateName) {
-              const states = asset.states;
-              const state =
-                states.find((state) => state.id === asset.stateId) ?? states[0];
+            // 需要判断下此时场景中是否存在添加过的角色
+            if (speakerSprite) {
+              speaker.speakerTargetName = speakerSprite.name;
+              speaker.name = speakerSprite.label;
 
-              changeSourceDirective = {
-                type: "directive",
-                value: {
-                  directive: "ChangeSource",
-                  params: {
-                    targetName: speakerSprite.name,
-                    source: getAssetSourceURL(state),
+              // 存在状态名，需要插入一条切换指令
+              if (stateName) {
+                const states = asset.states;
+                const state =
+                  states.find((state) => state.id === asset.stateId) ??
+                  states[0];
+
+                changeSourceDirective = {
+                  type: "directive",
+                  value: {
+                    directive: "ChangeSource",
+                    params: {
+                      targetName: speakerSprite.name,
+                      source: getAssetSourceURL(state),
+                    },
+                    label: `变更:${speakerSprite.label}:${stateName}`,
                   },
-                  label: `变更:${speakerSprite.label}:${stateName}`,
-                },
-                children: [
-                  {
-                    text: "",
-                  },
-                ],
-              };
+                  children: [
+                    {
+                      text: "",
+                    },
+                  ],
+                };
+              }
+            } else {
+              const newSpeakerSprite = await createSprite(asset, editor);
+
+              // 根据角色人数，自动调整位置
+              newSpeakerSprite.x =
+                (editor.options.width / (characterTotal + 1)) * characterIndex -
+                newSpeakerSprite.width / 2;
+
+              characterIndex++;
+
+              editor.addChild(newSpeakerSprite);
+              speaker.speakerTargetName = newSpeakerSprite.name;
+              speaker.name = newSpeakerSprite.label;
             }
           } else {
-            const newSpeakerSprite = await createSprite(asset, editor);
-
-            // 根据角色人数，自动调整位置
-            newSpeakerSprite.x =
-              (editor.options.width / (characterTotal + 1)) * characterIndex -
-              newSpeakerSprite.width / 2;
-
-            characterIndex++;
-
-            editor.addChild(newSpeakerSprite);
-            speaker.speakerTargetName = newSpeakerSprite.name;
-            speaker.name = newSpeakerSprite.label;
+            speaker.name = name;
+            if (ignoreAssetMatchError) {
+              console.warn(tip);
+            } else {
+              throw new Error(tip);
+            }
           }
         }
 

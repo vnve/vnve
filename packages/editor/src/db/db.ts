@@ -240,3 +240,9 @@ export async function importDB() {
     await db.import(file);
   }
 }
+
+export async function getAllAssetNamesByType(type: DBAssetType) {
+  const assets = await assetDB.where("type").equals(type).toArray();
+
+  return assets.map((asset) => asset.name);
+}
