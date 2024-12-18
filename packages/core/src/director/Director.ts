@@ -241,6 +241,29 @@ export class Director {
       child.visible = false;
     });
 
+    // 注册场景切换
+    this.ticker.add(() => {
+      const time = this.ticker.time;
+
+      if (
+        time >= prevSceneDuration &&
+        time <= duration &&
+        this.ticker.ctx.scene !== scene
+      ) {
+        if (this.ticker.ctx.scene) {
+          // 之前存在场景时，需要切换场景音频
+          soundController.resetExceptUtilEnd();
+        }
+
+        // 切换场景
+        this.ticker.ctx.scene = scene;
+      }
+
+      // TODO:待优化，当前场景结束后，可以清空当前场景注册的指令回调
+      // if (time > duration) {
+      // }
+    });
+
     for (const item of directives) {
       const { directive: directiveName, params } = item;
       const Directive = Directives[directiveName as keyof typeof Directives];
@@ -287,28 +310,6 @@ export class Director {
 
       duration += directive.getDuration();
     }
-
-    this.ticker.add(() => {
-      const time = this.ticker.time;
-
-      if (
-        time >= prevSceneDuration &&
-        time <= duration &&
-        this.ticker.ctx.scene !== scene
-      ) {
-        if (this.ticker.ctx.scene) {
-          // 之前存在场景时，需要切换场景音频
-          soundController.resetExceptUtilEnd();
-        }
-
-        // 切换场景
-        this.ticker.ctx.scene = scene;
-      }
-
-      // TODO:待优化，当前场景结束后，可以清空当前场景注册的指令回调
-      // if (time > duration) {
-      // }
-    });
 
     return duration;
   }
