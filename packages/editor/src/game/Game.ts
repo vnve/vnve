@@ -98,6 +98,14 @@ export class Game {
     this.preset = "";
   }
 
+  public updateScreenplay(str: string) {
+    this.screenplay = str
+  }
+  
+  public updatePreset(str: string) {
+    this.preset = str
+  }
+
   public play(nextAction: string) {
     // 1. 输入下一步操作
     // 2. 请求大模型接口
