@@ -8,7 +8,7 @@ export function GameStorybookDialog({ storybooks, onSelectStorybook, selectedIte
     const list = storybooks.map(item => {
       const isSelect = item.id === selectedItem?.id
       return (
-        <li className={`relative w-[250px] h-[500px] cursor-pointer ${isSelect ? 'selected' : ''}`} onClick={() => onSelectStorybook(item)} key={'storybook' + item.id} style={{background: `url(${item.cover}) 50% 50% / cover no-repeat`}}>
+        <li className={`opacity-100 active:opacity-80 relative w-[250px] h-[500px] cursor-pointer ${isSelect ? 'selected' : ''}`} onClick={() => onSelectStorybook(item)} key={'storybook' + item.id} style={{background: `url(${item.cover}) 50% 50% / cover no-repeat`, boxShadow: '1px 1px 5px rgba(0,0,0,0.6)'}}>
           <div className="absolute bottom-0 w-[100%] h-[50px] p-10 text-center" style={{background: 'linear-gradient(to top, rgba(0,0,0,0.5), transparent)'}}>
             <span style={{color: '#fff'}}>{item.name}</span>
           </div>
