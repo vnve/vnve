@@ -6,7 +6,7 @@ import { GameStorybookDialog } from '@/components/game/GameStorybookDialog'
 import { GameCharacterDialog } from '@/components/game/GameCharacterDialog'
 import { useState, useEffect } from 'react'
 import { useGameStore } from '@/store'
-import { getPreset } from "@/game";
+import { getPreset } from '@/game'
 
 export function GamePage() {
   const game = useGameStore(state => state.game)
@@ -33,14 +33,14 @@ export function GamePage() {
     if (!selectedCharacter) {
       return (
         <div className="absolute z-10 bg-card top-0 bottom-0 left-0 right-0">
-          <GameCharacterDialog selectedItem={selectedCharacter} characters={selectedStorybook.characterList} onSelectCharacter={handleSelectCharacter} />
+          <GameCharacterDialog selectedItem={selectedCharacter} characters={selectedStorybook.characterList.filter(item => item.isShow)} onSelectCharacter={handleSelectCharacter} />
         </div>
       )
     }
     return null
   }
-  useEffect(()=>{
-    if(!selectedStorybook || !selectedCharacter) return
+  useEffect(() => {
+    if (!selectedStorybook || !selectedCharacter) return
     console.log(getPreset(selectedStorybook, selectedCharacter))
     game.updateScreenplay(selectedStorybook.screenplay)
     game.updatePreset(getPreset(selectedStorybook, selectedCharacter))
