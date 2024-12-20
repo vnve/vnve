@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { focusEditor, useEditorRef } from "@udecode/plate-common/react";
 import { Icons } from "@/components/icons";
 import { InsertDropdownMenu } from "./insert-dropdown-menu";
@@ -25,6 +25,8 @@ import { DirectiveSpeakForm } from "./directive-speak-form";
 import { DirectiveVoiceForm } from "./directive-voice-form";
 import { useMedia } from "../hooks/useMedia";
 import { cn } from "@/lib/utils";
+import { useAssetLibrary } from "../hooks/useAssetLibrary";
+import { createSprite } from "@/lib/core";
 
 const Narrator = {
   name: "Narrator",
@@ -49,6 +51,9 @@ export function FixedToolbarButtons({ speak, onChangeSpeak, children }) {
     ];
   }, [activeScene]);
   const editor = useEditorRef();
+  const { selectAsset } = useAssetLibrary();
+  const [speakerSelectorOpen, setSpeakerSelectorOpen] = useState(false);
+  const vnveEditor = useEditorStore((state) => state.editor);
 
   const handleSelectCharacter = (name: string) => {
     const hitCharacter = characters.find(
@@ -76,6 +81,26 @@ export function FixedToolbarButtons({ speak, onChangeSpeak, children }) {
     }
   };
 
+  const handleOpenAndAddCharacter = async () => {
+    setSpeakerSelectorOpen(false);
+    const asset = await selectAsset(DBAssetType.Character);
+
+    if (asset) {
+      const character = await createSprite(asset, vnveEditor);
+
+      vnveEditor.addChild(character);
+
+      onChangeSpeak({
+        ...speak,
+        speaker: {
+          ...speak.speaker,
+          speakerTargetName: character.name,
+          name: character.label,
+        },
+      });
+    }
+  };
+
   const handlePopoverInteractOutside = (e) => {
     // 素材库中的点击不关闭popover
     if (e.target.closest("#asset-library")) {
@@ -88,6 +113,8 @@ export function FixedToolbarButtons({ speak, onChangeSpeak, children }) {
     <div className="w-full flex flex-wrap">
       <ToolbarGroup noSeparator>
         <Select
+          open={speakerSelectorOpen}
+          onOpenChange={setSpeakerSelectorOpen}
           value={speak.speaker.speakerTargetName || ""}
           onValueChange={handleSelectCharacter}
         >
@@ -100,11 +127,13 @@ export function FixedToolbarButtons({ speak, onChangeSpeak, children }) {
                 {character.label}
               </SelectItem>
             ))}
-            {characters.length === 1 && (
-              <div className="select-none py-1.5 pl-2 pr-8 text-sm opacity-50">
-                请先在画布中添加角色
-              </div>
-            )}
+            <div
+              onClick={handleOpenAndAddCharacter}
+              className="cursor-pointer select-none py-1.5 pl-2 pr-8 text-sm hover:bg-slate-100 rounded-sm"
+              data-disable-click-outside
+            >
+              添加并选择角色...
+            </div>
           </SelectContent>
         </Select>
         <Popover>

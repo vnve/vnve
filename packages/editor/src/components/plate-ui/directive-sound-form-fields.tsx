@@ -144,7 +144,7 @@ export const DirectiveSoundFormFields = forwardRef<
                     className="cursor-pointer select-none py-1.5 pl-2 pr-8 text-sm hover:bg-slate-100 rounded-sm"
                     data-disable-click-outside
                   >
-                    +从素材库中选择并添加到当前场景
+                    添加并选择音频...
                   </div>
                 </SelectContent>
               </Select>
