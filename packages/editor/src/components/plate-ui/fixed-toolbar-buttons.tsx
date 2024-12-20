@@ -24,6 +24,7 @@ import { ToolbarButton } from "./toolbar";
 import { DirectiveSpeakForm } from "./directive-speak-form";
 import { DirectiveVoiceForm } from "./directive-voice-form";
 import { useMedia } from "../hooks/useMedia";
+import { cn } from "@/lib/utils";
 
 const Narrator = {
   name: "Narrator",
@@ -122,7 +123,12 @@ export function FixedToolbarButtons({ speak, onChangeSpeak, children }) {
         <Popover>
           <PopoverTrigger asChild>
             <ToolbarButton className="px-1" tooltip="配音设置">
-              <Icons.mic className="!size-4 cursor-pointer mx-1" />
+              <Icons.mic
+                className={cn(
+                  "!size-4 cursor-pointer mx-1",
+                  speak.voice?.targetName ? "text-blue-500" : "",
+                )}
+              />
             </ToolbarButton>
           </PopoverTrigger>
           <PopoverContent onInteractOutside={handlePopoverInteractOutside}>
