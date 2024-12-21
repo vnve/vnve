@@ -39,6 +39,7 @@ import { AiScreenplayDialog } from "./AiScreenplayDialog";
 import { convert2Scenes, genScenes } from "@/lib/llm";
 import { useLoading } from "@/components/hooks/useLoading";
 import { EditorSettingsDialog } from "./EditorSettingsDialog";
+import { useMedia } from "@/components/hooks/useMedia";
 
 export function SceneEditor() {
   const initEditor = useEditorStore((state) => state.initEditor);
@@ -83,6 +84,7 @@ export function SceneEditor() {
   const [saveTimeString, setSaveTimeString] = useState("");
   const { toast } = useToast();
   const { showLoading, hideLoading } = useLoading();
+  const isMd = useMedia("(min-width: 768px)");
 
   const handleExportDB = async () => {
     try {
@@ -409,7 +411,7 @@ export function SceneEditor() {
       <Menubar>
         <MenubarMenu>
           <MenubarTrigger className="data-[disabled]:text-gray-400">
-            <Icons.library className="size-4 mr-0.5"></Icons.library>
+            {isMd && <Icons.library className="size-4 mr-0.5"></Icons.library>}
             作品
           </MenubarTrigger>
           <MenubarContent>
@@ -440,7 +442,7 @@ export function SceneEditor() {
             className="data-[disabled]:text-gray-400"
             disabled={!project}
           >
-            <Icons.scene className="size-4 mr-0.5"></Icons.scene>
+            {isMd && <Icons.scene className="size-4 mr-0.5"></Icons.scene>}
             场景
           </MenubarTrigger>
           <MenubarContent>
@@ -483,7 +485,7 @@ export function SceneEditor() {
             className="data-[disabled]:text-gray-400"
             disabled={!project}
           >
-            <Icons.images className="size-4 mr-0.5"></Icons.images>
+            {isMd && <Icons.images className="size-4 mr-0.5"></Icons.images>}
             素材
           </MenubarTrigger>
           <MenubarContent>
@@ -526,7 +528,7 @@ export function SceneEditor() {
             disabled={scenes.length === 0}
             className="data-[disabled]:text-gray-400"
           >
-            <Icons.preview className="size-4 mr-0.5"></Icons.preview>
+            {isMd && <Icons.preview className="size-4 mr-0.5"></Icons.preview>}
             预览
           </MenubarTrigger>
           <MenubarContent>
@@ -556,7 +558,9 @@ export function SceneEditor() {
             disabled={scenes.length === 0}
             className="data-[disabled]:text-gray-400"
           >
-            <Icons.download className="size-4 mr-0.5"></Icons.download>
+            {isMd && (
+              <Icons.download className="size-4 mr-0.5"></Icons.download>
+            )}
             导出
           </MenubarTrigger>
           <MenubarContent>
@@ -586,7 +590,9 @@ export function SceneEditor() {
             className="data-[disabled]:text-gray-400"
             onClick={() => setIsOpenEditorSettingsDialog(true)}
           >
-            <Icons.settings className="size-4 mr-0.5"></Icons.settings>
+            {isMd && (
+              <Icons.settings className="size-4 mr-0.5"></Icons.settings>
+            )}
             设置
           </MenubarTrigger>
         </MenubarMenu>
