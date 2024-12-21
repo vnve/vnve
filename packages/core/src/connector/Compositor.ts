@@ -93,7 +93,7 @@ export class Compositor extends Connector {
           const channelData =
             channel < audioBuffer.numberOfChannels
               ? audioBuffer.getChannelData(channel)
-              : new Float32Array(numberOfFrames).fill(0);
+              : audioBuffer.getChannelData(0); // 假如是单声道，复制到所有声道
 
           const mixedChannelData = mixedAudioBuffer.getChannelData(channel);
 
