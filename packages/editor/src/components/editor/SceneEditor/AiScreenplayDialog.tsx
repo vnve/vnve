@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export function AiScreenplayDialog({
   isOpen,
@@ -26,12 +26,6 @@ export function AiScreenplayDialog({
     }
   };
   const [inputText, setInputText] = useState("");
-
-  useEffect(() => {
-    if (isOpen) {
-      setInputText("");
-    }
-  }, [isOpen]);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>

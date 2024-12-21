@@ -38,6 +38,7 @@ import { openFilePicker, readTextFile } from "@/lib/utils";
 import { AiScreenplayDialog } from "./AiScreenplayDialog";
 import { convert2Scenes, genScenes } from "@/lib/llm";
 import { useLoading } from "@/components/hooks/useLoading";
+import { EditorSettingsDialog } from "./EditorSettingsDialog";
 
 export function SceneEditor() {
   const initEditor = useEditorStore((state) => state.initEditor);
@@ -64,6 +65,8 @@ export function SceneEditor() {
   const [isOpenClearAssetAlertDialog, setIsOpenClearAssetAlertDialog] =
     useState(false);
   const [isOpenAiScreenplayDialog, setIsOpenAiScreenplayDialog] =
+    useState(false);
+  const [isOpenEditorSettingsDialog, setIsOpenEditorSettingsDialog] =
     useState(false);
   const previewVideoDialogRef = useRef(null);
   const [previewVideoRange, setPreviewVideoRange] = useState<number[]>([]);
@@ -466,12 +469,9 @@ export function SceneEditor() {
             <MenubarItem onClick={handleImportScreenplay}>
               导入剧本...
             </MenubarItem>
-            {/* TODO: 待优化，暂时使用key判断 */}
-            {location.search.includes("key=") && (
-              <MenubarItem onClick={() => setIsOpenAiScreenplayDialog(true)}>
-                智能剧本...
-              </MenubarItem>
-            )}
+            <MenubarItem onClick={() => setIsOpenAiScreenplayDialog(true)}>
+              智能剧本...
+            </MenubarItem>
             <MenubarSeparator />
             <MenubarItem onClick={() => setIsOpenTemplateLibrary(true)}>
               管理模版...
@@ -581,6 +581,15 @@ export function SceneEditor() {
             </MenubarItem>
           </MenubarContent>
         </MenubarMenu>
+        <MenubarMenu>
+          <MenubarTrigger
+            className="data-[disabled]:text-gray-400"
+            onClick={() => setIsOpenEditorSettingsDialog(true)}
+          >
+            <Icons.settings className="size-4 mr-0.5"></Icons.settings>
+            设置
+          </MenubarTrigger>
+        </MenubarMenu>
       </Menubar>
       <Card className="flex-1 rounded-md relative">
         <CardContent className="relative h-full p-2">
@@ -593,42 +602,62 @@ export function SceneEditor() {
         </CardContent>
       </Card>
       {/* Dialogs */}
-      <ProjectLibrary
-        isOpen={isOpenProjectLibrary}
-        onClose={() => setIsOpenProjectLibrary(false)}
-      ></ProjectLibrary>
-      <TemplateLibrary
-        isOpen={isOpenTemplateLibrary}
-        onClose={() => setIsOpenTemplateLibrary(false)}
-      ></TemplateLibrary>
-      <ExportVideoDialog
-        progress={actionProgress}
-        url={curExportVideoURL}
-        isOpen={isOpenExportVideoDialog}
-        onClose={handleCloseExportVideoDialog}
-      ></ExportVideoDialog>
-      <PreviewVideoDialog
-        progress={actionProgress}
-        ref={previewVideoDialogRef}
-        isOpen={isOpenPreviewVideoDialog}
-        onReplay={handleReplayPreview}
-        onClose={handleClosePreviewVideoDialog}
-        onExport={handlePreviewToExport}
-      ></PreviewVideoDialog>
-      <CreateProjectDialog
-        isOpen={isOpenCreateProjectDialog}
-        onClose={() => setIsOpenCreateProjectDialog(false)}
-      ></CreateProjectDialog>
-      <ClearAssetAlertDialog
-        isOpen={isOpenClearAssetAlertDialog}
-        onConfirm={handleClearAssetDB}
-        onClose={() => setIsOpenClearAssetAlertDialog(false)}
-      ></ClearAssetAlertDialog>
-      <AiScreenplayDialog
-        isOpen={isOpenAiScreenplayDialog}
-        onClose={() => setIsOpenAiScreenplayDialog(false)}
-        onConfirm={handleAiScreenplay}
-      ></AiScreenplayDialog>
+      {isOpenProjectLibrary && (
+        <ProjectLibrary
+          isOpen={isOpenProjectLibrary}
+          onClose={() => setIsOpenProjectLibrary(false)}
+        ></ProjectLibrary>
+      )}
+      {isOpenTemplateLibrary && (
+        <TemplateLibrary
+          isOpen={isOpenTemplateLibrary}
+          onClose={() => setIsOpenTemplateLibrary(false)}
+        ></TemplateLibrary>
+      )}
+      {isOpenExportVideoDialog && (
+        <ExportVideoDialog
+          progress={actionProgress}
+          url={curExportVideoURL}
+          isOpen={isOpenExportVideoDialog}
+          onClose={handleCloseExportVideoDialog}
+        ></ExportVideoDialog>
+      )}
+      {isOpenPreviewVideoDialog && (
+        <PreviewVideoDialog
+          progress={actionProgress}
+          ref={previewVideoDialogRef}
+          isOpen={isOpenPreviewVideoDialog}
+          onReplay={handleReplayPreview}
+          onClose={handleClosePreviewVideoDialog}
+          onExport={handlePreviewToExport}
+        ></PreviewVideoDialog>
+      )}
+      {isOpenCreateProjectDialog && (
+        <CreateProjectDialog
+          isOpen={isOpenCreateProjectDialog}
+          onClose={() => setIsOpenCreateProjectDialog(false)}
+        ></CreateProjectDialog>
+      )}
+      {isOpenClearAssetAlertDialog && (
+        <ClearAssetAlertDialog
+          isOpen={isOpenClearAssetAlertDialog}
+          onConfirm={handleClearAssetDB}
+          onClose={() => setIsOpenClearAssetAlertDialog(false)}
+        ></ClearAssetAlertDialog>
+      )}
+      {isOpenAiScreenplayDialog && (
+        <AiScreenplayDialog
+          isOpen={isOpenAiScreenplayDialog}
+          onClose={() => setIsOpenAiScreenplayDialog(false)}
+          onConfirm={handleAiScreenplay}
+        ></AiScreenplayDialog>
+      )}
+      {isOpenEditorSettingsDialog && (
+        <EditorSettingsDialog
+          isOpen={isOpenEditorSettingsDialog}
+          onClose={() => setIsOpenEditorSettingsDialog(false)}
+        ></EditorSettingsDialog>
+      )}
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { Editor } from "@vnve/core";
 import { text2Scenes } from "./core";
 import OpenAI from "openai";
 import { DBAssetType, getAllAssetNamesByType } from "@/db";
+import { useSettingsStore } from "@/store/settings";
 
 async function getCharactersAndBackgrounds() {
   const characters = (await getAllAssetNamesByType(DBAssetType.Character)).join(
@@ -19,9 +20,21 @@ async function getCharactersAndBackgrounds() {
 
 async function requestLLM(system: string, prompt: string) {
   const urlParams = new URLSearchParams(window.location.search);
-  const apiKey = urlParams.get("key");
-  const model = urlParams.get("model");
-  const platform = urlParams.get("platform") ?? "ark";
+  const aiSettings = useSettingsStore.getState().ai;
+  let apiKey = urlParams.get("key");
+  let model = urlParams.get("model");
+  let platform = urlParams.get("platform") ?? "ark";
+
+  // 优先从 URL 参数中获取, 否则读取本地设置
+  if (!apiKey) {
+    apiKey = aiSettings.key;
+    model = aiSettings.model;
+    platform = aiSettings.platform;
+  }
+
+  if (!apiKey || !model || !platform) {
+    throw new Error("请先在设置中启用 AI 配置！");
+  }
 
   const client = new OpenAI({
     apiKey,
