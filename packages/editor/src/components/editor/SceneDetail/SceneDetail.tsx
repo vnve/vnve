@@ -66,7 +66,10 @@ export function SceneDetail({ onClose }: { onClose?: () => void }) {
   const handleInsertDialogue = (index: number, dialogue: Dialogue) => {
     editor.addDialogue(
       {
-        speak: editor.cloneDialogueSpeak(dialogue.speak),
+        speak: {
+          ...editor.cloneDialogueSpeak(dialogue.speak),
+          voice: undefined, // 插入时不复制语音
+        },
         lines: [],
       },
       index,
