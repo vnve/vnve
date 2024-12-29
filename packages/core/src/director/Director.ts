@@ -242,27 +242,34 @@ export class Director {
     });
 
     // 注册场景切换
-    this.ticker.add(() => {
+    const currentSceneUpdater = () => {
       const time = this.ticker.time;
 
       if (
-        time >= prevSceneDuration &&
-        time <= duration &&
-        this.ticker.ctx.scene !== scene
+        approximatelyEqual(
+          time,
+          prevSceneDuration,
+          1 / (this.rendererOptions.fps * 2),
+        )
       ) {
-        if (this.ticker.ctx.scene) {
-          // 之前存在场景时，需要切换场景音频
-          soundController.resetExceptUtilEnd();
-        }
+        // 切换场景音频，清除非跨场景的音频
+        soundController.resetExceptUtilEnd();
 
         // 切换场景
         this.ticker.ctx.scene = scene;
-      }
 
-      // TODO:待优化，当前场景结束后，可以清空当前场景注册的指令回调
-      // if (time > duration) {
-      // }
-    });
+        // 当前场景切换完成后，可以移除
+        this.ticker.remove(currentSceneUpdater);
+
+        log.debug(
+          "update current scene:",
+          time,
+          prevSceneDuration,
+          time - prevSceneDuration,
+        );
+      }
+    };
+    this.ticker.add(currentSceneUpdater);
 
     for (const item of directives) {
       const { directive: directiveName, params } = item;
@@ -285,7 +292,7 @@ export class Director {
         scene,
       );
 
-      this.ticker.add(() => {
+      const directiveExecutor = () => {
         const time = this.ticker.time;
 
         // 当前时间
@@ -303,10 +310,14 @@ export class Director {
             directive.constructor.name,
             time,
             directive.executeTime,
+            time - directive.executeTime,
           );
           this.ticker.asyncHandlers.push(directive.execute());
+          // 指令执行完成后，可以移除
+          this.ticker.remove(directiveExecutor);
         }
-      });
+      };
+      this.ticker.add(directiveExecutor);
 
       duration += directive.getDuration();
     }
