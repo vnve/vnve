@@ -8,43 +8,71 @@ export interface PreviewerOptions extends ConnectorOptions {
 export class Previewer extends Connector {
   protected declare options: PreviewerOptions;
   private context: CanvasRenderingContext2D;
-  private audioContext: AudioContext | null;
+  private audioContext?: AudioContext;
   private audioPlayTime: number;
-  private lastHandleTime: number;
+  private currentTime: number;
+  private frameId: number;
+  private frameWaitPromise?: Promise<void>;
+  private frameWaitResolve?: () => void;
 
   constructor(options: PreviewerOptions) {
     super(options);
     this.options = options;
-    this.audioContext = options.disableAudio ? null : new AudioContext();
     this.audioPlayTime = 0;
-    this.lastHandleTime = 0;
 
     const { canvas, width, height } = this.options;
     canvas.width = width;
     canvas.height = height;
     this.context = canvas.getContext("2d")!;
+    this.currentTime = 0;
+    this.frameId = 0;
   }
 
   public async handle(frameData: FrameData) {
-    const { imageSource, audioBuffers } = frameData;
-    const handleTime = performance.now();
-    const handleGap =
-      this.lastHandleTime > 0 ? handleTime - this.lastHandleTime : 0;
+    const { imageSource, audioBuffers, timestamp } = frameData;
 
-    if (!this.options.disableAudio) {
+    this.currentTime = timestamp / 1000;
+
+    if (this.options.disableAudio) {
+      if (this.context && imageSource) {
+        this.playVideoFrame(imageSource);
+      }
+      // 禁用音频时，直接模拟间隔时间
+      await wait(1000 / this.options.fps);
+    } else {
+      if (!this.audioContext) {
+        this.audioContext = new AudioContext();
+      }
+
+      if (!this.frameId) {
+        this.frameWaitPromise = new Promise((resolve) => {
+          this.frameWaitResolve = resolve;
+        });
+        this.frameId = requestAnimationFrame(() => this.frameCallback());
+      }
+
       this.playAudioBuffers(audioBuffers);
+
+      // 使用音频时，优先按照音频时间轴，播放到指定时间点时，渲染对应的视频帧
+      await this.frameWaitPromise;
+
+      if (this.context && imageSource) {
+        this.playVideoFrame(imageSource);
+      }
     }
+  }
 
-    if (this.context && imageSource) {
-      this.playVideoFrame(imageSource);
+  private frameCallback() {
+    if (this.audioContext) {
+      // 音频播放时间超过当前需要展示的帧时间，触发下一帧渲染
+      if (this.audioContext.currentTime >= this.currentTime) {
+        this.frameWaitResolve?.();
+        this.frameWaitPromise = new Promise((resolve) => {
+          this.frameWaitResolve = resolve;
+        });
+      }
+      this.frameId = requestAnimationFrame(() => this.frameCallback());
     }
-
-    // TODO: perf
-    // 因为handle循环本身存在间隔时长, 需要减去间隔, 否则会导致加入的sourceNode在currentTime后面
-    // 同时，需要预留一定时间给调度，默认先写死4ms
-    await wait(1000 / this.options.fps - handleGap - 4);
-
-    this.lastHandleTime = performance.now();
   }
 
   private playVideoFrame(imageSource: CanvasImageSource) {
@@ -87,6 +115,11 @@ export class Previewer extends Connector {
 
   public async finish() {
     this.audioContext?.close();
+    if (this.frameId) {
+      cancelAnimationFrame(this.frameId);
+    }
+    this.frameWaitPromise = undefined;
+    this.frameWaitResolve = undefined;
 
     return undefined;
   }
