@@ -83,6 +83,7 @@ import {
   Lightbulb,
   WandSparkles,
   Sparkles,
+  FlipHorizontal2,
 } from "lucide-react";
 
 import type { EyeOff, LucideIcon } from "lucide-react";
@@ -267,6 +268,7 @@ export const Icons = {
   tip: Lightbulb,
   wandSparkles: WandSparkles,
   sparkles: Sparkles,
+  flip: FlipHorizontal2,
 
   // www
   gitHub: (props: LucideProps) => (

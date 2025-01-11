@@ -15,6 +15,20 @@ export function ChildPosition() {
   const editor = useEditorStore((state) => state.editor);
   const activeChild = useEditorStore((state) => state.activeChild);
 
+  const handleFlip = () => {
+    if (editor.activeChild) {
+      const sprite = editor.activeChild as Sprite;
+
+      sprite.scale.x *= -1;
+
+      if (sprite.scale.x < 0) {
+        sprite.x += sprite.width;
+      } else {
+        sprite.x -= sprite.width;
+      }
+    }
+  };
+
   const handleCopy = async () => {
     const cloned = editor.cloneChild();
 
@@ -115,12 +129,44 @@ export function ChildPosition() {
                 </Button>
               </div>
               <div>
-                <Button size="sm" variant="ghost" onClick={handleCopy}>
-                  <Icons.copy className="size-4"></Icons.copy>
-                </Button>
-                <Button size="sm" variant="ghost" onClick={handleDelete}>
-                  <Icons.delete className="size-4"></Icons.delete>
-                </Button>
+                {activeChild.type !== "Graphics" && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button size="sm" variant="ghost" onClick={handleFlip}>
+                          <Icons.flip className="size-4"></Icons.flip>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>镜像翻转</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button size="sm" variant="ghost" onClick={handleCopy}>
+                        <Icons.copy className="size-4"></Icons.copy>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>复制</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button size="sm" variant="ghost" onClick={handleDelete}>
+                        <Icons.delete className="size-4"></Icons.delete>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>删除</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             </div>
           </fieldset>
