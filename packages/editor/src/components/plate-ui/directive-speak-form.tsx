@@ -158,6 +158,7 @@ export function DirectiveSpeakForm({
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="typewriter">打字机</SelectItem>
+                    <SelectItem value="typewriterFadeIn">打字机渐入</SelectItem>
                     <SelectItem value="fadeIn">渐入</SelectItem>
                     <SelectItem value="none">无</SelectItem>
                   </SelectContent>
