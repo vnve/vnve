@@ -2,12 +2,11 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogFooter,
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -52,9 +51,9 @@ export function EditorSettingsDialog({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      platform: "ark",
+      platform: "deepseek",
       key: "",
-      model: "",
+      model: "deepseek-chat",
     },
   });
 
@@ -93,6 +92,7 @@ export function EditorSettingsDialog({
                         <SelectValue placeholder="请AI选择平台" />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="deepseek">deepseek</SelectItem>
                         <SelectItem value="ark">豆包</SelectItem>
                         <SelectItem value="openai">OpenAI</SelectItem>
                       </SelectContent>
@@ -109,7 +109,11 @@ export function EditorSettingsDialog({
                 <FormItem>
                   <FormLabel>API KEY</FormLabel>
                   <FormControl>
-                    <Input placeholder="请输入API KEY" {...field} />
+                    <Input
+                      type="password"
+                      placeholder="请输入API KEY"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

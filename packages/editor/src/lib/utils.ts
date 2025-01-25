@@ -75,3 +75,16 @@ export function readTextFile(file: File): Promise<string> {
     reader.readAsText(file);
   });
 }
+
+export function matchJSON(content: string) {
+  const match = content.match(/\{[\s\S]*\}/);
+
+  try {
+    const jsonStr = match[0];
+    const data = JSON.parse(jsonStr);
+
+    return data;
+  } catch {
+    return null;
+  }
+}

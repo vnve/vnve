@@ -5,6 +5,10 @@
       "destination": "https://api.openai.com/v1/:path*"
     },
     {
+      "source": "/api/deepseek/:path*",
+      "destination": "https://api.deepseek.com/:path*"
+    },
+    {
       "source": "/api/ark/:path*",
       "destination": "https://ark.cn-beijing.volces.com/api/v3/:path*"
     }

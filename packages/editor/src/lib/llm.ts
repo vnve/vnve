@@ -1,29 +1,13 @@
-import { Editor } from "@vnve/core";
-import { text2Scenes } from "./core";
 import OpenAI from "openai";
-import { DBAssetType, getAllAssetNamesByType } from "@/db";
 import { useSettingsStore } from "@/store/settings";
-
-async function getCharactersAndBackgrounds() {
-  const characters = (await getAllAssetNamesByType(DBAssetType.Character)).join(
-    "、",
-  );
-  const backgrounds = (
-    await getAllAssetNamesByType(DBAssetType.Background)
-  ).join("、");
-
-  return {
-    characters,
-    backgrounds,
-  };
-}
+import { matchJSON } from "./utils";
 
 async function requestLLM(system: string, prompt: string) {
   const urlParams = new URLSearchParams(window.location.search);
   const aiSettings = useSettingsStore.getState().ai;
   let apiKey = urlParams.get("key");
   let model = urlParams.get("model");
-  let platform = urlParams.get("platform") ?? "ark";
+  let platform = urlParams.get("platform") ?? "deepseek";
 
   // 优先从 URL 参数中获取, 否则读取本地设置
   if (!apiKey) {
@@ -56,101 +40,230 @@ async function requestLLM(system: string, prompt: string) {
     model,
   });
 
-  let content = completion.choices[0]?.message?.content;
+  const content = completion.choices[0]?.message?.content;
 
-  console.log(content);
+  console.log("LLM Response:", content);
 
-  // 去除掉头尾的```
-  if (content) {
-    content = content.replace(/^```[\r\n]?|```[\r\n]?$/g, "");
+  const json = matchJSON(content);
+
+  if (json) {
+    return json.scenes;
+  } else {
+    throw new Error("大模型返回的 JSON 格式不正确");
   }
-
-  return content;
 }
 
-export async function convert2Scenes(input: string, editor: Editor) {
-  const { characters, backgrounds } = await getCharactersAndBackgrounds();
-  const system = `请你扮演一位专业的视觉小说剧本作家，将我提供的故事原文改编为符合视觉小说格式的剧本。改编时请注意以下几点要求：
-
-1. 角色名：所有角色名必须使用中文，不得使用任何其他语言或符号。请确保所有角色名只能是以下列表中的名字：${characters}。不要使用其他名字。
-2. 场景：请确保所有场景只能是在以下列表中的：${backgrounds}。不要使用其他场景。
-3. 内容结构：剧本内容必须包括详细的场景描述、旁白以及角色台词，且必须严格遵循以下的输出格式：
-\`\`\`
-场景
-{场景名称}
-
-旁白
-{详细的旁白内容，尽可能营造氛围并推动剧情发展。}
-
-{角色名}
-{角色的台词内容，需符合角色的性格与当前情景。}
-
-\`\`\`
-4. 格式规范：输出格式必须与示例完全一致，不得增加或减少任何多余的符号、空行或内容。
-5. 语言风格：剧本语言需具有叙事性和文学性，旁白需渲染场景氛围，台词需贴合角色个性。
-
-以下是输出格式示例：
-示例：
-\`\`\`
-场景
-密室
-
-旁白
-旁白内容
-
-男主
-男主的台词
-
-女主
-女主的台词
-\`\`\`
-请根据以上要求，将以下故事原文改编为视觉小说剧本：`;
-  const prompt = `故事原文：${input}`;
-  const text = await requestLLM(system, prompt);
-
-  return text2Scenes(text, editor, true);
+export async function aiConvert2Story(input: string) {
+  const system = `你是一位专业的视觉小说剧本作家，根据我提供的小说或剧本，创作结构化的视觉小说剧本。创作时请严格遵循以下要求，并以 JSON 格式返回数据：
+要求：
+1.	参考 Typescript 定义
+所有返回数据必须符合以下接口定义：
+\`\`\`typescript
+interface StoryCharacter {
+  /**
+   * 角色名称或者旁白
+   */
+  name: string;
+  /**
+   * 角色状态
+   */
+  state: string;
 }
 
-export async function genScenes(input: string, editor: Editor) {
-  const { characters, backgrounds } = await getCharactersAndBackgrounds();
-  const system = `请你扮演一位专业的视觉小说剧本作家，根据我提供的剧情大纲创作视觉小说剧本。创作时请注意以下几点要求：
+interface StoryDialogue {
+  /**
+   * 发言角色，单个场景中发言的角色不要超过 3 个，假如超过 3 个请拆分成多个场景
+   */
+  character: StoryCharacter;
+  /**
+   * 角色台词，如果台词中存在双引号请转换成单引号
+   */
+  line: string;
+}
 
-1. 角色名：所有角色名必须使用中文，不得使用任何其他语言或符号。请确保所有角色名只能是以下列表中的名字：${characters}。不要使用其他名字。
-2. 场景：请确保所有场景只能是在以下列表中的：${backgrounds}。不要使用其他场景。
-3. 内容结构：剧本内容必须包括详细的场景描述、旁白以及角色台词，且必须严格遵循以下的输出格式：
+interface StoryBackground {
+  /**
+   * 背景名称
+   */
+  name: string;
+  /**
+   * 背景状态
+   */
+  state: string;
+}
+
+export interface StoryScene {
+  /**
+   * 场景名称
+   */
+  name: string;
+  /**
+   * 背景
+   */
+  background: StoryBackground;
+  /**
+   * 场景对话列表
+   */
+  dialogues: StoryDialogue[];
+}
 \`\`\`
-场景
-{场景名称}
 
-旁白
-{详细的旁白内容，尽可能营造氛围并推动剧情发展。}
-
-{角色名}
-{角色的台词内容，需符合角色的性格与当前情景。}
-
+2.	返回格式
+以 JSON 的形式返回多个场景数据，每个场景为一个 StoryScene 对象。例如：
+\`\`\`json
+{
+  "scenes": [{
+    "name": "教室相遇",
+    "background": {
+      "name": "教室",
+      "state": "白天"
+    },
+    "dialogues": [{
+      "character": {
+        "name": "旁白",
+        "state": ""
+      },
+      "line": "这是一段旁白"
+    }{
+      "character": {
+        "name": "男主",
+        "state": "日常"
+      },
+      "line": "这是男主的台词"
+    }, {
+      "character": {
+        "name": "女主",
+        "state": "微笑"
+      },
+      "line": "这是女主的台词"
+    }]
+  }, {
+    "name": "餐厅午后",
+    "background": {
+      "name": "餐厅",
+      "state": "下午"
+    },
+    "dialogues": [{
+      "character": {
+        "name": "男主",
+        "state": "生气"
+      },
+      "line": "这是男主的台词"
+    }]
+  }]
+}
 \`\`\`
-4. 格式规范：输出格式必须与示例完全一致，不得增加或减少任何多余的符号、空行或内容。
-5. 语言风格：剧本语言需具有叙事性和文学性，旁白需渲染场景氛围，台词需贴合角色个性。
+请根据以上要求，针对输入的剧情创作结构化的视觉小说剧本`;
+  const prompt = `剧情：${input}`;
+  const text = await requestLLM(system, prompt);
 
-以下是输出格式示例：
-示例：
+  return text;
+}
+
+export async function aiGenStory(input: string) {
+  const system = `你是一位专业的视觉小说剧本作家，根据我剧情大纲，创作结构化的视觉小说剧本。创作时请严格遵循以下要求，并以 JSON 格式返回数据：
+要求：
+1.	参考 Typescript 定义
+所有返回数据必须符合以下接口定义：
+\`\`\`typescript
+interface StoryCharacter {
+  /**
+   * 角色名称或者旁白
+   */
+  name: string;
+  /**
+   * 角色状态
+   */
+  state: string;
+}
+
+interface StoryDialogue {
+  /**
+   * 发言角色，单个场景中发言的角色不要超过 3 个，假如超过 3 个请拆分成多个场景
+   */
+  character: StoryCharacter;
+  /**
+   * 角色台词，如果台词中存在双引号请转换成单引号
+   */
+  line: string;
+}
+
+interface StoryBackground {
+  /**
+   * 背景名称
+   */
+  name: string;
+  /**
+   * 背景状态
+   */
+  state: string;
+}
+
+export interface StoryScene {
+  /**
+   * 场景名称
+   */
+  name: string;
+  /**
+   * 背景
+   */
+  background: StoryBackground;
+  /**
+   * 场景对话列表
+   */
+  dialogues: StoryDialogue[];
+}
 \`\`\`
-场景
-密室
 
-旁白
-旁白内容
-
-男主
-男主的台词
-
-女主
-女主的台词
+2.	返回格式
+以 JSON 的形式返回多个场景数据，每个场景为一个 StoryScene 对象。例如：
+\`\`\`json
+{
+  "scenes": [{
+    "name": "教室相遇",
+    "background": {
+      "name": "教室",
+      "state": "白天"
+    },
+    "dialogues": [{
+      "character": {
+        "name": "旁白",
+        "state": ""
+      },
+      "line": "这是一段旁白"
+    },{
+      "character": {
+        "name": "男主",
+        "state": "日常"
+      },
+      "line": "这是男主的台词"
+    }, {
+      "character": {
+        "name": "女主",
+        "state": "微笑"
+      },
+      "line": "这是女主的台词"
+    }]
+  }, {
+    "name": "餐厅午后",
+    "background": {
+      "name": "餐厅",
+      "state": "下午"
+    },
+    "dialogues": [{
+      "character": {
+        "name": "男主",
+        "state": "生气"
+      },
+      "line": "这是男主的台词"
+    }]
+  }]
+}
 \`\`\`
-请根据以上要求，按照以下剧情大纲创作视觉小说剧本：`;
-  const prompt = `剧情大纲是：${input}`;
+请根据以上要求，针对输入的剧情大纲创作结构化的视觉小说剧本`;
+  const prompt = `剧情大纲：${input}`;
 
   const text = await requestLLM(system, prompt);
 
-  return text2Scenes(text, editor, true);
+  return text;
 }

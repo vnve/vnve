@@ -9,12 +9,7 @@ import {
   importDB,
   projectDB,
 } from "@/db";
-import {
-  createSprite,
-  createText,
-  getDisableAudio,
-  text2Scenes,
-} from "@/lib/core";
+import { createSprite, createText, getDisableAudio } from "@/lib/core";
 import {
   Menubar,
   MenubarContent,
@@ -34,12 +29,11 @@ import { useTemplates } from "@/components/hooks/useTemplates";
 import { ActionProgress } from "./types";
 import { ClearAssetAlertDialog } from "./ClearAssetAlertDialog";
 import { Icons } from "@/components/icons";
-import { openFilePicker, readTextFile } from "@/lib/utils";
-import { AiScreenplayDialog } from "./AiScreenplayDialog";
-import { convert2Scenes, genScenes } from "@/lib/llm";
 import { useLoading } from "@/components/hooks/useLoading";
 import { EditorSettingsDialog } from "./EditorSettingsDialog";
 import { useMedia } from "@/components/hooks/useMedia";
+import { useText2Scene } from "@/components/hooks/useText2Scene";
+import { Text2SceneDialog } from "./Text2SceneDialog";
 
 export function SceneEditor() {
   const initEditor = useEditorStore((state) => state.initEditor);
@@ -65,8 +59,6 @@ export function SceneEditor() {
     useState(false);
   const [isOpenClearAssetAlertDialog, setIsOpenClearAssetAlertDialog] =
     useState(false);
-  const [isOpenAiScreenplayDialog, setIsOpenAiScreenplayDialog] =
-    useState(false);
   const [isOpenEditorSettingsDialog, setIsOpenEditorSettingsDialog] =
     useState(false);
   const previewVideoDialogRef = useRef(null);
@@ -84,6 +76,13 @@ export function SceneEditor() {
   const [saveTimeString, setSaveTimeString] = useState("");
   const { toast } = useToast();
   const { showLoading, hideLoading } = useLoading();
+  const {
+    isOpenText2Scene,
+    text2SceneType,
+    handleOpenImportText2Scene,
+    handleOpenAiText2Scene,
+    handleCloseText2Scene,
+  } = useText2Scene();
   const isMd = useMedia("(min-width: 768px)");
 
   const handleExportDB = async () => {
@@ -306,48 +305,6 @@ export function SceneEditor() {
     handleExportScenes(...previewVideoRange);
   };
 
-  const handleImportScreenplay = async () => {
-    const files = await openFilePicker({ accept: ".txt" });
-    const file = files[0];
-
-    showLoading("剧本导入中");
-    try {
-      const text = await readTextFile(file);
-      await text2Scenes(text, editor);
-    } catch (error) {
-      toast({
-        title: "导入失败！",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      hideLoading();
-    }
-  };
-
-  const handleAiScreenplay = async (
-    type: "convert" | "generate",
-    input: string,
-  ) => {
-    setIsOpenAiScreenplayDialog(false);
-    showLoading(type === "convert" ? "智能转换中" : "智能生成中");
-    try {
-      if (type === "convert") {
-        await convert2Scenes(input, editor);
-      } else {
-        await genScenes(input, editor);
-      }
-    } catch (error) {
-      toast({
-        title: `${type === "convert" ? "转换" : "生成"}失败！`,
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      hideLoading();
-    }
-  };
-
   const handleImportAsset = async () => {
     showLoading("素材导入中");
     try {
@@ -468,10 +425,10 @@ export function SceneEditor() {
               );
             })}
             <MenubarSeparator />
-            <MenubarItem onClick={handleImportScreenplay}>
+            <MenubarItem onClick={handleOpenImportText2Scene}>
               导入剧本...
             </MenubarItem>
-            <MenubarItem onClick={() => setIsOpenAiScreenplayDialog(true)}>
+            <MenubarItem onClick={handleOpenAiText2Scene}>
               智能剧本...
             </MenubarItem>
             <MenubarSeparator />
@@ -651,18 +608,18 @@ export function SceneEditor() {
           onClose={() => setIsOpenClearAssetAlertDialog(false)}
         ></ClearAssetAlertDialog>
       )}
-      {isOpenAiScreenplayDialog && (
-        <AiScreenplayDialog
-          isOpen={isOpenAiScreenplayDialog}
-          onClose={() => setIsOpenAiScreenplayDialog(false)}
-          onConfirm={handleAiScreenplay}
-        ></AiScreenplayDialog>
-      )}
       {isOpenEditorSettingsDialog && (
         <EditorSettingsDialog
           isOpen={isOpenEditorSettingsDialog}
           onClose={() => setIsOpenEditorSettingsDialog(false)}
         ></EditorSettingsDialog>
+      )}
+      {isOpenText2Scene && (
+        <Text2SceneDialog
+          isOpen={isOpenText2Scene}
+          type={text2SceneType}
+          onClose={handleCloseText2Scene}
+        ></Text2SceneDialog>
       )}
     </div>
   );
