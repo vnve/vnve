@@ -48,7 +48,7 @@ export function TextFileEditor({
         value={value}
         onChange={handleTextareaChange}
         placeholder={placeholder}
-        className="min-h-[300px]"
+        className="min-h-[400px]"
         disabled={disabled}
       />
       <div className="flex items-center justify-between">

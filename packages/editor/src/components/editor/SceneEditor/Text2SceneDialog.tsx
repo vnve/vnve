@@ -79,6 +79,7 @@ export function Text2SceneDialog({
         description: error.message,
         variant: "destructive",
       });
+      console.error(error);
     } finally {
       setLoadingText("");
     }

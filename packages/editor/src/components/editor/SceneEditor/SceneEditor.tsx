@@ -315,6 +315,7 @@ export function SceneEditor() {
         description: error.message,
         variant: "destructive",
       });
+      console.error(error);
     } finally {
       hideLoading();
     }
@@ -390,8 +391,8 @@ export function SceneEditor() {
               </MenubarItem>
             )}
             <MenubarSeparator />
-            <MenubarItem onClick={handleExportDB}>导出...</MenubarItem>
-            <MenubarItem onClick={handleImportDB}>导入...</MenubarItem>
+            <MenubarItem onClick={handleExportDB}>导出作品...</MenubarItem>
+            <MenubarItem onClick={handleImportDB}>导入作品...</MenubarItem>
           </MenubarContent>
         </MenubarMenu>
         <MenubarMenu>

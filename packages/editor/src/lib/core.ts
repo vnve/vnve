@@ -1,4 +1,10 @@
-import { DBAsset, DBAssetType, getAssetByName, getAssetSourceURL } from "@/db";
+import {
+  DBAsset,
+  DBAssetType,
+  getAssetByName,
+  getAssetSourceURL,
+  templateDB,
+} from "@/db";
 import {
   Editor,
   LayerZIndex,
@@ -8,6 +14,9 @@ import {
   Video,
   Text,
   createDialogueScene,
+  Scene,
+  createTitleScene,
+  createMonologueScene,
 } from "@vnve/core";
 
 export async function createSprite(asset: DBAsset, editor: Editor) {
@@ -150,6 +159,10 @@ export interface StoryScene {
    */
   name: string;
   /**
+   * 场景类型, 默认为对话场景
+   */
+  type?: string;
+  /**
    * 背景
    */
   background: StoryBackground;
@@ -210,11 +223,13 @@ export function text2Story(text): StoryScene[] {
         },
         dialogues: [],
       });
-    } else if (item.name === "场景") {
+    } else if (/场景(\[.+\])?/.test(item.name)) {
+      const type = item.name.match(/场景(\[.+\])?/)[1].replace(/\[|\]/g, "");
       // 缺失标题时，按照场景分隔
       if (!story[story.length - 1]) {
         story.push({
           name: "",
+          type,
           background: {
             name: "",
             state: "",
@@ -223,6 +238,7 @@ export function text2Story(text): StoryScene[] {
         });
       }
 
+      story[story.length - 1].type = type;
       story[story.length - 1].background = parseName(item.value);
     } else {
       story[story.length - 1].dialogues.push({
@@ -289,7 +305,38 @@ export async function story2Scenes(
   backgroundAssetMap: Record<string, DBAsset>,
 ) {
   for (const item of story) {
-    const scene = createDialogueScene();
+    let scene: Scene;
+    if (item.type) {
+      const typeMap = {
+        标题: createTitleScene,
+        独白: createMonologueScene,
+        对话: createDialogueScene,
+      };
+      let createScene = typeMap[item.type];
+
+      if (!createScene) {
+        try {
+          const templateItem = await templateDB
+            .where("name")
+            .equals(item.type)
+            .first();
+          const newScene = await Scene.fromJSON(
+            JSON.parse(templateItem.content),
+            false,
+          );
+          createScene = () => {
+            return newScene;
+          };
+        } catch (error) {
+          console.error("未找到对应的模版场景", error);
+          createScene = createDialogueScene;
+        }
+      }
+
+      scene = createScene();
+    } else {
+      scene = createDialogueScene();
+    }
 
     scene.label = item.name;
 
