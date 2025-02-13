@@ -92,8 +92,8 @@ export function EditorSettingsDialog({
                         <SelectValue placeholder="请AI选择平台" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="deepseek">deepseek</SelectItem>
-                        <SelectItem value="ark">豆包</SelectItem>
+                        <SelectItem value="deepseek">DeepSeek</SelectItem>
+                        <SelectItem value="ark">火山方舟</SelectItem>
                         <SelectItem value="openai">OpenAI</SelectItem>
                       </SelectContent>
                     </Select>
