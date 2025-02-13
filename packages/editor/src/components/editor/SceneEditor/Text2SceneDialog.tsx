@@ -214,7 +214,7 @@ export function Text2SceneDialog({
             <TextFileEditor
               value={aiInputText}
               onChange={setAiInputText}
-              placeholder="请在此处输入您的小说、故事内容"
+              placeholder="请输入小说、故事原文"
               loading={loadingText}
               onComplete={(text) => handleAiScreenplay("convert", text)}
             ></TextFileEditor>
@@ -223,7 +223,7 @@ export function Text2SceneDialog({
             <TextFileEditor
               value={aiInputText}
               onChange={setAiInputText}
-              placeholder="请输入您的故事剧情大纲"
+              placeholder="请输入剧情大纲"
               loading={loadingText}
               onComplete={(text) => handleAiScreenplay("generate", text)}
             ></TextFileEditor>

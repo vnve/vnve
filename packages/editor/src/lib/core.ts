@@ -224,7 +224,7 @@ export function text2Story(text): StoryScene[] {
         dialogues: [],
       });
     } else if (/场景(\[.+\])?/.test(item.name)) {
-      const type = item.name.match(/场景(\[.+\])?/)[1].replace(/\[|\]/g, "");
+      const type = item.name.match(/场景(\[.+\])?/)[1]?.replace(/\[|\]/g, "");
       // 缺失标题时，按照场景分隔
       if (!story[story.length - 1]) {
         story.push({
