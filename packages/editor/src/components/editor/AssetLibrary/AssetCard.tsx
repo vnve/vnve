@@ -45,7 +45,7 @@ export function AssetStatePreviewer({
       return url;
     }
 
-    if (state) {
+    if (state && state.id) {
       return getAssetSourceURL(state);
     }
 

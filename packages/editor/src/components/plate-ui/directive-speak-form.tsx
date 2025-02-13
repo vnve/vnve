@@ -25,6 +25,7 @@ const formSchema = z.object({
   wordsPerMin: z.number().optional(),
   interval: z.number().optional(),
   effect: z.string().optional(),
+  effectDuration: z.number().optional(),
   speaker: z.object({
     name: z.string().optional(),
     autoShowSpeaker: z
@@ -150,7 +151,6 @@ export function DirectiveSpeakForm({
           render={({ field }) => (
             <FormItem className="space-y-1">
               <FormLabel>台词效果</FormLabel>
-              <FormDescription>台词的输出效果</FormDescription>
               <FormControl>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <SelectTrigger className="h-8">
@@ -167,6 +167,32 @@ export function DirectiveSpeakForm({
             </FormItem>
           )}
         />
+        {formValues.effect === "fadeIn" && (
+          <FormField
+            control={form.control}
+            name="effectDuration"
+            render={({ field }) => (
+              <FormItem className="space-y-1">
+                <FormLabel>台词效果时长（秒）</FormLabel>
+                <FormControl>
+                  <Input
+                    className="h-8"
+                    type="number"
+                    min={0}
+                    step={0.1}
+                    placeholder="请输入台词输出时长"
+                    value={String(field.value)}
+                    onChange={(e) => {
+                      const value = Number(e.target.value);
+                      field.onChange(value);
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
         <FormField
           control={form.control}
           name="speaker.autoShowSpeaker"

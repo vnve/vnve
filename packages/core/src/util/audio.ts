@@ -65,11 +65,17 @@ export async function arrayBufferToAudioBuffer(
 }
 
 export async function fetchAudioBuffer(url: string) {
-  const arrayBuffer = await (await fetch(url)).arrayBuffer();
+  try {
+    const arrayBuffer = await (await fetch(url)).arrayBuffer();
 
-  const data = await arrayBufferToAudioBuffer(arrayBuffer);
+    const data = await arrayBufferToAudioBuffer(arrayBuffer);
 
-  return data;
+    return data;
+  } catch (error) {
+    console.error("fetchAudioBuffer error:", error);
+
+    return;
+  }
 }
 
 // export function mixAudioBuffers(buffers: AudioBuffer[]) {

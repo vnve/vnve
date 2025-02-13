@@ -16,6 +16,7 @@ export interface SpeakDirectiveOptions extends AnimationDirectiveOptions {
   append?: boolean;
   voiceDuration?: number;
   effect?: SpeakDirectiveEffect;
+  effectDuration?: number;
   alignWithVoice?: boolean;
   dialogTargetName?: string;
   speaker?: SpeakerDirectiveOptions;
@@ -34,6 +35,7 @@ export class Speak extends AnimationDirective<PIXI.Text> {
         interval: 0.2,
         sequential: true,
         effect: "typewriter",
+        effectDuration: 0.5,
         alignWithVoice: true,
       },
       options,
@@ -116,6 +118,8 @@ export class Speak extends AnimationDirective<PIXI.Text> {
 
   // TODO: 优化效果
   private fadeIn(fromText: string, toText: string) {
+    const { effectDuration } = this.options;
+
     gsap.fromTo(
       this.target,
       {
@@ -133,7 +137,7 @@ export class Speak extends AnimationDirective<PIXI.Text> {
         text: {
           value: toText,
         },
-        duration: 0.5,
+        duration: effectDuration,
         ease: "none",
       },
     );

@@ -202,6 +202,23 @@ export async function loadDBFonts() {
   }
 }
 
+export async function getAssetById(id: number, stateName?: string) {
+  const query = await assetDB.get(id);
+
+  if (stateName) {
+    const hit = query.states.find((state) => state.name === stateName);
+
+    return hit
+      ? {
+          ...query,
+          stateId: hit.id,
+        }
+      : undefined;
+  }
+
+  return query;
+}
+
 export async function getAssetByName(
   name: string,
   stateName?: string,
@@ -213,7 +230,7 @@ export async function getAssetByName(
   }
   const query = await assetDB.where(params).first();
 
-  if (stateName) {
+  if (query && stateName) {
     const hit = query.states.find((state) => state.name === stateName);
 
     return hit

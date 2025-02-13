@@ -648,6 +648,7 @@ export class Editor {
             wordsPerMin: dialogueSpeakConfig.wordsPerMin,
             interval: dialogueSpeakConfig.interval,
             effect: dialogueSpeakConfig.effect,
+            effectDuration: dialogueSpeakConfig.effectDuration,
             speaker: sceneSpeakConfig.speaker.targetName
               ? {
                   targetName: sceneSpeakConfig.speaker.targetName,

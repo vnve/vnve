@@ -12,6 +12,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/openai/, ""),
       },
+      "/api/deepseek": {
+        target: "https://api.deepseek.com",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/deepseek/, ""),
+      },
       "/api/ark": {
         target: "https://ark.cn-beijing.volces.com/api/v3",
         changeOrigin: true,
