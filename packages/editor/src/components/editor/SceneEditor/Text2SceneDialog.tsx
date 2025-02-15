@@ -207,8 +207,12 @@ export function Text2SceneDialog({
         </DialogHeader>
         <Tabs defaultValue="convert">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="convert">转换剧本</TabsTrigger>
-            <TabsTrigger value="generate">生成剧本</TabsTrigger>
+            <TabsTrigger value="convert" disabled={!!loadingText}>
+              转换剧本
+            </TabsTrigger>
+            <TabsTrigger value="generate" disabled={!!loadingText}>
+              生成剧本
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="convert">
             <TextFileEditor
