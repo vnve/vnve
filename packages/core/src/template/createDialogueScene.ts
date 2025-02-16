@@ -19,6 +19,7 @@ export function createDialogueScene() {
     fill: 0xffffff,
     fontSize: 44,
     fontWeight: "bold",
+    leading: 15,
   });
   nameText.x = 160;
   nameText.y = 700;
