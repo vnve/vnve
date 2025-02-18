@@ -101,12 +101,19 @@ export interface Screenplay {
 
 interface TickerExtend extends PIXI.Ticker {
   time: number;
+  globalTime: number;
   ctx: {
     scene?: PIXI.Container;
     imageSource?: CanvasImageSource;
     audioBuffers?: AudioBuffer[];
   };
   asyncHandlers: Array<Promise<void>>;
+}
+
+interface Subtitle {
+  start: number;
+  end: number;
+  text: string;
 }
 
 /**
@@ -128,6 +135,7 @@ export class Director {
   private renderer: PIXI.IRenderer;
   private rendererOptions: RendererOptions;
   private started: boolean;
+  private subtitles: Subtitle[];
   private connecter?: Connector;
   private cutResolver?: (value: unknown) => void;
 
@@ -136,6 +144,7 @@ export class Director {
     // @ts-ignore
     this.ticker = PIXI.Ticker.shared; // 使用shared Ticker方便GIF,Video等插件共享
     this.ticker.ctx = {};
+    this.ticker.globalTime = 0;
     this.ticker.asyncHandlers = [];
     this.ticker.autoStart = false;
     this.ticker.stop();
@@ -145,6 +154,7 @@ export class Director {
       rendererOptions,
     );
     this.started = false;
+    this.subtitles = [];
 
     const { width, height, background } = this.rendererOptions;
     this.renderer =
@@ -181,7 +191,7 @@ export class Director {
     const now = performance.now();
 
     try {
-      const executors = this.parseScreenplay(screenplay);
+      const executors = await this.parseScreenplay(screenplay);
 
       return await this.run(executors);
     } finally {
@@ -203,6 +213,7 @@ export class Director {
 
   public reset() {
     this.started = false;
+    this.subtitles = [];
     soundController.reset();
     // hack ticker
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -213,17 +224,20 @@ export class Director {
       listener = listener.destroy(true);
     }
     this.ticker.time = 0;
+    this.ticker.globalTime = 0;
     this.ticker.lastTime = -1;
     this.ticker.ctx = {};
     this.ticker.asyncHandlers = [];
   }
 
-  private parseScreenplay(screenplay: Screenplay): SceneScriptExecutor[] {
+  private async parseScreenplay(
+    screenplay: Screenplay,
+  ): Promise<SceneScriptExecutor[]> {
     const { scenes: sceneScripts } = screenplay;
     const sceneScriptExecutors: SceneScriptExecutor[] = [];
 
     for (const sceneScript of sceneScripts) {
-      const executor = this.parseSceneScript(sceneScript);
+      const executor = await this.parseSceneScript(sceneScript);
 
       sceneScriptExecutors.push(executor);
     }
@@ -231,7 +245,10 @@ export class Director {
     return sceneScriptExecutors;
   }
 
-  private parseSceneScript(sceneScript: SceneScript): SceneScriptExecutor {
+  private async parseSceneScript(
+    sceneScript: SceneScript,
+  ): Promise<SceneScriptExecutor> {
+    // Update return type to Promise<SceneScriptExecutor>
     const { scene } = sceneScript;
     const { directives } = sceneScript;
     let nextDirectiveStart = 0;
@@ -308,8 +325,13 @@ export class Director {
         scene,
       );
 
+      // 针对需要加载资源的指令，提前加载完成，才能执行
+      if (directive.load) {
+        await directive.load();
+      }
+
       const directiveExecutor = () => {
-        const time = this.ticker.time;
+        const { time, globalTime } = this.ticker;
 
         // 当前时间
         directive.currentTime = time;
@@ -329,6 +351,15 @@ export class Director {
           this.ticker.asyncHandlers.push(directive.execute());
           // 指令执行完成后移除
           this.ticker.remove(directiveExecutor);
+
+          // 执行Speak指令时，记录字幕
+          if (directiveName === "Speak") {
+            this.subtitles.push({
+              start: globalTime,
+              end: globalTime + directive.getDuration(),
+              text: directive.options.text,
+            });
+          }
         }
       };
       directiveExecutors.push(directiveExecutor);
@@ -371,18 +402,19 @@ export class Director {
         sceneFrameIndex++
       ) {
         const sceneFrameTimeMS = (sceneFrameIndex / fps) * 1000;
-        const frameTimeMS = (frameIndex / fps) * 1000;
+        const globalFrameTimeMS = (frameIndex / fps) * 1000;
 
         if (this.started) {
           this.ticker.time = sceneFrameTimeMS / 1000; // 拓展字段，记录当前tick的时间, 单位秒
           this.ticker.update(sceneFrameTimeMS); // 手动触发ticker更新
+          this.ticker.globalTime = globalFrameTimeMS / 1000; // 拓展字段，记录全局时间
 
           // 等待所有异步任务完成
           await Promise.all(this.ticker.asyncHandlers);
 
           if (this.connecter?.connection) {
             await this.connecter.handle({
-              timestamp: frameTimeMS, // 仅针对预览/合成时，需要给出全局时间
+              timestamp: globalFrameTimeMS, // 仅针对预览/合成时，需要给出全局时间
               imageSource: this.ticker.ctx.imageSource!,
               audioBuffers: this.ticker.ctx.audioBuffers!,
             });
@@ -391,7 +423,7 @@ export class Director {
           if (this.rendererOptions.onProgress) {
             this.rendererOptions.onProgress(
               (frameIndex / frameCount) * 100,
-              frameTimeMS / 1000,
+              globalFrameTimeMS / 1000,
               duration,
             );
           }
@@ -414,6 +446,9 @@ export class Director {
 
     this.started = false;
 
-    return result;
+    return {
+      result,
+      subtitles: this.subtitles,
+    };
   }
 }

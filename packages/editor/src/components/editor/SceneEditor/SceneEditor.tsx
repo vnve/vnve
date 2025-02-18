@@ -66,7 +66,8 @@ export function SceneEditor() {
   const [curExportVideoURL, setCurExportVideoURL] = useState<string | null>(
     null,
   );
-  const director = useRef(null);
+  const director = useRef<Director | null>(null);
+  const [subtitles, setSubtitles] = useState([]);
   const [actionProgress, setActionProgress] = useState<ActionProgress>({
     value: 0,
     currentTime: 0,
@@ -266,9 +267,10 @@ export function SceneEditor() {
     director.current.connect(compositor);
     director.current
       .action(screenplay)
-      .then((res) => {
-        const videoSrc = URL.createObjectURL(res);
+      .then(({ result, subtitles }) => {
+        const videoSrc = URL.createObjectURL(result);
 
+        setSubtitles(subtitles);
         setCurExportVideoURL(videoSrc);
       })
       .catch((error) => {
@@ -582,6 +584,7 @@ export function SceneEditor() {
         <ExportVideoDialog
           progress={actionProgress}
           url={curExportVideoURL}
+          subtitles={subtitles}
           isOpen={isOpenExportVideoDialog}
           onClose={handleCloseExportVideoDialog}
         ></ExportVideoDialog>
