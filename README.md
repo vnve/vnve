@@ -4,7 +4,7 @@
 </p>
 <h1 align="center">V N V E</h1>
 <p align="center"><strong>Visual Novel Video Editor</strong></p>
-<p align="center"><strong>Make Visual Novel Videos in Your Browser <a href="https://vnve.github.io"> 🔗 </a></strong></p>
+<p align="center"><strong>Make Visual Novel Videos in Your Browser <a href="https://vnve.net"> 🔗 </a></strong></p>
 <div align="center">
   <a href="https://discord.gg/sc9jpqBAbs"><img src="https://img.shields.io/badge/chat-discord-blue?style=flat&logo=discord" alt="discord chat"></a>
   <a href="https://www.npmjs.com/package/@vnve/core"><img src="https://img.shields.io/npm/dm/%40vnve/core" alt="downloads"></a>
@@ -13,7 +13,7 @@
 </div>
 
 ## Features
-
+- 🔥 AI-powered rapid creation, enabling the generation of visual novel videos with just one click through the integration of APIs such as DeepSeek and OpenAI. 🆕
 - 🎬 An online video editor customized for creating visual novels, open your browser and start creating!
 - 👋 Say goodbye to complicated video editing software and create visual novel videos easily and quickly!
 - 📝 Text First, Let's Return to the Core of Visual Novel Creation — Text Content.
@@ -41,7 +41,7 @@
 - ...
 
 ## Online Usage
-visit: [vnve.github.io](https://vnve.github.io), start creating video immediately.
+visit: [vnve.net](https://vnve.net), start creating video immediately.
 
 ### Demo
 https://github.com/user-attachments/assets/3ab2a89c-32cb-46e7-ae9d-421bbefaacd5
@@ -144,9 +144,9 @@ creator.start().then(videoBlob => {
 ## Core Packages
 | package name | brief | docs |
 |  ----  | ----  | ---- |
-| @vnve/editor | Web UI page for the online editor | - |
-| @vnve/core | Core module, using PixiJS + Webcodes to achieve scene dynamization and export Mp4 video | [📖](https://github.com/vnve/vnve/blob/main/packages/core/README.md) |
-| @vnve/template | Template package, consisting of scenarios and elements for scenario reuse | [📖](https://github.com/vnve/vnve/blob/main/packages/template/README.md) |
+| @vnve/editor | Web UI page for the online editor | 🚧 |
+| @vnve/core | Core module, using PixiJS + Webcodes to achieve scene dynamization and export Mp4 video | 🚧 |
+| @vnve/template | Template package, consisting of scenarios and elements for scenario reuse | 🚧 |
 
 ## License
 MIT
