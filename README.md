@@ -44,7 +44,9 @@
 visit: [vnve.net](https://vnve.net), start creating video immediately.
 
 ### Demo
-https://github.com/user-attachments/assets/3ab2a89c-32cb-46e7-ae9d-421bbefaacd5
+https://github.com/user-attachments/assets/bcf3802d-3d64-40e7-ab89-173e42c339cb
+
+
 
 ## Code Usage
 You can also create videos directly by calling the npm package
