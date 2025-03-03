@@ -17,6 +17,10 @@ class SoundController {
     >
   > = new Map();
 
+  public get(name: string) {
+    return this.soundRecordMap.get(name);
+  }
+
   public play(sound: Sound, options: PlayDirectiveOptions) {
     const record = this.soundRecordMap.get(sound.name);
 

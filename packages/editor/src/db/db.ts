@@ -3,6 +3,12 @@ import { downloadFile, getFileInfo, openFilePicker } from "@/lib/utils";
 import Dexie, { Table } from "dexie";
 import "dexie-export-import";
 
+// 临时资源目录前缀
+export const TMP_PREFIX = "__TMP__";
+
+// 旁白资源ID
+export const NARRATOR_ASSET_ID = 100000;
+
 export enum DBAssetType {
   Character = "Character",
   Background = "Background",
@@ -72,6 +78,7 @@ export interface DBAsset {
   id?: number;
   name: string;
   type: DBAssetType;
+  voice?: string;
   states: DBAssetState[];
   stateId?: number;
 }
@@ -98,8 +105,8 @@ export class VNVEDexie extends Dexie {
 
   constructor() {
     super("vnve2");
-    this.version(3).stores({
-      asset: "++id, name, type, states, [name+type]",
+    this.version(4).stores({
+      asset: "++id, name, type, voice, states, [name+type]",
       assetSource: "++id, mime, blob, ext",
       template: "++id, name, type, content",
       project: "++id, name, time, content",
@@ -115,6 +122,12 @@ export const projectDB = db.project;
 
 export function getAssetSourceURL(assetState: DBAssetState) {
   return assetState.url || `https://s/${assetState.id}.${assetState.ext}`;
+}
+
+export function getAssetSourceURLByAsset(asset: DBAsset) {
+  const state = asset.states.find((state) => state.id === asset.stateId);
+
+  return state ? getAssetSourceURL(state) : "";
 }
 
 export function genFileAccept(type: DBAssetType) {
@@ -264,4 +277,71 @@ export async function getAllAssetNamesByType(type: DBAssetType) {
   const assets = await assetDB.where("type").equals(type).toArray();
 
   return assets.map((asset) => asset.name);
+}
+
+// TODO: 替换nanoid
+function randomName() {
+  return Math.random().toString(36).substring(2, 8);
+}
+
+export async function importAssetToProjectTmp(
+  projectId: number,
+  assetType: DBAssetType,
+  file: File,
+) {
+  const tmpAssetName = `${TMP_PREFIX}${projectId}`;
+  let tmpAsset = await getAssetByName(tmpAssetName, undefined, assetType);
+
+  if (!tmpAsset) {
+    const id = await assetDB.add({
+      name: tmpAssetName,
+      type: assetType,
+      states: [],
+    });
+
+    tmpAsset = await getAssetById(id);
+  }
+
+  const { name, ext } = getFileInfo(file);
+  const id = await assetSourceDB.add({
+    mime: file.type,
+    blob: file,
+    ext,
+  });
+
+  tmpAsset.stateId = id;
+  tmpAsset.states.push({
+    id,
+    name: `${name}_${randomName()}`,
+    ext,
+  });
+
+  await assetDB.update(tmpAsset.id, { states: tmpAsset.states });
+
+  return tmpAsset;
+}
+
+export async function removeProjectTmpAssets(projectId: number) {
+  const tmpAssetName = `${TMP_PREFIX}${projectId}`;
+  const assets = await assetDB.where("name").equals(tmpAssetName).toArray();
+
+  for (const asset of assets) {
+    await assetDB.delete(asset.id);
+    for (const state of asset.states) {
+      await assetSourceDB.delete(state.id);
+    }
+  }
+}
+
+export async function insertNarratorAsset() {
+  const existingAsset = await assetDB.get(NARRATOR_ASSET_ID);
+
+  if (!existingAsset) {
+    await assetDB.put({
+      id: NARRATOR_ASSET_ID,
+      name: "旁白",
+      type: DBAssetType.Character,
+      states: [],
+    });
+  }
 }

@@ -15,6 +15,7 @@ import { DirectivePlugin } from "@/components/plugin/directive/DirectivePlugin";
 import { DirectiveElement } from "@/components/plate-ui/directive-element";
 import { DirectiveFloatingToolbar } from "@/components/plate-ui/directive-floating-toolbar";
 import { useEffect, useRef } from "react";
+import { DirectiveVoiceController } from "@/components/plate-ui/directive-voice-controller";
 
 export function DirectiveInput({ value, onChange, onFocus, children }) {
   const editor: PlateEditor = usePlateEditor({
@@ -70,21 +71,29 @@ export function DirectiveInput({ value, onChange, onFocus, children }) {
   }, [value.lines, editor]);
 
   return (
-    <Plate editor={editor} onValueChange={handleChangeLines}>
-      <div
-        className="relative rounded-md border bg-background border-border"
-        onFocus={handleFocus}
-      >
-        <FixedToolbar>
-          <FixedToolbarButtons
-            speak={value.speak}
-            onChangeSpeak={handleChangeSpeak}
-          >
-            {children}
-          </FixedToolbarButtons>
-        </FixedToolbar>
-        <Editor focusRing={false} variant="ghost" size="sm" />
-      </div>
-    </Plate>
+    <div className="flex flex-col">
+      <Plate editor={editor} onValueChange={handleChangeLines}>
+        <div
+          className="relative rounded-md rounded-b-none border bg-background border-border"
+          onFocus={handleFocus}
+        >
+          <FixedToolbar>
+            <FixedToolbarButtons
+              speak={value.speak}
+              lines={value.lines}
+              onChangeSpeak={handleChangeSpeak}
+            >
+              {children}
+            </FixedToolbarButtons>
+          </FixedToolbar>
+          <Editor focusRing={false} variant="ghost" size="sm" />
+        </div>
+      </Plate>
+      <DirectiveVoiceController
+        speak={value.speak}
+        lines={value.lines}
+        onChangeSpeak={handleChangeSpeak}
+      ></DirectiveVoiceController>
+    </div>
   );
 }

@@ -29,6 +29,8 @@ import {
 } from "@/components/ui/popover";
 import { DirectiveSpeakForm } from "@/components/plate-ui/directive-speak-form";
 import { Switch } from "@/components/ui/switch";
+import { linesToText } from "@/lib/utils";
+import { AudioLines } from "lucide-react";
 
 export function SceneDetail({ onClose }: { onClose?: () => void }) {
   const editor = useEditorStore((state) => state.editor);
@@ -103,26 +105,7 @@ export function SceneDetail({ onClose }: { onClose?: () => void }) {
         const textChild = editor.activeScene.getChildByName(
           textTargetName,
         ) as Text;
-        let speakText = "";
-
-        value.lines.forEach((line) => {
-          if (line.type === "p") {
-            for (let index = 0; index < line.children.length; index++) {
-              const child = line.children[index];
-
-              if (!child.type) {
-                let text = child.text;
-
-                if (index === line.children.length - 1) {
-                  // 最后一个元素是文本，增加换行符
-                  text += "\n";
-                }
-
-                speakText += text;
-              }
-            }
-          }
-        });
+        const speakText = linesToText(value.lines);
 
         if (speakText && textChild) {
           textChild.text = speakText;
@@ -235,7 +218,21 @@ export function SceneDetail({ onClose }: { onClose?: () => void }) {
                   />
                 </div>
                 <div className="flex flex-col gap-2 mt-4">
-                  <Label>场景对白</Label>
+                  <Label className="flex justify-between items-center">
+                    <span>场景对白</span>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button size="sm" variant="ghost">
+                            <AudioLines className="size-4"></AudioLines>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>批量生成当前场景中所有对白的音频</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </Label>
                   {activeScene.dialogues.map((dialogue, index) => {
                     return (
                       <div key={index}>

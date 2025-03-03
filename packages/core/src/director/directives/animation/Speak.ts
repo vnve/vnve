@@ -11,10 +11,10 @@ export type SpeakDirectiveEffect = "typewriter" | "fadeIn" | "none";
 
 export interface SpeakDirectiveOptions extends AnimationDirectiveOptions {
   text: string;
+  fullText?: string;
   wordsPerMin?: number;
   interval?: number;
   append?: boolean;
-  voiceDuration?: number;
   effect?: SpeakDirectiveEffect;
   effectDuration?: number;
   alignWithVoice?: boolean;
@@ -27,6 +27,7 @@ export class Speak extends AnimationDirective<PIXI.Text> {
   protected declare options: SpeakDirectiveOptions;
   private speakerDirective?: Speaker;
   private voiceDirective?: Voice;
+  private voiceDuration?: number;
 
   constructor(options: SpeakDirectiveOptions, stage: PIXI.Container) {
     super(options, stage);
@@ -64,6 +65,21 @@ export class Speak extends AnimationDirective<PIXI.Text> {
     }
   }
 
+  public async load() {
+    if (this.voiceDirective) {
+      await this.voiceDirective.load();
+
+      const fullVoiceDuration = this.voiceDirective.getDuration();
+      const { text, fullText } = this.options;
+
+      // Speak会被拆分为多个，因此需要根据文字比例计算每个Speak的voice时长
+      if (fullText) {
+        this.voiceDuration =
+          (text.length / fullText.length) * fullVoiceDuration;
+      }
+    }
+  }
+
   public execute(): void {
     if (!this.target) {
       return;
@@ -93,7 +109,11 @@ export class Speak extends AnimationDirective<PIXI.Text> {
     }
 
     this.speakerDirective?.execute();
-    this.voiceDirective?.execute();
+
+    // 仅首个Speak指令执行voice
+    if (!append) {
+      this.voiceDirective?.execute();
+    }
   }
 
   private typewriter(fromText: string, toText: string) {
@@ -148,16 +168,14 @@ export class Speak extends AnimationDirective<PIXI.Text> {
   }
 
   public getDuration(): number {
-    const { sequential, text, wordsPerMin, interval, voiceDuration } =
-      this.options;
+    const { sequential, text, wordsPerMin, interval } = this.options;
     let readingTime = this.readingTime(text, wordsPerMin);
+    const duration = readingTime + (interval ?? 0);
 
     // 存在配音时，取文字和配音时长的最大值
-    if (voiceDuration) {
-      readingTime = Math.max(readingTime, voiceDuration);
+    if (this.voiceDuration) {
+      readingTime = Math.max(readingTime, this.voiceDuration);
     }
-
-    const duration = readingTime + (interval ?? 0);
 
     return sequential ? duration : 0;
   }

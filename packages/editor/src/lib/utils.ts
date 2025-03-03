@@ -1,3 +1,4 @@
+import { Dialogue } from "@vnve/core";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -87,4 +88,45 @@ export function matchJSON(content: string) {
   } catch {
     return null;
   }
+}
+
+export function linesToText(lines: Dialogue["lines"], pureText = false) {
+  let speakText = "";
+
+  lines.forEach((line) => {
+    if (line.type === "p") {
+      for (let index = 0; index < line.children.length; index++) {
+        const child = line.children[index];
+
+        if (!child.type) {
+          let text = child.text;
+
+          if (index === line.children.length - 1) {
+            // 最后一个元素是文本，增加换行符
+            text += "\n";
+          }
+
+          speakText += text;
+        }
+      }
+    }
+  });
+
+  if (pureText) {
+    speakText = speakText.replace(/\n/g, "");
+  }
+
+  return speakText;
+}
+
+export function fetchAudioFile(url: string, name: string, ext = "mp3") {
+  return fetch(url)
+    .then((response) => response.blob())
+    .then((blob) => {
+      const file = new File([blob], `${name}.${ext}`, {
+        type: `audio/${ext}`,
+      });
+
+      return file;
+    });
 }

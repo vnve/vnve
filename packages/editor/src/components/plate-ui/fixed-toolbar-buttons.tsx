@@ -22,7 +22,6 @@ import { DirectiveType } from "@/config";
 import { triggerFloatingDirective } from "../plugin/directive";
 import { ToolbarButton } from "./toolbar";
 import { DirectiveSpeakForm } from "./directive-speak-form";
-import { DirectiveVoiceForm } from "./directive-voice-form";
 import { useMedia } from "../hooks/useMedia";
 import { cn } from "@/lib/utils";
 import { useAssetLibrary } from "../hooks/useAssetLibrary";
@@ -33,7 +32,7 @@ const Narrator = {
   label: "旁白",
 };
 
-export function FixedToolbarButtons({ speak, onChangeSpeak, children }) {
+export function FixedToolbarButtons({ speak, lines, onChangeSpeak, children }) {
   const isSm = useMedia("(min-width: 640px)");
   const activeScene = useEditorStore((state) => state.activeScene);
   const characters = useMemo(() => {
@@ -147,24 +146,6 @@ export function FixedToolbarButtons({ speak, onChangeSpeak, children }) {
               speak={speak}
               onChangeSpeak={onChangeSpeak}
             ></DirectiveSpeakForm>
-          </PopoverContent>
-        </Popover>
-        <Popover>
-          <PopoverTrigger asChild>
-            <ToolbarButton className="px-1" tooltip="配音设置">
-              <Icons.mic
-                className={cn(
-                  "!size-4 cursor-pointer mx-1",
-                  speak.voice?.targetName ? "text-blue-500" : "",
-                )}
-              />
-            </ToolbarButton>
-          </PopoverTrigger>
-          <PopoverContent onInteractOutside={handlePopoverInteractOutside}>
-            <DirectiveVoiceForm
-              speak={speak}
-              onChangeSpeak={onChangeSpeak}
-            ></DirectiveVoiceForm>
           </PopoverContent>
         </Popover>
         <ToolbarButton

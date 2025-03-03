@@ -13,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { projectDB } from "@/db";
+import { projectDB, removeProjectTmpAssets } from "@/db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Icons } from "@/components/icons";
 import { useEditorStore } from "@/store";
@@ -62,6 +62,7 @@ export function ProjectLibrary({
 
   const handleDelete = async (id: number) => {
     await projectDB.delete(id);
+    await removeProjectTmpAssets(id);
   };
 
   const handleCopy = async (id: number) => {

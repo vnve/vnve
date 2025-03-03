@@ -7,20 +7,25 @@ import legacy from "@vitejs/plugin-legacy";
 export default defineConfig({
   server: {
     proxy: {
-      "/api/openai": {
+      "/api/llm/openai": {
         target: "https://api.openai.com/v1",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/openai/, ""),
+        rewrite: (path) => path.replace(/^\/api\/llm\/openai/, ""),
       },
-      "/api/deepseek": {
+      "/api/llm/deepseek": {
         target: "https://api.deepseek.com",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/deepseek/, ""),
+        rewrite: (path) => path.replace(/^\/api\/llm\/deepseek/, ""),
       },
-      "/api/ark": {
+      "/api/llm/ark": {
         target: "https://ark.cn-beijing.volces.com/api/v3",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/ark/, ""),
+        rewrite: (path) => path.replace(/^\/api\/llm\/ark/, ""),
+      },
+      "/api/tts/ark": {
+        target: "https://openspeech.bytedance.com",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/tts\/ark/, ""),
       },
     },
   },

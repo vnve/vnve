@@ -4,6 +4,7 @@ import {
   DBAssetType,
   getAssetSourceURL,
   DBAssetState,
+  NARRATOR_ASSET_ID,
 } from "@/db";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useMemo } from "react";
@@ -26,6 +27,14 @@ import FileSelector from "./FileSelector";
 import { AssetStateCard } from "./AssetCard";
 import { getFileInfo } from "@/lib/utils";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { VOICE_OPTIONS } from "@/lib/tts";
 
 const formSchema = z.object({
   id: z.number().optional(),
@@ -35,24 +44,21 @@ const formSchema = z.object({
   type: z.string().min(1, {
     message: "类型必选",
   }),
-  states: z
-    .array(
-      z
-        .object({
-          id: z.number().optional(),
-          name: z.string().min(1, {
-            message: "状态名称必填",
-          }),
-          ext: z.string().optional(),
-          file: z.instanceof(File).optional(),
-        })
-        .refine((data) => data.id || data.file, {
-          message: "状态文件必选",
+  voice: z.string().optional(),
+  states: z.array(
+    z
+      .object({
+        id: z.number().optional(),
+        name: z.string().min(1, {
+          message: "状态名称必填",
         }),
-    )
-    .min(1, {
-      message: "至少需要一个状态",
-    }),
+        ext: z.string().optional(),
+        file: z.instanceof(File).optional(),
+      })
+      .refine((data) => data.id || data.file, {
+        message: "状态文件必选",
+      }),
+  ),
 });
 
 export function AssetForm({
@@ -73,6 +79,7 @@ export function AssetForm({
     defaultValues: {
       name: "",
       type: "",
+      voice: "",
       states: [],
     },
   });
@@ -98,6 +105,7 @@ export function AssetForm({
       id: asset.id,
       name: asset.name,
       type: asset.type,
+      voice: asset.voice,
       states: asset.states,
     });
   }, [asset, form]);
@@ -134,87 +142,121 @@ export function AssetForm({
               <FormItem>
                 <FormLabel>{assetTypeName}名</FormLabel>
                 <FormControl>
-                  <Input placeholder={`请输入${assetTypeName}名`} {...field} />
+                  <Input
+                    placeholder={`请输入${assetTypeName}名`}
+                    disabled={asset.id === NARRATOR_ASSET_ID}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          <FormItem>
-            <FormLabel className="flex items-center">
-              {assetTypeName}状态
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => append({ name: "" })}
-                className="ml-2"
-              >
-                <Icons.squarePlus className="size-4 mr-1"></Icons.squarePlus>
-                新增状态
-              </Button>
-            </FormLabel>
-            <FormControl>
-              <div>
-                {fields.length > 0 && (
-                  <ScrollArea className="w-full whitespace-nowrap rounded-md border">
-                    <div className="flex w-full gap-2 p-2">
-                      {fields.map((field, index) => (
-                        <AssetStateCard
-                          key={index}
-                          type={asset.type}
-                          state={field as DBAssetState}
-                        >
-                          <>
-                            <CardContent className="p-2 flex justify-center">
-                              <FileSelector
-                                className="w-full h-full"
-                                type={asset.type}
-                                ext={field.ext}
-                                url={
-                                  field.id &&
-                                  getAssetSourceURL(field as DBAssetState)
-                                }
-                                onChange={(file) =>
-                                  handleChangeFile(file, index)
-                                }
-                              ></FileSelector>
-                            </CardContent>
-                            <CardFooter className="font-medium p-2 pt-0 flex flex-col gap-1">
-                              <div className="flex w-full justify-between">
-                                <FormField
-                                  control={form.control}
-                                  name={`states.${index}.name`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormControl>
-                                        <Input
-                                          className="h-6 text-sm"
-                                          placeholder="请输入状态名"
-                                          {...field}
-                                        />
-                                      </FormControl>
-                                      {/* <FormMessage /> */}
-                                    </FormItem>
-                                  )}
-                                />
-                                <Icons.delete
-                                  className="size-4 ml-1 mt-1 flex-shrink-0 cursor-pointer hover:text-destructive"
-                                  onClick={() => remove(index)}
-                                ></Icons.delete>
-                              </div>
-                            </CardFooter>
-                          </>
-                        </AssetStateCard>
-                      ))}
-                    </div>
-                    <ScrollBar orientation="horizontal" />
-                  </ScrollArea>
-                )}
-              </div>
-            </FormControl>
-            <FormMessage />
-          </FormItem>
+          {asset.type === DBAssetType.Character && (
+            <FormField
+              control={form.control}
+              name="voice"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>角色音色</FormLabel>
+                  <FormControl>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="请选择音色" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {VOICE_OPTIONS.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+
+          {asset.id !== NARRATOR_ASSET_ID && (
+            <FormItem>
+              <FormLabel className="flex items-center">
+                {assetTypeName}状态
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => append({ name: "" })}
+                  className="ml-2"
+                >
+                  <Icons.squarePlus className="size-4 mr-1"></Icons.squarePlus>
+                  新增状态
+                </Button>
+              </FormLabel>
+              <FormControl>
+                <div>
+                  {fields.length > 0 && (
+                    <ScrollArea className="w-full whitespace-nowrap rounded-md border">
+                      <div className="flex w-full gap-2 p-2">
+                        {fields.map((field, index) => (
+                          <AssetStateCard
+                            key={index}
+                            type={asset.type}
+                            state={field as DBAssetState}
+                          >
+                            <>
+                              <CardContent className="p-2 flex justify-center">
+                                <FileSelector
+                                  className="w-full h-full"
+                                  type={asset.type}
+                                  ext={field.ext}
+                                  url={
+                                    field.id &&
+                                    getAssetSourceURL(field as DBAssetState)
+                                  }
+                                  onChange={(file) =>
+                                    handleChangeFile(file, index)
+                                  }
+                                ></FileSelector>
+                              </CardContent>
+                              <CardFooter className="font-medium p-2 pt-0 flex flex-col gap-1">
+                                <div className="flex w-full justify-between">
+                                  <FormField
+                                    control={form.control}
+                                    name={`states.${index}.name`}
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormControl>
+                                          <Input
+                                            className="h-6 text-sm"
+                                            placeholder="请输入状态名"
+                                            {...field}
+                                          />
+                                        </FormControl>
+                                        {/* <FormMessage /> */}
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <Icons.delete
+                                    className="size-4 ml-1 mt-1 flex-shrink-0 cursor-pointer hover:text-destructive"
+                                    onClick={() => remove(index)}
+                                  ></Icons.delete>
+                                </div>
+                              </CardFooter>
+                            </>
+                          </AssetStateCard>
+                        ))}
+                      </div>
+                      <ScrollBar orientation="horizontal" />
+                    </ScrollArea>
+                  )}
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+
           <div className="flex gap-2">
             <Button type="submit">确定</Button>
             <Button

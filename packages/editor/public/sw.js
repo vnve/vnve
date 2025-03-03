@@ -92,11 +92,41 @@ async function handleFetch(event) {
   }
 
   if (assetSource) {
-    return new Response(assetSource.blob, {
-      headers: { "Content-Type": assetSource.mime },
+    // 获取Range请求头
+    const range = event.request.headers.get("Range");
+
+    if (!range) {
+      // 如果不是Range请求，返回完整响应
+      return new Response(assetSource.blob, {
+        headers: {
+          "Content-Type": assetSource.mime,
+          "Content-Length": assetSource.blob.size,
+          "Accept-Ranges": "bytes",
+        },
+      });
+    }
+
+    // 解析Range头
+    const matches = range.match(/bytes=(\d+)-(\d+)?/);
+    const start = parseInt(matches[1], 10);
+    const end = matches[2]
+      ? parseInt(matches[2], 10)
+      : assetSource.blob.size - 1;
+
+    // 从Blob中截取指定范围的数据
+    const slicedBlob = assetSource.blob.slice(start, end + 1);
+
+    // 返回206部分内容响应
+    return new Response(slicedBlob, {
+      status: 206,
+      headers: {
+        "Content-Type": assetSource.mime,
+        "Content-Length": slicedBlob.size,
+        "Content-Range": `bytes ${start}-${end}/${assetSource.blob.size}`,
+        "Accept-Ranges": "bytes",
+      },
     });
   }
 
-  // 如果没有找到资源，返回一个404响应
   return new Response("Not Found", { status: 404 });
 }

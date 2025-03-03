@@ -614,37 +614,25 @@ export class Editor {
       });
 
       let shouldAppend = false; // 首次发言，不需要append
-      let allVoiceDuration: number | undefined;
-      let allText = "";
+      let fullText = ""; // 计算总文本长度
 
-      // TODO: 待优化, 文本和语音对齐时
-      // 根据语音时长，计算每段文本的时长, 然后分配到每个speak指令中
       if (dialogueSpeakConfig.voice?.targetName) {
-        allText = tempList
+        fullText = tempList
           .filter((item) => item.type === "speak")
           .map((item) => item.value as string)
           .join("");
-
-        allVoiceDuration = scene.sounds.find(
-          (item) => item.name === dialogueSpeakConfig.voice?.targetName,
-        )?.buffer?.duration;
       }
 
       const insertSpeak = (list: string[]) => {
         const text = list.join("");
-        let voiceDuration;
-
-        if (allText && allVoiceDuration) {
-          voiceDuration = (text.length / allText.length) * allVoiceDuration;
-        }
 
         directives.push({
           directive: DirectiveName.Speak,
           params: {
             targetName: sceneSpeakConfig.targetName,
             text,
+            fullText,
             append: shouldAppend,
-            voiceDuration,
             wordsPerMin: dialogueSpeakConfig.wordsPerMin,
             interval: dialogueSpeakConfig.interval,
             effect: dialogueSpeakConfig.effect,
@@ -660,9 +648,7 @@ export class Editor {
                     dialogueSpeakConfig.speaker?.autoMaskOtherSpeakers,
                 }
               : undefined,
-            voice: shouldAppend
-              ? undefined
-              : dialogueSpeakConfig.voice?.targetName
+            voice: dialogueSpeakConfig.voice?.targetName
               ? dialogueSpeakConfig.voice
               : undefined, // 仅第一个speak指令，需要播放语音
           },

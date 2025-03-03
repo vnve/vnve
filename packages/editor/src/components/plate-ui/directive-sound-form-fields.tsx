@@ -59,6 +59,11 @@ export const DirectiveSoundFormFields = forwardRef<
     const asset = await selectAsset(DBAssetType.Audio);
 
     if (asset) {
+      if (formTargetName) {
+        // 如果已经选择了音频，先删除
+        editor.removeSoundByName(formTargetName);
+      }
+
       const sound = createSound(asset);
 
       editor.addSound(sound);
@@ -71,12 +76,17 @@ export const DirectiveSoundFormFields = forwardRef<
 
   useEffect(() => {
     if (activeScene) {
-      const options = activeScene.sounds.map((item) => {
-        return {
-          label: item.label,
-          value: item.name,
-        };
-      });
+      const voices = activeScene.dialogues.map(
+        (item) => item.speak?.voice?.targetName,
+      );
+      const options = activeScene.sounds
+        .map((item) => {
+          return {
+            label: item.label,
+            value: item.name,
+          };
+        })
+        .filter((item) => !voices.includes(item.value)); // 过滤掉配音文件
 
       setOptionGroups([
         {
@@ -193,6 +203,7 @@ export const DirectiveSoundFormFields = forwardRef<
                     step={0.1}
                     value={[field.value ?? 1]}
                     onValueChange={(value) => field.onChange(value[0])}
+                    showPercentage={true}
                   />
                 </FormControl>
                 <FormMessage />
