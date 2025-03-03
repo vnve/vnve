@@ -579,93 +579,30 @@ export class Editor {
         });
       }
 
-      const tempList: Array<{
-        type: "speak" | "directive";
-        value: string | DirectiveConfig;
-      }> = [];
-
-      // 重排组合，生成中间态的指令列表
-      lines.forEach((line) => {
-        if (line.type === "p") {
-          for (let index = 0; index < line.children.length; index++) {
-            const child = line.children[index];
-
-            if (child.type === "directive") {
-              tempList.push({
-                type: "directive",
-                value: child.value,
-              });
-            } else if (child.text && sceneSpeakConfig?.targetName) {
-              let text = child.text;
-
-              if (index === line.children.length - 1) {
-                // 最后一个元素是文本，增加换行符
-                text += "\n";
+      directives.push({
+        directive: DirectiveName.Speak,
+        params: {
+          lines,
+          targetName: sceneSpeakConfig.targetName,
+          wordsPerMin: dialogueSpeakConfig.wordsPerMin,
+          interval: dialogueSpeakConfig.interval,
+          effect: dialogueSpeakConfig.effect,
+          effectDuration: dialogueSpeakConfig.effectDuration,
+          speaker: sceneSpeakConfig.speaker.targetName
+            ? {
+                targetName: sceneSpeakConfig.speaker.targetName,
+                name: dialogueSpeakConfig.speaker?.name || "",
+                speakerTargetName:
+                  dialogueSpeakConfig.speaker?.speakerTargetName,
+                autoShowSpeaker: dialogueSpeakConfig.speaker?.autoShowSpeaker,
+                autoMaskOtherSpeakers:
+                  dialogueSpeakConfig.speaker?.autoMaskOtherSpeakers,
               }
-
-              // 默认speak指令, append
-              tempList.push({
-                type: "speak",
-                value: text,
-              });
-            }
-          }
-        }
-      });
-
-      let shouldAppend = false; // 首次发言，不需要append
-      let fullText = ""; // 计算总文本长度
-
-      if (dialogueSpeakConfig.voice?.targetName) {
-        fullText = tempList
-          .filter((item) => item.type === "speak")
-          .map((item) => item.value as string)
-          .join("");
-      }
-
-      const insertSpeak = (list: string[]) => {
-        const text = list.join("");
-
-        directives.push({
-          directive: DirectiveName.Speak,
-          params: {
-            targetName: sceneSpeakConfig.targetName,
-            text,
-            fullText,
-            append: shouldAppend,
-            wordsPerMin: dialogueSpeakConfig.wordsPerMin,
-            interval: dialogueSpeakConfig.interval,
-            effect: dialogueSpeakConfig.effect,
-            effectDuration: dialogueSpeakConfig.effectDuration,
-            speaker: sceneSpeakConfig.speaker.targetName
-              ? {
-                  targetName: sceneSpeakConfig.speaker.targetName,
-                  name: dialogueSpeakConfig.speaker?.name || "",
-                  speakerTargetName:
-                    dialogueSpeakConfig.speaker?.speakerTargetName,
-                  autoShowSpeaker: dialogueSpeakConfig.speaker?.autoShowSpeaker,
-                  autoMaskOtherSpeakers:
-                    dialogueSpeakConfig.speaker?.autoMaskOtherSpeakers,
-                }
-              : undefined,
-            voice: dialogueSpeakConfig.voice?.targetName
-              ? dialogueSpeakConfig.voice
-              : undefined, // 仅第一个speak指令，需要播放语音
-          },
-        });
-
-        shouldAppend = true;
-      };
-
-      // 重新处理，生成指令列表
-      tempList.forEach((item) => {
-        if (item.type === "directive") {
-          const value = item.value as DirectiveConfig;
-
-          directives.push(value);
-        } else {
-          insertSpeak([item.value as string]);
-        }
+            : undefined,
+          voice: dialogueSpeakConfig.voice?.targetName
+            ? dialogueSpeakConfig.voice
+            : undefined,
+        },
       });
     }
 

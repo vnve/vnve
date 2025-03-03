@@ -1,6 +1,10 @@
 import * as PIXI from "pixi.js";
 import gsap from "gsap";
-import { AnimationDirective, AnimationDirectiveOptions } from "../base";
+import {
+  AnimationDirective,
+  AnimationDirectiveOptions,
+  Directive,
+} from "../base";
 import { Speaker, SpeakerDirectiveOptions } from "./Speaker";
 import { Voice, VoiceDirectiveOptions } from "../sound";
 import { Scene } from "../../../scene";
@@ -10,8 +14,9 @@ import { readingTime } from "../../lib/reading";
 export type SpeakDirectiveEffect = "typewriter" | "fadeIn" | "none";
 
 export interface SpeakDirectiveOptions extends AnimationDirectiveOptions {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  lines: any[];
   text: string;
-  fullText?: string;
   wordsPerMin?: number;
   interval?: number;
   append?: boolean;
@@ -27,7 +32,8 @@ export class Speak extends AnimationDirective<PIXI.Text> {
   protected declare options: SpeakDirectiveOptions;
   private speakerDirective?: Speaker;
   private voiceDirective?: Voice;
-  private voiceDuration?: number;
+  private inlineDirectiveList: Array<Directive>;
+  private tl: gsap.core.Timeline;
 
   constructor(options: SpeakDirectiveOptions, stage: PIXI.Container) {
     super(options, stage);
@@ -41,7 +47,7 @@ export class Speak extends AnimationDirective<PIXI.Text> {
       },
       options,
     );
-    const { speaker, voice, executeTime } = this.options;
+    const { speaker, voice, lines, executeTime } = this.options;
 
     if (speaker?.targetName) {
       this.speakerDirective = new Speaker(
@@ -63,20 +69,37 @@ export class Speak extends AnimationDirective<PIXI.Text> {
         this.stage as Scene,
       );
     }
+
+    this.tl = gsap.timeline({ paused: true });
+
+    this.inlineDirectiveList = [];
+    // 解析生成指令列表
+    // lines.forEach((line) => {
+    //   if (line.type === "p") {
+    //     for (let index = 0; index < line.children.length; index++) {
+    //       const child = line.children[index];
+
+    //       if (child.type === "directive") {
+    //         const { directive: directiveName, params } = child.value;
+    //       } else if (child.text) {
+    //         let text = child.text;
+
+    //         if (index === line.children.length - 1) {
+    //           // 最后一个元素是文本，增加换行符
+    //           text += "\n";
+    //         }
+
+    //         // 默认speak指令
+    //         this.inlineDirectiveList.push();
+    //       }
+    //     }
+    //   }
+    // });
   }
 
   public async load() {
     if (this.voiceDirective) {
       await this.voiceDirective.load();
-
-      const fullVoiceDuration = this.voiceDirective.getDuration();
-      const { text, fullText } = this.options;
-
-      // Speak会被拆分为多个，因此需要根据文字比例计算每个Speak的voice时长
-      if (fullText) {
-        this.voiceDuration =
-          (text.length / fullText.length) * fullVoiceDuration;
-      }
     }
   }
 
@@ -173,8 +196,9 @@ export class Speak extends AnimationDirective<PIXI.Text> {
     const duration = readingTime + (interval ?? 0);
 
     // 存在配音时，取文字和配音时长的最大值
-    if (this.voiceDuration) {
-      readingTime = Math.max(readingTime, this.voiceDuration);
+    if (this.voiceDirective) {
+      const voiceDuration = this.voiceDirective.getDuration();
+      readingTime = Math.max(readingTime, voiceDuration);
     }
 
     return sequential ? duration : 0;
