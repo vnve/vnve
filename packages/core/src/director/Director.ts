@@ -73,7 +73,7 @@ export interface DirectiveConfig {
 }
 
 export interface SceneConfig {
-  speak: Omit<Directives.SpeakDirectiveOptions, "text"> & {
+  speak: Omit<Directives.SpeakDirectiveOptions, "lines"> & {
     speaker: Directives.SpeakerDirectiveOptions;
   };
   /**

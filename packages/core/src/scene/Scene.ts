@@ -11,7 +11,7 @@ export interface SceneOption {
 }
 
 export interface Dialogue {
-  speak: Omit<SpeakDirectiveOptions, "text" | "targetName">;
+  speak: Omit<SpeakDirectiveOptions, "lines" | "targetName">;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   lines: any[]; // 同plate.js的value
 }
