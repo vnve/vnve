@@ -20,4 +20,6 @@ export abstract class Directive {
 
   abstract execute(): void;
   abstract getDuration(): number;
+
+  public load(): void {}
 }
