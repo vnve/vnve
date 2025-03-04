@@ -21,10 +21,8 @@ export type SpeakDirectiveEffect =
 export interface SpeakDirectiveOptions extends AnimationDirectiveOptions {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   lines: any[];
-  text: string;
   wordsPerMin?: number;
   interval?: number;
-  append?: boolean;
   effect?: SpeakDirectiveEffect;
   effectDuration?: number;
   alignWithVoice?: boolean;
