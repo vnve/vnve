@@ -177,7 +177,7 @@ export class Scene extends PIXI.Container {
     return scene;
   }
 
-  public async load() {
+  public async load({ skipSoundLoading = false } = {}) {
     const traverseChild = async (child: Child) => {
       if (typeof child.load === "function") {
         await child.load();
@@ -195,8 +195,10 @@ export class Scene extends PIXI.Container {
       await traverseChild(child);
     }
 
-    for (const sound of this.sounds) {
-      await sound.load();
+    if (!skipSoundLoading) {
+      for (const sound of this.sounds) {
+        await sound.load();
+      }
     }
   }
 }

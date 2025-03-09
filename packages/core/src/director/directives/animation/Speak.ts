@@ -38,6 +38,7 @@ export class Speak extends AnimationDirective<PIXI.Text> {
   private inlineList: Array<{
     type: "text" | "directive";
     value: string | Directive;
+    name?: string;
   }>;
   private duration: number;
   private text: string;
@@ -102,6 +103,7 @@ export class Speak extends AnimationDirective<PIXI.Text> {
               this.inlineList.push({
                 type: "directive",
                 value: directive,
+                name: directiveName,
               });
             }
           } else if (child.text) {
@@ -121,6 +123,34 @@ export class Speak extends AnimationDirective<PIXI.Text> {
         }
       }
     });
+  }
+
+  public check() {
+    let result = true;
+
+    for (const item of this.inlineList) {
+      if (item.type === "directive") {
+        const directive = item.value as Directive;
+
+        if (!directive.check()) {
+          result = false;
+          // TODO: 待优化
+          throw {
+            type: "custom",
+            message: "speak inline directive check failed",
+            errorSceneName: (this.stage as Scene).label,
+            errorDirectiveName: item.name,
+            errorLines: this.inlineList
+              .filter((item) => item.type === "text")
+              .map((item) => item.value)
+              .join("")
+              .slice(0, 10),
+          };
+        }
+      }
+    }
+
+    return result;
   }
 
   public async load() {

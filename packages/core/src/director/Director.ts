@@ -6,6 +6,7 @@ import * as Directives from "./directives";
 import { Connector } from "../connector";
 import { log, approximatelyEqual } from "../util";
 import { soundController } from "./lib/SoundController";
+import { Scene } from "../scene";
 
 // register the plugin
 gsap.registerPlugin(PixiPlugin);
@@ -23,11 +24,7 @@ interface RendererOptions {
   height: number;
   background: number;
   renderer?: PIXI.IRenderer;
-  onProgress?: (
-    progress: number,
-    currentTime: number,
-    duration: number,
-  ) => void;
+  onProgress?: (progress: number, currentTime: number) => void;
 }
 
 export enum DirectiveName {
@@ -83,9 +80,10 @@ export interface SceneConfig {
 }
 
 export interface SceneScript {
-  scene: PIXI.Container;
+  scene: Scene;
   directives: DirectiveConfig[];
   config: SceneConfig;
+  preload?: Promise<void>;
 }
 
 interface SceneScriptExecutor {
@@ -191,9 +189,7 @@ export class Director {
     const now = performance.now();
 
     try {
-      const executors = await this.parseScreenplay(screenplay);
-
-      return await this.run(executors);
+      return await this.run(screenplay);
     } finally {
       this.reset();
       log.info("action cost:", performance.now() - now);
@@ -230,21 +226,6 @@ export class Director {
     this.ticker.asyncHandlers = [];
   }
 
-  private async parseScreenplay(
-    screenplay: Screenplay,
-  ): Promise<SceneScriptExecutor[]> {
-    const { scenes: sceneScripts } = screenplay;
-    const sceneScriptExecutors: SceneScriptExecutor[] = [];
-
-    for (const sceneScript of sceneScripts) {
-      const executor = await this.parseSceneScript(sceneScript);
-
-      sceneScriptExecutors.push(executor);
-    }
-
-    return sceneScriptExecutors;
-  }
-
   private async parseSceneScript(
     sceneScript: SceneScript,
   ): Promise<SceneScriptExecutor> {
@@ -253,6 +234,13 @@ export class Director {
     const { directives } = sceneScript;
     let nextDirectiveStart = 0;
     const directiveExecutors: Array<() => void> = [];
+
+    // 如果有预加载，等待预加载完成
+    if (sceneScript.preload) {
+      await sceneScript.preload;
+    } else {
+      await scene.load();
+    }
 
     // 初始化时，默认隐藏所有子元素
     scene.children.forEach((child) => {
@@ -325,6 +313,15 @@ export class Director {
         scene,
       );
 
+      if (!directive.check()) {
+        throw {
+          type: "custom",
+          message: "directive check failed",
+          errorSceneName: scene.label,
+          errorDirectiveName: directiveName,
+        };
+      }
+
       // 针对需要加载资源的指令，提前加载完成，才能执行
       if (directive.load) {
         await directive.load();
@@ -377,21 +374,24 @@ export class Director {
     };
   }
 
-  private async run(sceneScriptExecutors: SceneScriptExecutor[]) {
-    log.debug("sceneScriptExecutors", sceneScriptExecutors);
-
+  private async run(screenplay: Screenplay) {
     const { fps } = this.rendererOptions;
-    const frameCount = sceneScriptExecutors.reduce(
-      (acc, cur) => acc + cur.frameCount,
-      0,
-    );
-    const duration = frameCount / fps;
+    const { scenes: sceneScripts } = screenplay;
     let frameIndex = 0;
 
     this.started = true;
 
     // 按照场景顺序，触发逐帧执行
-    for (const sceneScriptExecutor of sceneScriptExecutors) {
+    for (const [sceneIndex, sceneScript] of sceneScripts.entries()) {
+      // 解析场景脚本，并加载资源
+      const sceneScriptExecutor = await this.parseSceneScript(sceneScript);
+
+      // 预加载下一个场景资源
+      const nextSceneScript = sceneScripts[sceneIndex + 1];
+      if (nextSceneScript) {
+        nextSceneScript.preload = nextSceneScript.scene.load();
+      }
+
       // 执行切换场景, 并注册指令执行器
       const uninstall = sceneScriptExecutor.install();
       const sceneFrameCount = sceneScriptExecutor.frameCount;
@@ -422,9 +422,10 @@ export class Director {
 
           if (this.rendererOptions.onProgress) {
             this.rendererOptions.onProgress(
-              (frameIndex / frameCount) * 100,
+              (sceneIndex / sceneScripts.length +
+                sceneFrameIndex / sceneFrameCount / sceneScripts.length) *
+                100,
               globalFrameTimeMS / 1000,
-              duration,
             );
           }
         } else {

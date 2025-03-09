@@ -7,6 +7,10 @@ export class LeaveFromLeft extends AnimationDirective {
     super(options, stage);
     const target = this.target as PIXI.Sprite | PIXI.Text;
 
+    if (!target) {
+      return;
+    }
+
     this.options = merge(
       {
         toVars: {

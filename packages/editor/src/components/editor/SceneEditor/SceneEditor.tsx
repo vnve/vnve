@@ -34,6 +34,7 @@ import { EditorSettingsDialog } from "./EditorSettingsDialog";
 import { useMedia } from "@/components/hooks/useMedia";
 import { useText2Scene } from "@/components/hooks/useText2Scene";
 import { Text2SceneDialog } from "./Text2SceneDialog";
+import { DirectiveNameMap } from "@/config";
 
 export function SceneEditor() {
   const initEditor = useEditorStore((state) => state.initEditor);
@@ -71,7 +72,6 @@ export function SceneEditor() {
   const [actionProgress, setActionProgress] = useState<ActionProgress>({
     value: 0,
     currentTime: 0,
-    duration: 0,
   });
   const progressAnimationId = useRef(0);
   const [saveTimeString, setSaveTimeString] = useState("");
@@ -114,12 +114,11 @@ export function SceneEditor() {
     }
   };
 
-  const updateActionProgress = (progress, currentTime, duration) => {
+  const updateActionProgress = (progress, currentTime) => {
     if (progress >= 100) {
       setActionProgress({
         value: progress,
         currentTime,
-        duration,
       });
       if (progressAnimationId.current) {
         clearTimeout(progressAnimationId.current);
@@ -136,7 +135,6 @@ export function SceneEditor() {
       setActionProgress({
         value: progress,
         currentTime,
-        duration,
       });
       progressAnimationId.current = 0;
     }, 1000 / 30);
@@ -146,7 +144,6 @@ export function SceneEditor() {
     setActionProgress({
       value: 0,
       currentTime: 0,
-      duration: 0,
     });
   };
 
@@ -216,6 +213,18 @@ export function SceneEditor() {
     editor.addChild(text);
   };
 
+  const genErrorDesc = (error) => {
+    if (error.type === "custom") {
+      return `场景【${error.errorSceneName}】，${
+        error.errorLines ? `对白【${error.errorLines}】，` : ""
+      }指令【${
+        DirectiveNameMap[error.errorDirectiveName]
+      }】中存在错误，请检查目标对象是否存在`;
+    }
+
+    return error.message;
+  };
+
   const handlePreviewScenes = async (start = 0, end?: number) => {
     resetActionProgress();
     setPreviewVideoRange([start, end]);
@@ -239,7 +248,7 @@ export function SceneEditor() {
         setIsOpenPreviewVideoDialog(false);
         toast({
           title: "预览失败！",
-          description: error.message,
+          description: genErrorDesc(error.message),
           variant: "destructive",
         });
       });
@@ -277,7 +286,7 @@ export function SceneEditor() {
         setIsOpenExportVideoDialog(false);
         toast({
           title: "导出失败！",
-          description: error.message,
+          description: genErrorDesc(error.message),
           variant: "destructive",
         });
       });
@@ -352,8 +361,8 @@ export function SceneEditor() {
     adjustCanvasWidth();
     initEditor(canvasRef.current);
     director.current = new Director({
-      onProgress(progress, currentTime, duration) {
-        updateActionProgress(progress, currentTime, duration);
+      onProgress(progress, currentTime) {
+        updateActionProgress(progress, currentTime);
       },
     });
 

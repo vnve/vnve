@@ -8,6 +8,9 @@ export function useLoading() {
     setOpen(true);
     setLoadingText(text);
   };
+  const updateLoadingText = (text: string) => {
+    setLoadingText(text);
+  };
   const hideLoading = () => {
     setOpen(false);
     setLoadingText("");
@@ -15,6 +18,7 @@ export function useLoading() {
 
   return {
     showLoading,
+    updateLoadingText,
     hideLoading,
   };
 }

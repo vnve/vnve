@@ -178,6 +178,9 @@ export function EditorSettingsDialog({
                 />
                 <div className="flex justify-center">
                   <Button type="submit">确定</Button>
+                  <Button variant="ghost" onClick={onClose}>
+                    取消
+                  </Button>
                 </div>
               </form>
             </Form>
@@ -222,6 +225,9 @@ export function EditorSettingsDialog({
 
                 <div className="flex justify-center">
                   <Button type="submit">确定</Button>
+                  <Button variant="ghost" onClick={onClose}>
+                    取消
+                  </Button>
                 </div>
               </form>
             </Form>

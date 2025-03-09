@@ -58,12 +58,12 @@ export function ExportVideoDialog({
           <video src={url} className="w-full aspect-[16/9]" controls></video>
         )}
         <DialogFooter>
-          {url && subtitles.length > 0 && (
+          {/* {url && subtitles.length > 0 && (
             <Button variant="secondary" onClick={handleDownloadSubtitles}>
               <Icons.download className="size-4 mr-1"></Icons.download>
               保存字幕
             </Button>
-          )}
+          )} */}
           {url && (
             <Button onClick={handleDownloadVideo}>
               <Icons.download className="size-4 mr-1"></Icons.download>

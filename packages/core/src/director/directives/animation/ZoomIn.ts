@@ -6,6 +6,11 @@ export class ZoomIn extends AnimationDirective {
   constructor(options: AnimationDirectiveOptions, stage: PIXI.Container) {
     super(options, stage);
     const sprite = this.target as PIXI.Sprite | PIXI.Text;
+
+    if (!sprite) {
+      return;
+    }
+
     const originalX = sprite.x;
     const originalY = sprite.y;
     sprite.anchor.set(0.5);

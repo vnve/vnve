@@ -15,6 +15,10 @@ export abstract class SoundDirective extends Directive {
     this.target = this.stage.getSoundByName(options.targetName)!;
   }
 
+  public check() {
+    return !!this.target;
+  }
+
   public getDuration(): number {
     return 0;
   }

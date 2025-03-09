@@ -22,4 +22,7 @@ export abstract class Directive {
   abstract getDuration(): number;
 
   public load(): void {}
+  public check(): boolean {
+    return true;
+  }
 }

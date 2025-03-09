@@ -1,8 +1,12 @@
 import {
   DBAsset,
   DBAssetType,
+  getAssetById,
   getAssetByName,
   getAssetSourceURL,
+  getAssetSourceURLByAsset,
+  importAssetToProjectTmp,
+  NARRATOR_ASSET_ID,
   templateDB,
 } from "@/db";
 import {
@@ -18,6 +22,8 @@ import {
   createTitleScene,
   createMonologueScene,
 } from "@vnve/core";
+import { fetchAudioFile, linesToText } from "./utils";
+import { longTextSynthesis } from "./tts";
 
 export async function createSprite(asset: DBAsset, editor: Editor) {
   const states = asset.states;
@@ -465,5 +471,72 @@ export async function story2Scenes(
         ],
       });
     }
+  }
+}
+export async function genTTS({
+  lines,
+  editor,
+  project,
+  speak,
+  ttsSettings,
+}): Promise<{
+  sound: Sound;
+  url: string;
+}> {
+  if (!ttsSettings || !ttsSettings.appid || !ttsSettings.token) {
+    throw new Error("请先配置语音合成设置");
+  }
+
+  const speakerTargetName = speak.speaker.speakerTargetName;
+  let speakerAssetID;
+
+  if (speakerTargetName === "Narrator") {
+    speakerAssetID = NARRATOR_ASSET_ID;
+  } else {
+    const speakerSprite = editor.activeScene.getChildByName(
+      speakerTargetName,
+    ) as Sprite;
+    speakerAssetID = speakerSprite.assetID;
+  }
+
+  const speakerAsset = await getAssetById(speakerAssetID);
+  const voice = speakerAsset.voice;
+
+  if (!voice) {
+    throw new Error("当前角色没有配置音色, 请在素材库中先配置音色");
+  }
+
+  // 更新前，假如已经有配音，先从场景中删除
+  if (speak.voice?.targetName) {
+    editor.removeSoundByName(speak.voice.targetName);
+  }
+
+  const text = linesToText(lines);
+
+  try {
+    const result = await longTextSynthesis({
+      token: ttsSettings.token,
+      appid: ttsSettings.appid,
+      text,
+      voiceType: voice,
+    });
+    const file = await fetchAudioFile(result.audio_url, text.slice(0, 6));
+    const soundAsset = await importAssetToProjectTmp(
+      project.id,
+      DBAssetType.Audio,
+      file,
+    );
+    const sound = createSound(soundAsset);
+
+    editor.addSound(sound);
+    const url = getAssetSourceURLByAsset(soundAsset);
+
+    return {
+      sound,
+      url,
+    };
+  } catch (error) {
+    console.error(error);
+    throw new Error(`${text.slice(0, 6)}... 语音合成失败: ${error.message}`);
   }
 }

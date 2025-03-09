@@ -22,17 +22,9 @@ import { useAssetLibrary } from "../hooks/useAssetLibrary";
 import { useEditorStore } from "@/store";
 import { useSettingsStore } from "@/store/settings";
 import { useToast } from "../hooks/use-toast";
-import { createSound } from "@/lib/core";
-import {
-  DBAssetType,
-  getAssetById,
-  getAssetSourceURLByAsset,
-  importAssetToProjectTmp,
-  NARRATOR_ASSET_ID,
-} from "@/db";
-import { longTextSynthesis } from "@/lib/tts";
-import { fetchAudioFile, linesToText } from "@/lib/utils";
-import { Sound, Sprite } from "@vnve/core";
+import { createSound, genTTS } from "@/lib/core";
+import { DBAssetType, getAssetById, getAssetSourceURLByAsset } from "@/db";
+import { Sound } from "@vnve/core";
 import { Loader } from "../ui/loader";
 
 export function DirectiveVoiceController({ speak, lines, onChangeSpeak }) {
@@ -63,69 +55,19 @@ export function DirectiveVoiceController({ speak, lines, onChangeSpeak }) {
   );
 
   const handleGenerateTTS = async () => {
-    if (!ttsSettings || !ttsSettings.appid || !ttsSettings.token) {
-      toast({
-        title: "配音生成失败",
-        description: "请检查语音合成设置",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const speakerTargetName = speak.speaker.speakerTargetName;
-    let speakerAssetID;
-
-    if (speakerTargetName === "Narrator") {
-      speakerAssetID = NARRATOR_ASSET_ID;
-    } else {
-      const speakerSprite = editor.activeScene.getChildByName(
-        speakerTargetName,
-      ) as Sprite;
-      speakerAssetID = speakerSprite.assetID;
-    }
-
-    const speakerAsset = await getAssetById(speakerAssetID);
-    const voice = speakerAsset.voice;
-
-    if (!voice) {
-      toast({
-        title: "配音生成失败",
-        description: "当前角色没有配置音色, 请在素材库中先配置音色",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // 更新前，假如已经有配音，先从场景中删除
-    if (speak.voice?.targetName) {
-      editor.removeSoundByName(speak.voice.targetName);
-    }
-
     setIsGenerating(true);
-
     try {
-      const text = linesToText(lines);
-      const result = await longTextSynthesis({
-        token: ttsSettings.token,
-        appid: ttsSettings.appid,
-        text,
-        voiceType: voice,
+      const { sound, url } = await genTTS({
+        lines,
+        editor,
+        project,
+        speak,
+        ttsSettings,
       });
-      const file = await fetchAudioFile(result.audio_url, text.slice(0, 6));
-      const soundAsset = await importAssetToProjectTmp(
-        project.id,
-        DBAssetType.Audio,
-        file,
-      );
-      const sound = createSound(soundAsset);
-
-      editor.addSound(sound);
       changeVoice({
-        label: sound.label,
         targetName: sound.name,
       });
-      const audioUrl = getAssetSourceURLByAsset(soundAsset);
-      setAudioUrl(audioUrl);
+      setAudioUrl(url);
       toast({
         title: "配音生成成功!",
         duration: 1500,
@@ -147,21 +89,12 @@ export function DirectiveVoiceController({ speak, lines, onChangeSpeak }) {
       if (isPlaying) {
         audioRef.current.pause();
       } else {
-        if (audioUrl) {
-          audioRef.current.play();
-        } else {
-          const sound = editor.activeScene.getSoundByName(
-            speak.voice.targetName,
-          ) as Sound;
-          const asset = await getAssetById(sound.assetID, sound.label);
-          const url = getAssetSourceURLByAsset(asset);
-
-          setAudioUrl(url);
-        }
+        audioRef.current.play();
       }
+
       setIsPlaying(!isPlaying);
     }
-  }, [isPlaying, audioUrl, speak, editor]);
+  }, [isPlaying]);
 
   const handleTimeUpdate = useCallback(() => {
     if (audioRef.current) {
@@ -209,7 +142,6 @@ export function DirectiveVoiceController({ speak, lines, onChangeSpeak }) {
       editor.addSound(sound);
 
       changeVoice({
-        label: sound.label,
         targetName: sound.name,
       });
     }
@@ -222,7 +154,6 @@ export function DirectiveVoiceController({ speak, lines, onChangeSpeak }) {
     setIsPlaying(false);
     editor.removeSoundByName(speak.voice.targetName);
     changeVoice({
-      label: "",
       targetName: "",
     });
   }, [editor, changeVoice, speak]);
@@ -233,19 +164,27 @@ export function DirectiveVoiceController({ speak, lines, onChangeSpeak }) {
     return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   };
 
+  // 自动加载sound中的音频地址
+  useEffect(() => {
+    const fetchAsset = async () => {
+      if (speak.voice?.targetName) {
+        const sound = editor.activeScene.getSoundByName(
+          speak.voice.targetName,
+        ) as Sound;
+        const asset = await getAssetById(sound.assetID, sound.label);
+        const url = getAssetSourceURLByAsset(asset);
+        setAudioUrl(url);
+      }
+    };
+    fetchAsset();
+  }, [editor, speak]);
+
   // 添加音量初始化的 effect
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = volume;
     }
   }, [volume, audioUrl]);
-
-  // 当音频地址变化时，如果处于播放状态，自动播放
-  useEffect(() => {
-    if (audioUrl && isPlaying && audioRef.current) {
-      audioRef.current.play();
-    }
-  }, [audioUrl, isPlaying]);
 
   return (
     <div className="flex items-center w-full gap-2 p-1 border border-t-0 rounded-md rounded-t-none bg-background h-[32px]">
@@ -276,27 +215,19 @@ export function DirectiveVoiceController({ speak, lines, onChangeSpeak }) {
           </Button>
 
           <div className="flex items-center flex-1 gap-2">
-            {isPlaying ? (
-              <>
-                <span className="text-xs text-muted-foreground min-w-[35px]">
-                  {formatTime(currentTime)}
-                </span>
-                <Slider
-                  value={[currentTime]}
-                  max={duration}
-                  step={0.1}
-                  className="w-full"
-                  onValueChange={handleSliderChange}
-                />
-                <span className="text-xs text-muted-foreground min-w-[35px]">
-                  {formatTime(duration)}
-                </span>
-              </>
-            ) : (
-              <span className="text-xs text-muted-foreground truncate max-w-[250px]">
-                {speak.voice.label}
-              </span>
-            )}
+            <span className="text-xs text-muted-foreground min-w-[35px]">
+              {formatTime(currentTime)}
+            </span>
+            <Slider
+              value={[currentTime]}
+              max={duration}
+              step={0.1}
+              className="w-full"
+              onValueChange={handleSliderChange}
+            />
+            <span className="text-xs text-muted-foreground min-w-[35px]">
+              {formatTime(duration)}
+            </span>
           </div>
 
           <div className="flex items-center gap-2">

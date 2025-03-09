@@ -31,6 +31,11 @@ import { DirectiveSpeakForm } from "@/components/plate-ui/directive-speak-form";
 import { Switch } from "@/components/ui/switch";
 import { linesToText } from "@/lib/utils";
 import { AudioLines } from "lucide-react";
+import { useToast } from "@/components/hooks/use-toast";
+import { useLoading } from "@/components/hooks/useLoading";
+import { useSettingsStore } from "@/store/settings";
+import { genTTS } from "@/lib/core";
+import { SceneSettingsDialog } from "./SceneSettingsDialog";
 
 export function SceneDetail({ onClose }: { onClose?: () => void }) {
   const editor = useEditorStore((state) => state.editor);
@@ -38,7 +43,12 @@ export function SceneDetail({ onClose }: { onClose?: () => void }) {
   const activeScene = useEditorStore((state) => state.activeScene);
   const [isOpenSaveAsTemplateDialog, setIsOpenSaveAsTemplateDialog] =
     useState(false);
+  const [isOpenSceneSettingsDialog, setIsOpenSceneSettingsDialog] =
+    useState(false);
   const scrollAreaRef = useRef(null);
+  const ttsSettings = useSettingsStore((state) => state.tts);
+  const { toast } = useToast();
+  const { showLoading, updateLoadingText, hideLoading } = useLoading();
 
   const handleChangeSpeak = (speak) => {
     editor.updateActiveScene((scene) => {
@@ -137,6 +147,47 @@ export function SceneDetail({ onClose }: { onClose?: () => void }) {
     }, 100);
   };
 
+  const handleBatchGenerateTTS = async () => {
+    const dialogues = activeScene.dialogues;
+
+    showLoading("配音生成中");
+
+    try {
+      for (const [index, dialogue] of dialogues.entries()) {
+        updateLoadingText(`正在生成第 ${index + 1} 条对白`);
+        const { sound } = await genTTS({
+          speak: dialogue.speak,
+          lines: dialogue.lines,
+          editor,
+          project,
+          ttsSettings,
+        });
+
+        editor.updateDialogue(index, {
+          ...dialogue,
+          speak: {
+            ...dialogue.speak,
+            voice: {
+              ...(dialogue.speak.voice || {}),
+              targetName: sound.name,
+            },
+          },
+        });
+      }
+      toast({
+        title: "场景对白生成成功!",
+      });
+    } catch (error) {
+      toast({
+        title: "配音生成失败",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      hideLoading();
+    }
+  };
+
   return (
     <Card className="w-full flex-1 h-full border-0 md:border shadow-none md:shadow rounded-md">
       <CardContent className="h-full p-1 md:p-2">
@@ -151,32 +202,23 @@ export function SceneDetail({ onClose }: { onClose?: () => void }) {
                   >
                     <span>场景标题</span>
                     <div className="flex items-center">
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button size="sm" variant="ghost">
-                            <Icons.settings className="size-4"></Icons.settings>
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent>
-                          <div className="flex flex-col">
-                            <h3 className="text-base font-bold">场景设置</h3>
-                            <DirectiveSpeakForm
-                              speak={activeScene.config.speak}
-                              onChangeSpeak={handleChangeSpeak}
-                              disableCustomName={true}
-                            ></DirectiveSpeakForm>
-                            <div className="flex mt-2">
-                              <span className="text-sm font-medium w-[8rem]">
-                                自动展示背景
-                              </span>
-                              <Switch
-                                checked={activeScene.config.autoShowBackground}
-                                onCheckedChange={handleChangeAutoShowBackground}
-                              />
-                            </div>
-                          </div>
-                        </PopoverContent>
-                      </Popover>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => setIsOpenSceneSettingsDialog(true)}
+                            >
+                              <Icons.settings className="size-4"></Icons.settings>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>场景设置</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -223,7 +265,11 @@ export function SceneDetail({ onClose }: { onClose?: () => void }) {
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Button size="sm" variant="ghost">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={handleBatchGenerateTTS}
+                          >
                             <AudioLines className="size-4"></AudioLines>
                           </Button>
                         </TooltipTrigger>
@@ -307,6 +353,13 @@ export function SceneDetail({ onClose }: { onClose?: () => void }) {
               onClose={() => setIsOpenSaveAsTemplateDialog(false)}
               sceneName={activeScene.name}
             ></SaveAsTemplateDialog>
+            <SceneSettingsDialog
+              isOpen={isOpenSceneSettingsDialog}
+              speak={activeScene.config.speak}
+              autoShowBackground={activeScene.config.autoShowBackground}
+              onConfirm={() => {}}
+              onClose={() => setIsOpenSceneSettingsDialog(false)}
+            />
           </>
         ) : (
           <div className="h-full text-lg flex items-center justify-center text-muted-foreground/50">

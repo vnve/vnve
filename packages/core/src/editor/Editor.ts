@@ -244,7 +244,7 @@ export class Editor {
     this.activeScene = scene;
 
     if (scene) {
-      this.activeScene!.load();
+      this.activeScene!.load({ skipSoundLoading: true });
       this.addTransformer();
       this.stageAddChild(scene);
     }
@@ -615,12 +615,6 @@ export class Editor {
 
   public async exportScreenplay(start = 0, end?: number): Promise<Screenplay> {
     const scenes = this.exportScenes(start, end);
-
-    // 预加载所有场景资源
-    for (const scene of scenes) {
-      await scene.load();
-    }
-
     const sceneScripts = scenes.map(this.genSceneScript);
 
     return {
