@@ -176,7 +176,7 @@ export function EditorSettingsDialog({
                     </FormItem>
                   )}
                 />
-                <div className="flex justify-center">
+                <div className="flex justify-center gap-2">
                   <Button type="submit">确定</Button>
                   <Button variant="ghost" onClick={onClose}>
                     取消
@@ -223,7 +223,7 @@ export function EditorSettingsDialog({
                   )}
                 />
 
-                <div className="flex justify-center">
+                <div className="flex justify-center gap-2">
                   <Button type="submit">确定</Button>
                   <Button variant="ghost" onClick={onClose}>
                     取消

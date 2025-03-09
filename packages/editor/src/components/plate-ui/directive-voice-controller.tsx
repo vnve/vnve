@@ -179,6 +179,13 @@ export function DirectiveVoiceController({ speak, lines, onChangeSpeak }) {
     fetchAsset();
   }, [editor, speak]);
 
+  // 初始化音量
+  useEffect(() => {
+    if (speak.voice?.volume) {
+      setVolume(speak.voice.volume);
+    }
+  }, [speak]);
+
   // 添加音量初始化的 effect
   useEffect(() => {
     if (audioRef.current) {

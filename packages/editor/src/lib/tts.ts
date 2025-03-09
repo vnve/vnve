@@ -12,6 +12,7 @@ interface SynthesisParams {
 interface SynthesisTaskResponse {
   task_status: number;
   task_id: string;
+  message: string;
 }
 
 interface SynthesisResult {
@@ -44,6 +45,12 @@ export async function longTextSynthesis(
     appid,
     resourceId,
   });
+
+  if (!createTaskResponse.task_id) {
+    throw new Error(
+      `创建合成任务失败，错误信息: ${createTaskResponse.message}`,
+    );
+  }
 
   if (createTaskResponse.task_status === 2) {
     throw new Error(

@@ -5,6 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -25,9 +26,9 @@ interface SceneSettingsDialogProps {
 }
 
 export const SceneSettingsDialog: React.FC<SceneSettingsDialogProps> = ({
+  isOpen,
   speak,
   autoShowBackground,
-  isOpen,
   onClose,
   onConfirm,
 }) => {
@@ -47,7 +48,13 @@ export const SceneSettingsDialog: React.FC<SceneSettingsDialogProps> = ({
   const handleChangeVolume = (value: number[]) => {
     setSettings({
       ...settings,
-      speak: { ...settings.speak, voice: { volume: value[0] } },
+      speak: {
+        ...settings.speak,
+        voice: {
+          ...(settings.speak.voice || {}),
+          volume: value[0],
+        },
+      },
     });
   };
 
@@ -61,36 +68,41 @@ export const SceneSettingsDialog: React.FC<SceneSettingsDialogProps> = ({
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle className="text-base font-bold">场景设置</DialogTitle>
+          <DialogDescription>
+            场景设置变更会应用到目前场景所有的对白以及后续新增的对白中
+          </DialogDescription>
         </DialogHeader>
-        <div className="flex flex-col gap-4 py-4">
+        <div className="flex flex-col gap-2">
           <DirectiveSpeakForm
             speak={settings.speak}
             onChangeSpeak={handleChangeSpeak}
             disableCustomName={true}
           />
-          <div className="flex items-center mt-2">
-            <span className="text-sm font-medium w-[8rem]">配音音量</span>
-            <Slider
-              value={[settings.speak.voice?.volume]}
-              onValueChange={handleChangeVolume}
-              max={100}
-              step={1}
-              className="flex-1"
-            />
-          </div>
-          <div className="flex items-center mt-2">
+          <div className="flex items-center">
             <span className="text-sm font-medium w-[8rem]">自动展示背景</span>
             <Switch
               checked={settings.autoShowBackground}
               onCheckedChange={handleChangeAutoShowBackground}
             />
           </div>
+          <div className="flex items-center">
+            <span className="text-sm font-medium w-[10rem]">配音音量</span>
+            <Slider
+              value={[settings.speak.voice?.volume || 1]}
+              onValueChange={handleChangeVolume}
+              min={0}
+              max={1}
+              step={0.1}
+              className="flex-1"
+              showPercentage={true}
+            />
+          </div>
         </div>
-        <DialogFooter>
+        <DialogFooter className="justify-center sm:justify-center">
+          <Button onClick={handleConfirm}>确定</Button>
           <Button variant="outline" onClick={onClose}>
             取消
           </Button>
-          <Button onClick={handleConfirm}>确认</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

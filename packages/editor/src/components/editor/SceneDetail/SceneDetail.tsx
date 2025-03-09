@@ -22,13 +22,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { DirectiveSpeakForm } from "@/components/plate-ui/directive-speak-form";
-import { Switch } from "@/components/ui/switch";
 import { linesToText } from "@/lib/utils";
 import { AudioLines } from "lucide-react";
 import { useToast } from "@/components/hooks/use-toast";
@@ -50,15 +43,30 @@ export function SceneDetail({ onClose }: { onClose?: () => void }) {
   const { toast } = useToast();
   const { showLoading, updateLoadingText, hideLoading } = useLoading();
 
-  const handleChangeSpeak = (speak) => {
+  const handleChangeSceneSettings = (settings) => {
     editor.updateActiveScene((scene) => {
-      scene.config.speak = speak;
-    });
-  };
+      scene.config.autoShowBackground = settings.autoShowBackground;
+      scene.config.speak = settings.speak;
 
-  const handleChangeAutoShowBackground = (value) => {
-    editor.updateActiveScene((scene) => {
-      scene.config.autoShowBackground = value;
+      scene.dialogues.forEach((dialogue) => {
+        dialogue.speak = {
+          ...dialogue.speak,
+          ...settings.speak,
+          speaker: {
+            ...(dialogue.speak.speaker || {}),
+            wordsPerMin: settings.speak.speaker.wordsPerMin,
+            interval: settings.speak.speaker.interval,
+            effect: settings.speak.speaker.effect,
+            effectDuration: settings.speak.speaker.effectDuration,
+            autoShowSpeaker: settings.speak.speaker.autoShowSpeaker,
+            autoMaskOtherSpeakers: settings.speak.speaker.autoMaskOtherSpeakers,
+          },
+          voice: {
+            ...(dialogue.speak.voice || {}),
+            volume: settings.speak.voice.volume,
+          },
+        };
+      });
     });
   };
 
@@ -274,7 +282,7 @@ export function SceneDetail({ onClose }: { onClose?: () => void }) {
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>批量生成当前场景中所有对白的音频</p>
+                          <p>批量生成当前场景中所有的对白配音</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
@@ -348,18 +356,22 @@ export function SceneDetail({ onClose }: { onClose?: () => void }) {
                 </Button>
               </div>
             </ScrollArea>
-            <SaveAsTemplateDialog
-              isOpen={isOpenSaveAsTemplateDialog}
-              onClose={() => setIsOpenSaveAsTemplateDialog(false)}
-              sceneName={activeScene.name}
-            ></SaveAsTemplateDialog>
-            <SceneSettingsDialog
-              isOpen={isOpenSceneSettingsDialog}
-              speak={activeScene.config.speak}
-              autoShowBackground={activeScene.config.autoShowBackground}
-              onConfirm={() => {}}
-              onClose={() => setIsOpenSceneSettingsDialog(false)}
-            />
+            {isOpenSaveAsTemplateDialog && (
+              <SaveAsTemplateDialog
+                isOpen={isOpenSaveAsTemplateDialog}
+                onClose={() => setIsOpenSaveAsTemplateDialog(false)}
+                sceneName={activeScene.name}
+              ></SaveAsTemplateDialog>
+            )}
+            {isOpenSceneSettingsDialog && (
+              <SceneSettingsDialog
+                isOpen={isOpenSceneSettingsDialog}
+                speak={activeScene.config.speak}
+                autoShowBackground={activeScene.config.autoShowBackground}
+                onConfirm={handleChangeSceneSettings}
+                onClose={() => setIsOpenSceneSettingsDialog(false)}
+              />
+            )}
           </>
         ) : (
           <div className="h-full text-lg flex items-center justify-center text-muted-foreground/50">
