@@ -69,7 +69,7 @@ export const SceneSettingsDialog: React.FC<SceneSettingsDialogProps> = ({
         <DialogHeader>
           <DialogTitle className="text-base font-bold">场景设置</DialogTitle>
           <DialogDescription>
-            场景设置变更会应用到目前场景所有的对白以及后续新增的对白中
+            场景设置变更会应用到当前场景所有的对白以及后续新增的对白中
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-2">
@@ -86,16 +86,18 @@ export const SceneSettingsDialog: React.FC<SceneSettingsDialogProps> = ({
             />
           </div>
           <div className="flex items-center">
-            <span className="text-sm font-medium w-[10rem]">配音音量</span>
-            <Slider
-              value={[settings.speak.voice?.volume || 1]}
-              onValueChange={handleChangeVolume}
-              min={0}
-              max={1}
-              step={0.1}
-              className="flex-1"
-              showPercentage={true}
-            />
+            <span className="text-sm font-medium w-[8rem]">配音音量</span>
+            <div className="flex-1">
+              <Slider
+                value={[settings.speak.voice?.volume || 1]}
+                onValueChange={handleChangeVolume}
+                min={0}
+                max={1}
+                step={0.1}
+                className="flex-1"
+                showPercentage={true}
+              />
+            </div>
           </div>
         </div>
         <DialogFooter className="justify-center sm:justify-center">

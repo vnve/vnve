@@ -190,11 +190,15 @@ export class Director {
 
     try {
       return await this.run(screenplay);
+    } catch (error) {
+      log.error("Error running screenplay:", error);
+      throw error;
     } finally {
       this.reset();
       log.info("action cost:", performance.now() - now);
       if (this.cutResolver) {
         this.cutResolver(true);
+        this.cutResolver = undefined;
       }
     }
   }

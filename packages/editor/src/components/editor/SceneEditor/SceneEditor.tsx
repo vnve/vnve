@@ -248,7 +248,7 @@ export function SceneEditor() {
         setIsOpenPreviewVideoDialog(false);
         toast({
           title: "预览失败！",
-          description: genErrorDesc(error.message),
+          description: genErrorDesc(error),
           variant: "destructive",
         });
       });
@@ -286,7 +286,7 @@ export function SceneEditor() {
         setIsOpenExportVideoDialog(false);
         toast({
           title: "导出失败！",
-          description: genErrorDesc(error.message),
+          description: genErrorDesc(error),
           variant: "destructive",
         });
       });

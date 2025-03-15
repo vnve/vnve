@@ -140,6 +140,9 @@ export function SceneDetail({ onClose }: { onClose?: () => void }) {
   const handleCopyDialogue = (dialogue: Dialogue, index?: number) => {
     const clonedDialogue = editor.cloneDialogue(dialogue);
 
+    // 复制时默认不复制语音
+    clonedDialogue.speak.voice = undefined;
+
     editor.addDialogue(clonedDialogue, index);
   };
 
