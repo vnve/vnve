@@ -166,28 +166,33 @@ async function importPresetAssetsToDB() {
       });
 
       for (const state of states) {
-        const { name, url } = state;
-        const ext = url.split(".").pop();
-        const blob = null;
-        const mime = "";
-        const id = await assetSourceDB.add({
-          mime,
-          ext,
-          blob,
-          url,
-        });
-
-        await assetDB
-          .where("id")
-          .equals(assetId)
-          .modify((asset) => {
-            asset.states.push({
-              id,
-              name,
-              ext,
-              url,
-            });
+        try {
+          const { name, url } = state;
+          const ext = url.split(".").pop();
+          const response = await fetch(url);
+          const blob = await response.blob();
+          const mime = response.headers.get("Content-Type") || "";
+          const id = await assetSourceDB.add({
+            mime,
+            ext,
+            blob,
+            url,
           });
+
+          await assetDB
+            .where("id")
+            .equals(assetId)
+            .modify((asset) => {
+              asset.states.push({
+                id,
+                name,
+                ext,
+                url,
+              });
+            });
+        } catch (error) {
+          console.error("导入预设资源失败", error);
+        }
       }
     }
   }
