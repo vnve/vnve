@@ -161,8 +161,11 @@ async function querySynthesisResult(params: {
   return data;
 }
 
+export const NONE_VOICE = "NONE_VOICE";
+
 // https://www.volcengine.com/docs/6561/97465#%E4%B8%AD%E6%96%87
 export const VOICE_OPTIONS = [
+  { name: "无", value: NONE_VOICE },
   { name: "灿灿 2.0", value: "BV700_V2_streaming" },
   { name: "炀炀", value: "BV705_streaming" },
   { name: "擎苍 2.0", value: "BV701_V2_streaming" },

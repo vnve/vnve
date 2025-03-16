@@ -29,6 +29,7 @@ import { useLoading } from "@/components/hooks/useLoading";
 import { useSettingsStore } from "@/store/settings";
 import { genTTS } from "@/lib/core";
 import { SceneSettingsDialog } from "./SceneSettingsDialog";
+import { NONE_VOICE } from "@/lib/tts";
 
 export function SceneDetail({ onClose }: { onClose?: () => void }) {
   const editor = useEditorStore((state) => state.editor);
@@ -159,6 +160,14 @@ export function SceneDetail({ onClose }: { onClose?: () => void }) {
   };
 
   const handleBatchGenerateTTS = async () => {
+    if (!ttsSettings || !ttsSettings.appid || !ttsSettings.token) {
+      toast({
+        title: "请先完成语音合成设置",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const dialogues = activeScene.dialogues;
 
     showLoading("配音生成中");
@@ -166,24 +175,33 @@ export function SceneDetail({ onClose }: { onClose?: () => void }) {
     try {
       for (const [index, dialogue] of dialogues.entries()) {
         updateLoadingText(`正在生成第 ${index + 1} 条对白`);
-        const { sound } = await genTTS({
-          speak: dialogue.speak,
-          lines: dialogue.lines,
-          editor,
-          project,
-          ttsSettings,
-        });
 
-        editor.updateDialogue(index, {
-          ...dialogue,
-          speak: {
-            ...dialogue.speak,
-            voice: {
-              ...(dialogue.speak.voice || {}),
-              targetName: sound.name,
+        try {
+          const { sound } = await genTTS({
+            speak: dialogue.speak,
+            lines: dialogue.lines,
+            editor,
+            project,
+            ttsSettings,
+          });
+
+          editor.updateDialogue(index, {
+            ...dialogue,
+            speak: {
+              ...dialogue.speak,
+              voice: {
+                ...(dialogue.speak.voice || {}),
+                targetName: sound.name,
+              },
             },
-          },
-        });
+          });
+        } catch (error) {
+          if (error.voice === NONE_VOICE) {
+            // 音色配置为空，批量场景直接跳过处理
+          } else {
+            throw error;
+          }
+        }
       }
       toast({
         title: "场景对白生成成功!",

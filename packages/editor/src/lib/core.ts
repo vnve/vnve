@@ -23,7 +23,7 @@ import {
   createMonologueScene,
 } from "@vnve/core";
 import { fetchAudioFile, linesToText } from "./utils";
-import { longTextSynthesis } from "./tts";
+import { longTextSynthesis, NONE_VOICE } from "./tts";
 
 export async function createSprite(asset: DBAsset, editor: Editor) {
   const states = asset.states;
@@ -484,7 +484,7 @@ export async function genTTS({
   url: string;
 }> {
   if (!ttsSettings || !ttsSettings.appid || !ttsSettings.token) {
-    throw new Error("请先配置语音合成设置");
+    throw new Error("请先完成语音合成设置");
   }
 
   const speakerTargetName = speak.speaker.speakerTargetName;
@@ -503,7 +503,14 @@ export async function genTTS({
   const voice = speakerAsset.voice;
 
   if (!voice) {
-    throw new Error("当前角色没有配置音色, 请在素材库中先配置音色");
+    throw new Error(`当前角色没有配置音色, 请在素材库中先配置音色`);
+  }
+
+  if (voice === NONE_VOICE) {
+    throw {
+      voice,
+      message: "当前角色音色配置为无，无法合成语音， 请在素材库中修改音色",
+    };
   }
 
   // 更新前，假如已经有配音，先从场景中删除
