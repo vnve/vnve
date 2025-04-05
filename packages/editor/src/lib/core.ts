@@ -309,22 +309,25 @@ export async function story2Scenes(
   editor: Editor,
   characterAssetMap: Record<string, DBAsset>,
   backgroundAssetMap: Record<string, DBAsset>,
+  sceneTemplateName?: string,
 ) {
   for (const item of story) {
     let scene: Scene;
-    if (item.type) {
+    const type = item.type ?? sceneTemplateName;
+
+    if (type) {
       const typeMap = {
         标题: createTitleScene,
         独白: createMonologueScene,
         对话: createDialogueScene,
       };
-      let createScene = typeMap[item.type];
+      let createScene = typeMap[type];
 
       if (!createScene) {
         try {
           const templateItem = await templateDB
             .where("name")
-            .equals(item.type)
+            .equals(type)
             .first();
           const newScene = await Scene.fromJSON(
             JSON.parse(templateItem.content),

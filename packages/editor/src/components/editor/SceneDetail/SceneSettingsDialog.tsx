@@ -89,7 +89,7 @@ export const SceneSettingsDialog: React.FC<SceneSettingsDialogProps> = ({
             <span className="text-sm font-medium w-[8rem]">配音音量</span>
             <div className="flex-1">
               <Slider
-                value={[settings.speak.voice?.volume || 1]}
+                value={[settings.speak.voice?.volume ?? 1]}
                 onValueChange={handleChangeVolume}
                 min={0}
                 max={1}
