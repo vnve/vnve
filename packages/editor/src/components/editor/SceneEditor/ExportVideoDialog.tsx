@@ -12,15 +12,18 @@ import { downloadFile } from "@/lib/utils";
 import { useEditorStore } from "@/store";
 import { Progress } from "@/components/ui/progress";
 import { ActionProgress } from "./types";
+import { downloadSRT, genSRT } from "@/lib/srt";
 
 export function ExportVideoDialog({
   progress,
   url,
+  subtitles,
   isOpen,
   onClose,
 }: {
   progress: ActionProgress;
   url: string;
+  subtitles: Subtitle[];
   isOpen: boolean;
   onClose: () => void;
 }) {
@@ -33,6 +36,11 @@ export function ExportVideoDialog({
 
   const handleDownloadVideo = () => {
     downloadFile(project.name, url);
+  };
+
+  const handleDownloadSubtitles = () => {
+    const srt = genSRT(subtitles);
+    downloadSRT(srt, project.name);
   };
 
   return (
@@ -50,6 +58,12 @@ export function ExportVideoDialog({
           <video src={url} className="w-full aspect-[16/9]" controls></video>
         )}
         <DialogFooter>
+          {/* {url && subtitles.length > 0 && (
+            <Button variant="secondary" onClick={handleDownloadSubtitles}>
+              <Icons.download className="size-4 mr-1"></Icons.download>
+              保存字幕
+            </Button>
+          )} */}
           {url && (
             <Button onClick={handleDownloadVideo}>
               <Icons.download className="size-4 mr-1"></Icons.download>

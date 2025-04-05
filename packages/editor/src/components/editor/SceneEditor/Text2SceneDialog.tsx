@@ -46,6 +46,7 @@ export function Text2SceneDialog({
   const [importInputText, setImportInputText] = useState("");
   const [step, setStep] = useState(1);
   const { selectAsset } = useAssetLibrary();
+  const [sceneTemplateName, setSceneTemplateName] = useState("");
 
   useEffect(() => {
     if (type === "ai") {
@@ -155,7 +156,13 @@ export function Text2SceneDialog({
 
     setLoadingText("场景生成中");
     try {
-      await story2Scenes(story, editor, characterAssetMap, backgroundAssetMap);
+      await story2Scenes(
+        story,
+        editor,
+        characterAssetMap,
+        backgroundAssetMap,
+        sceneTemplateName,
+      );
       handleClose();
     } catch (error) {
       toast({
@@ -252,6 +259,7 @@ export function Text2SceneDialog({
             loading={loadingText}
             onChange={setImportInputText}
             onComplete={handleImportScreenplay}
+            onChangeTemplate={setSceneTemplateName}
           >
             {type === "ai" && (
               <Button variant="outline" onClick={() => setStep(step - 1)}>

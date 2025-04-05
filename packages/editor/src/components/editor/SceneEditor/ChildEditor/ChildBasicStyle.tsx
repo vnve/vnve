@@ -83,6 +83,7 @@ export function ChildBasicStyle() {
           step={0.1}
           value={[activeChild.alpha]}
           onValueChange={(value) => handleSelectValueChange("alpha")(value[0])}
+          showPercentage={true}
         />
       </div>
     </div>

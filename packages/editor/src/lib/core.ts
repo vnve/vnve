@@ -1,8 +1,12 @@
 import {
   DBAsset,
   DBAssetType,
+  getAssetById,
   getAssetByName,
   getAssetSourceURL,
+  getAssetSourceURLByAsset,
+  importAssetToProjectTmp,
+  NARRATOR_ASSET_ID,
   templateDB,
 } from "@/db";
 import {
@@ -18,6 +22,8 @@ import {
   createTitleScene,
   createMonologueScene,
 } from "@vnve/core";
+import { fetchAudioFile, linesToText } from "./utils";
+import { longTextSynthesis, NONE_VOICE } from "./tts";
 
 export async function createSprite(asset: DBAsset, editor: Editor) {
   const states = asset.states;
@@ -303,22 +309,25 @@ export async function story2Scenes(
   editor: Editor,
   characterAssetMap: Record<string, DBAsset>,
   backgroundAssetMap: Record<string, DBAsset>,
+  sceneTemplateName?: string,
 ) {
   for (const item of story) {
     let scene: Scene;
-    if (item.type) {
+    const type = item.type ?? sceneTemplateName;
+
+    if (type) {
       const typeMap = {
         标题: createTitleScene,
         独白: createMonologueScene,
         对话: createDialogueScene,
       };
-      let createScene = typeMap[item.type];
+      let createScene = typeMap[type];
 
       if (!createScene) {
         try {
           const templateItem = await templateDB
             .where("name")
-            .equals(item.type)
+            .equals(type)
             .first();
           const newScene = await Scene.fromJSON(
             JSON.parse(templateItem.content),
@@ -465,5 +474,79 @@ export async function story2Scenes(
         ],
       });
     }
+  }
+}
+export async function genTTS({
+  lines,
+  editor,
+  project,
+  speak,
+  ttsSettings,
+}): Promise<{
+  sound: Sound;
+  url: string;
+}> {
+  if (!ttsSettings || !ttsSettings.appid || !ttsSettings.token) {
+    throw new Error("请先完成语音合成设置");
+  }
+
+  const speakerTargetName = speak.speaker.speakerTargetName;
+  let speakerAssetID;
+
+  if (speakerTargetName === "Narrator") {
+    speakerAssetID = NARRATOR_ASSET_ID;
+  } else {
+    const speakerSprite = editor.activeScene.getChildByName(
+      speakerTargetName,
+    ) as Sprite;
+    speakerAssetID = speakerSprite.assetID;
+  }
+
+  const speakerAsset = await getAssetById(speakerAssetID);
+  const voice = speakerAsset.voice;
+
+  if (!voice) {
+    throw new Error(`当前角色没有配置音色, 请在素材库中先配置音色`);
+  }
+
+  if (voice === NONE_VOICE) {
+    throw {
+      voice,
+      message: "当前角色音色配置为无，无法合成语音， 请在素材库中修改音色",
+    };
+  }
+
+  // 更新前，假如已经有配音，先从场景中删除
+  if (speak.voice?.targetName) {
+    editor.removeSoundByName(speak.voice.targetName);
+  }
+
+  const text = linesToText(lines);
+
+  try {
+    const result = await longTextSynthesis({
+      token: ttsSettings.token,
+      appid: ttsSettings.appid,
+      text,
+      voiceType: voice,
+    });
+    const file = await fetchAudioFile(result.audio_url, text.slice(0, 6));
+    const soundAsset = await importAssetToProjectTmp(
+      project.id,
+      DBAssetType.Audio,
+      file,
+    );
+    const sound = createSound(soundAsset);
+
+    editor.addSound(sound);
+    const url = getAssetSourceURLByAsset(soundAsset);
+
+    return {
+      sound,
+      url,
+    };
+  } catch (error) {
+    console.error(error);
+    throw new Error(`${text.slice(0, 6)}... 语音合成失败: ${error.message}`);
   }
 }

@@ -9,6 +9,8 @@ import {
   DBAssetTypeOptions,
   DBAssetState,
   getAssetSourceURL,
+  TMP_PREFIX,
+  NARRATOR_ASSET_ID,
 } from "@/db";
 import { useAssetStore } from "@/store";
 import {
@@ -42,13 +44,33 @@ export function AssetLibrary() {
   const [assetType, setAssetType] = useState(defaultType);
   const [editingAsset, setEditingAsset] = useState<DBAsset | null>(null);
   const [selectingAsset, setSelectingAsset] = useState<DBAsset | null>(null);
-  const assets = useLiveQuery(
-    () =>
-      assetType
-        ? assetDB.where("type").equals(assetType).reverse().toArray()
-        : [],
-    [assetType],
-  );
+  const assets = useLiveQuery(async () => {
+    if (assetType) {
+      const list = await assetDB
+        .where("type")
+        .equals(assetType)
+        .and((asset) => !asset.name.startsWith(TMP_PREFIX))
+        .reverse()
+        .toArray();
+
+      if (assetType === DBAssetType.Character) {
+        const targetItemIndex = list.findIndex(
+          (item) => item.id === NARRATOR_ASSET_ID,
+        );
+
+        if (targetItemIndex !== -1) {
+          // 将旁白移到第一位
+          const targetItem = list[targetItemIndex];
+          list.splice(targetItemIndex, 1);
+          list.unshift(targetItem);
+        }
+      }
+
+      return list;
+    }
+
+    return [];
+  }, [assetType]);
 
   const handleChangeAssetType = (type: DBAssetType) => {
     setAssetType(type);

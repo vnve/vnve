@@ -1,5 +1,11 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { DBAssetType, DBAssetState, DBAsset, getAssetSourceURL } from "@/db";
+import {
+  DBAssetType,
+  DBAssetState,
+  DBAsset,
+  getAssetSourceURL,
+  NARRATOR_ASSET_ID,
+} from "@/db";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -157,9 +163,11 @@ export function AssetCard({
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem onClick={onEdit}>编辑</DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive" onClick={onDelete}>
-              删除
-            </DropdownMenuItem>
+            {asset.id !== NARRATOR_ASSET_ID && (
+              <DropdownMenuItem className="text-destructive" onClick={onDelete}>
+                删除
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </CardFooter>

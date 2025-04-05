@@ -16,6 +16,12 @@ export class Play extends SoundDirective {
     this.options = options;
   }
 
+  public async load() {
+    if (!this.target.buffer) {
+      await this.target.load();
+    }
+  }
+
   public execute(): void {
     soundController.play(this.target, this.options);
   }

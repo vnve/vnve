@@ -5,6 +5,11 @@ import { merge } from "lodash-es";
 export class FadeIn extends AnimationDirective {
   constructor(options: AnimationDirectiveOptions, stage: PIXI.Container) {
     super(options, stage);
+
+    if (!this.target) {
+      return;
+    }
+
     this.options = merge(
       {
         fromVars: {

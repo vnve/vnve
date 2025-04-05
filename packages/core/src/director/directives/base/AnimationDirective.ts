@@ -22,6 +22,10 @@ export abstract class AnimationDirective<
     this.target = this.stage.getChildByName(options.targetName, true)!;
   }
 
+  public check() {
+    return !!this.target;
+  }
+
   public execute(): void {
     if (!this.target) {
       return;

@@ -6,6 +6,11 @@ export class ShakeY extends AnimationDirective {
   constructor(options: AnimationDirectiveOptions, stage: PIXI.Container) {
     super(options, stage);
     const target = this.target as PIXI.Sprite;
+
+    if (!target) {
+      return;
+    }
+
     const shakeAmplitude = target.height ? target.height * 0.05 : 0;
     const origin = target.y;
     const top = origin - shakeAmplitude;

@@ -22,13 +22,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { DirectiveSpeakForm } from "@/components/plate-ui/directive-speak-form";
-import { Switch } from "@/components/ui/switch";
+import { linesToText } from "@/lib/utils";
+import { AudioLines } from "lucide-react";
+import { useToast } from "@/components/hooks/use-toast";
+import { useLoading } from "@/components/hooks/useLoading";
+import { useSettingsStore } from "@/store/settings";
+import { genTTS } from "@/lib/core";
+import { SceneSettingsDialog } from "./SceneSettingsDialog";
+import { NONE_VOICE } from "@/lib/tts";
 
 export function SceneDetail({ onClose }: { onClose?: () => void }) {
   const editor = useEditorStore((state) => state.editor);
@@ -36,17 +37,37 @@ export function SceneDetail({ onClose }: { onClose?: () => void }) {
   const activeScene = useEditorStore((state) => state.activeScene);
   const [isOpenSaveAsTemplateDialog, setIsOpenSaveAsTemplateDialog] =
     useState(false);
+  const [isOpenSceneSettingsDialog, setIsOpenSceneSettingsDialog] =
+    useState(false);
   const scrollAreaRef = useRef(null);
+  const ttsSettings = useSettingsStore((state) => state.tts);
+  const { toast } = useToast();
+  const { showLoading, updateLoadingText, hideLoading } = useLoading();
 
-  const handleChangeSpeak = (speak) => {
+  const handleChangeSceneSettings = (settings) => {
     editor.updateActiveScene((scene) => {
-      scene.config.speak = speak;
-    });
-  };
+      scene.config.autoShowBackground = settings.autoShowBackground;
+      scene.config.speak = settings.speak;
 
-  const handleChangeAutoShowBackground = (value) => {
-    editor.updateActiveScene((scene) => {
-      scene.config.autoShowBackground = value;
+      scene.dialogues.forEach((dialogue) => {
+        dialogue.speak = {
+          ...dialogue.speak,
+          ...settings.speak,
+          speaker: {
+            ...(dialogue.speak.speaker || {}),
+            wordsPerMin: settings.speak.speaker.wordsPerMin,
+            interval: settings.speak.speaker.interval,
+            effect: settings.speak.speaker.effect,
+            effectDuration: settings.speak.speaker.effectDuration,
+            autoShowSpeaker: settings.speak.speaker.autoShowSpeaker,
+            autoMaskOtherSpeakers: settings.speak.speaker.autoMaskOtherSpeakers,
+          },
+          voice: {
+            ...(dialogue.speak.voice || {}),
+            volume: settings.speak.voice.volume,
+          },
+        };
+      });
     });
   };
 
@@ -103,26 +124,7 @@ export function SceneDetail({ onClose }: { onClose?: () => void }) {
         const textChild = editor.activeScene.getChildByName(
           textTargetName,
         ) as Text;
-        let speakText = "";
-
-        value.lines.forEach((line) => {
-          if (line.type === "p") {
-            for (let index = 0; index < line.children.length; index++) {
-              const child = line.children[index];
-
-              if (!child.type) {
-                let text = child.text;
-
-                if (index === line.children.length - 1) {
-                  // 最后一个元素是文本，增加换行符
-                  text += "\n";
-                }
-
-                speakText += text;
-              }
-            }
-          }
-        });
+        const speakText = linesToText(value.lines);
 
         if (speakText && textChild) {
           textChild.text = speakText;
@@ -139,6 +141,9 @@ export function SceneDetail({ onClose }: { onClose?: () => void }) {
   const handleCopyDialogue = (dialogue: Dialogue, index?: number) => {
     const clonedDialogue = editor.cloneDialogue(dialogue);
 
+    // 复制时默认不复制语音
+    clonedDialogue.speak.voice = undefined;
+
     editor.addDialogue(clonedDialogue, index);
   };
 
@@ -152,6 +157,64 @@ export function SceneDetail({ onClose }: { onClose?: () => void }) {
         scrollAreaRef.current.scrollToBottom();
       }
     }, 100);
+  };
+
+  const handleBatchGenerateTTS = async () => {
+    if (!ttsSettings || !ttsSettings.appid || !ttsSettings.token) {
+      toast({
+        title: "请先完成语音合成设置",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const dialogues = activeScene.dialogues;
+
+    showLoading("配音生成中");
+
+    try {
+      for (const [index, dialogue] of dialogues.entries()) {
+        updateLoadingText(`正在生成第 ${index + 1} 条对白`);
+
+        try {
+          const { sound } = await genTTS({
+            speak: dialogue.speak,
+            lines: dialogue.lines,
+            editor,
+            project,
+            ttsSettings,
+          });
+
+          editor.updateDialogue(index, {
+            ...dialogue,
+            speak: {
+              ...dialogue.speak,
+              voice: {
+                ...(dialogue.speak.voice || {}),
+                targetName: sound.name,
+              },
+            },
+          });
+        } catch (error) {
+          if (error.voice === NONE_VOICE) {
+            // 音色配置为空，批量场景直接跳过处理
+          } else {
+            throw error;
+          }
+        }
+      }
+      toast({
+        title: "场景对白生成成功!",
+      });
+    } catch (error) {
+      toast({
+        title: "配音生成失败",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      hideLoading();
+    }
   };
 
   return (
@@ -168,32 +231,23 @@ export function SceneDetail({ onClose }: { onClose?: () => void }) {
                   >
                     <span>场景标题</span>
                     <div className="flex items-center">
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button size="sm" variant="ghost">
-                            <Icons.settings className="size-4"></Icons.settings>
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent>
-                          <div className="flex flex-col">
-                            <h3 className="text-base font-bold">场景设置</h3>
-                            <DirectiveSpeakForm
-                              speak={activeScene.config.speak}
-                              onChangeSpeak={handleChangeSpeak}
-                              disableCustomName={true}
-                            ></DirectiveSpeakForm>
-                            <div className="flex mt-2">
-                              <span className="text-sm font-medium w-[8rem]">
-                                自动展示背景
-                              </span>
-                              <Switch
-                                checked={activeScene.config.autoShowBackground}
-                                onCheckedChange={handleChangeAutoShowBackground}
-                              />
-                            </div>
-                          </div>
-                        </PopoverContent>
-                      </Popover>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => setIsOpenSceneSettingsDialog(true)}
+                            >
+                              <Icons.settings className="size-4"></Icons.settings>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>场景设置</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -235,7 +289,25 @@ export function SceneDetail({ onClose }: { onClose?: () => void }) {
                   />
                 </div>
                 <div className="flex flex-col gap-2 mt-4">
-                  <Label>场景对白</Label>
+                  <Label className="flex justify-between items-center">
+                    <span>场景对白</span>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={handleBatchGenerateTTS}
+                          >
+                            <AudioLines className="size-4"></AudioLines>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>批量生成当前场景中所有的对白配音</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </Label>
                   {activeScene.dialogues.map((dialogue, index) => {
                     return (
                       <div key={index}>
@@ -305,11 +377,22 @@ export function SceneDetail({ onClose }: { onClose?: () => void }) {
                 </Button>
               </div>
             </ScrollArea>
-            <SaveAsTemplateDialog
-              isOpen={isOpenSaveAsTemplateDialog}
-              onClose={() => setIsOpenSaveAsTemplateDialog(false)}
-              sceneName={activeScene.name}
-            ></SaveAsTemplateDialog>
+            {isOpenSaveAsTemplateDialog && (
+              <SaveAsTemplateDialog
+                isOpen={isOpenSaveAsTemplateDialog}
+                onClose={() => setIsOpenSaveAsTemplateDialog(false)}
+                sceneName={activeScene.name}
+              ></SaveAsTemplateDialog>
+            )}
+            {isOpenSceneSettingsDialog && (
+              <SceneSettingsDialog
+                isOpen={isOpenSceneSettingsDialog}
+                speak={activeScene.config.speak}
+                autoShowBackground={activeScene.config.autoShowBackground}
+                onConfirm={handleChangeSceneSettings}
+                onClose={() => setIsOpenSceneSettingsDialog(false)}
+              />
+            )}
           </>
         ) : (
           <div className="h-full text-lg flex items-center justify-center text-muted-foreground/50">

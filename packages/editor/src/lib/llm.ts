@@ -22,7 +22,7 @@ async function requestLLM(system: string, prompt: string) {
 
   const client = new OpenAI({
     apiKey,
-    baseURL: `${location.origin}/api/${platform}`,
+    baseURL: `${location.origin}/api/llm/${platform}`,
     dangerouslyAllowBrowser: true,
   });
 

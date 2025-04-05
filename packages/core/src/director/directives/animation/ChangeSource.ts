@@ -23,6 +23,7 @@ export class ChangeSource extends AnimationDirective<Sprite> {
   public async execute() {
     const { source, immediate } = this.options;
 
+    // TODO: 预加载资源
     this.target.changeSource(source);
 
     if (immediate) {

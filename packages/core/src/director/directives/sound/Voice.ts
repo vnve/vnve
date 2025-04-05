@@ -13,6 +13,12 @@ export class Voice extends SoundDirective {
     this.options = options;
   }
 
+  public async load() {
+    if (!this.target.buffer) {
+      await this.target.load();
+    }
+  }
+
   public execute() {
     soundController.play(this.target, this.options);
   }
