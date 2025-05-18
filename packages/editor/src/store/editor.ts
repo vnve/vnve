@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { Child, Editor, Scene, Text } from "@vnve/core";
 import { immer } from "zustand/middleware/immer";
 import { DBProject } from "@/db";
+import { useSettingsStore } from "./settings";
 
 export const useEditorStore = create<{
   project: Pick<DBProject, "id" | "name"> | null;
@@ -35,8 +36,11 @@ export const useEditorStore = create<{
         });
       },
       initEditor(view: HTMLCanvasElement) {
+        const { canvas } = useSettingsStore.getState();
         editor = new Editor({
           view,
+          width: canvas.width,
+          height: canvas.height,
           onChangeActiveChild(child) {
             set((state) => {
               if (!child) {
