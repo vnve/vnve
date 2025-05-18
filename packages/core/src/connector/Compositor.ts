@@ -15,6 +15,13 @@ export class Compositor extends Connector {
   constructor(options: ConnectorOptions) {
     super(options);
     this.videoConfig = options.videoConfig ?? DEFAULT_VIDEO_CONFIG;
+    const { width, height } = options;
+    if (width) {
+      this.videoConfig.width = width;
+    }
+    if (height) {
+      this.videoConfig.height = height;
+    }
     this.audioConfig = options.audioConfig ?? DEFAULT_AUDIO_CONFIG;
     this.compositorWorker = new CompositorWorker();
     this.initialized = new Promise((resolve, reject) => {

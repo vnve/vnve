@@ -20,12 +20,14 @@ export function ExportVideoDialog({
   subtitles,
   isOpen,
   onClose,
+  aspectRatio,
 }: {
   progress: ActionProgress;
   url: string;
   subtitles: Subtitle[];
   isOpen: boolean;
   onClose: () => void;
+  aspectRatio: number; // width / height
 }) {
   const project = useEditorStore((state) => state.project);
   const handleOpenChange = (value) => {
@@ -55,15 +57,14 @@ export function ExportVideoDialog({
         </DialogHeader>
         {!url && <Progress value={progress.value} />}
         {url && (
-          <video src={url} className="w-full aspect-[16/9]" controls></video>
+          <video
+            src={url}
+            className="w-full"
+            style={{ aspectRatio }}
+            controls
+          ></video>
         )}
         <DialogFooter>
-          {/* {url && subtitles.length > 0 && (
-            <Button variant="secondary" onClick={handleDownloadSubtitles}>
-              <Icons.download className="size-4 mr-1"></Icons.download>
-              保存字幕
-            </Button>
-          )} */}
           {url && (
             <Button onClick={handleDownloadVideo}>
               <Icons.download className="size-4 mr-1"></Icons.download>

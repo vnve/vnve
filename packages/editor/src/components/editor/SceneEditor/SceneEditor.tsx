@@ -35,6 +35,7 @@ import { useMedia } from "@/components/hooks/useMedia";
 import { useText2Scene } from "@/components/hooks/useText2Scene";
 import { Text2SceneDialog } from "./Text2SceneDialog";
 import { DirectiveNameMap } from "@/config";
+import { useSettingsStore } from "@/store/settings";
 
 export function SceneEditor() {
   const initEditor = useEditorStore((state) => state.initEditor);
@@ -85,6 +86,7 @@ export function SceneEditor() {
     handleCloseText2Scene,
   } = useText2Scene();
   const isMd = useMedia("(min-width: 768px)");
+  const canvasSetting = useSettingsStore((state) => state.canvas);
 
   const handleExportDB = async () => {
     try {
@@ -147,14 +149,14 @@ export function SceneEditor() {
     });
   };
 
-  const adjustCanvasWidth = () => {
+  const adjustCanvasWidth = useCallback(() => {
     const container = canvasContainerRef.current;
     const canvas = canvasRef.current;
 
-    if (container && canvas) {
+    if (container && canvas && canvasSetting) {
       const containerWidth = container.clientWidth;
       const containerHeight = container.clientHeight;
-      const aspectRatio = 16 / 9;
+      const aspectRatio = canvasSetting.width / canvasSetting.height;
 
       let width = containerWidth;
       let height = containerWidth / aspectRatio;
@@ -164,10 +166,12 @@ export function SceneEditor() {
         width = containerHeight * aspectRatio;
       }
 
+      console.log("canvas width", width, height);
+
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
     }
-  };
+  }, [canvasSetting]);
 
   const handleSaveProject = useCallback(
     async (silent?: boolean) => {
@@ -232,8 +236,8 @@ export function SceneEditor() {
     const screenplay = await editor.exportScreenplay(start, end);
     const previewer = new Previewer({
       canvas: previewVideoDialogRef.current.getPreviewCanvas(),
-      width: 1920,
-      height: 1080,
+      width: editor.options.width,
+      height: editor.options.height,
       fps: 30,
       disableAudio: getDisableAudio(),
     });
@@ -267,8 +271,8 @@ export function SceneEditor() {
     setCurExportVideoURL(null);
     const screenplay = await editor.exportScreenplay(start, end);
     const compositor = new Compositor({
-      width: 1920,
-      height: 1080,
+      width: editor.options.width,
+      height: editor.options.height,
       fps: 30,
       disableAudio: getDisableAudio(),
     });
@@ -355,10 +359,19 @@ export function SceneEditor() {
     }
   }, [project, handleSaveProject]);
 
+  // 优先设置canvas的宽高，再挂载编辑器
   useEffect(() => {
     window.addEventListener("resize", adjustCanvasWidth);
 
     adjustCanvasWidth();
+
+    return () => {
+      window.removeEventListener("resize", adjustCanvasWidth);
+    };
+  }, [adjustCanvasWidth]);
+
+  // 初始化编辑器
+  useEffect(() => {
     initEditor(canvasRef.current);
     director.current = new Director({
       onProgress(progress, currentTime) {
@@ -369,11 +382,14 @@ export function SceneEditor() {
     canvasRef.current.onselectstart = function () {
       return false;
     };
-
-    return () => {
-      window.removeEventListener("resize", adjustCanvasWidth);
-    };
   }, [initEditor]);
+
+  // 更新画布设置，需要触发编辑器更新
+  useEffect(() => {
+    if (editor) {
+      editor.updateCanvasSize(canvasSetting.width, canvasSetting.height);
+    }
+  }, [canvasSetting, editor]);
 
   return (
     <div className="flex flex-col gap-2 flex-1">
@@ -596,6 +612,7 @@ export function SceneEditor() {
           subtitles={subtitles}
           isOpen={isOpenExportVideoDialog}
           onClose={handleCloseExportVideoDialog}
+          aspectRatio={editor.options.width / editor.options.height}
         ></ExportVideoDialog>
       )}
       {isOpenPreviewVideoDialog && (
@@ -606,6 +623,7 @@ export function SceneEditor() {
           onReplay={handleReplayPreview}
           onClose={handleClosePreviewVideoDialog}
           onExport={handlePreviewToExport}
+          aspectRatio={editor.options.width / editor.options.height}
         ></PreviewVideoDialog>
       )}
       {isOpenCreateProjectDialog && (

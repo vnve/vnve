@@ -20,12 +20,14 @@ export const PreviewVideoDialog = forwardRef(
       onReplay,
       onClose,
       onExport,
+      aspectRatio,
     }: {
       progress: ActionProgress;
       isOpen: boolean;
       onReplay: () => void;
       onClose: () => void;
       onExport: () => void;
+      aspectRatio: number; // width / height
     },
     ref,
   ) => {
@@ -52,7 +54,8 @@ export const PreviewVideoDialog = forwardRef(
             <DialogDescription></DialogDescription>
             <canvas
               ref={previewCanvasRef}
-              className="w-full aspect-[16/9]"
+              className="w-full"
+              style={{ aspectRatio }}
             ></canvas>
             <Progress value={progress.value} className="mt-2" />
           </DialogHeader>

@@ -1,6 +1,6 @@
 import * as PIXI from "pixi.js";
 import { Transformer } from "@pixi-essentials/transformer";
-import { Scene, Child, Dialogue, Sound, Sprite } from "../scene";
+import { Scene, Child, Dialogue, Sound, Sprite, Graphics } from "../scene";
 import { log } from "../util";
 import {
   DirectiveConfig,
@@ -664,5 +664,56 @@ export class Editor {
     this.setActiveScene(undefined);
     this.setActiveChild(undefined);
     this.removeTransformer();
+  }
+
+  public updateCanvasSize(width: number, height: number) {
+    this.options.width = width;
+    this.options.height = height;
+    this.app.renderer.resize(width, height);
+
+    // 更新舞台上所有元素的位置和大小
+    // for (const scene of this.scenes) {
+    //   for (const child of scene.children) {
+    //     if (child instanceof Sprite) {
+    //       // 背景需要铺满画布
+    //       if (
+    //         (child as Sprite & { assetType: string }).assetType === "Background"
+    //       ) {
+    //         child.width = width;
+    //         child.height = height;
+    //       } else {
+    //         // 普通Sprite根据宽高比例调整
+    //         const bounds = child.getBounds();
+    //         if (bounds.width > width) {
+    //           const scale = width / bounds.width;
+    //           child.scale.set(scale);
+    //         }
+    //         if (bounds.height > height) {
+    //           const scale = height / bounds.height;
+    //           child.scale.set(scale);
+    //         }
+    //       }
+    //     } else if (child instanceof Graphics && child.label === "对话框") {
+    //       // 对话框需要调整宽度和Y坐标
+    //       const dialogHeight = child.height;
+    //       const fillColor =
+    //         (child as Graphics & { fillColor: string }).fillColor || "0x000000";
+    //       child.clear();
+    //       child.beginFill(parseInt(fillColor));
+    //       child.drawRect(0, 0, width, dialogHeight);
+    //       child.endFill();
+    //       child.y = height - dialogHeight;
+    //     }
+
+    //     // 确保元素不会超出画布
+    //     const bounds = child.getBounds();
+    //     if (child.x + bounds.width > width) {
+    //       child.x = width - bounds.width;
+    //     }
+    //     if (child.y + bounds.height > height) {
+    //       child.y = height - bounds.height;
+    //     }
+    //   }
+    // }
   }
 }
