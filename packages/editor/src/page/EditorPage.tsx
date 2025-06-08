@@ -7,18 +7,28 @@ import {
 import { SceneDetail } from "@/components/editor/SceneDetail";
 import { AssetLibrary } from "@/components/editor/AssetLibrary";
 import { Toaster } from "@/components/ui/toaster";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useToast } from "@/components/hooks/use-toast";
 import { useMedia } from "@/components/hooks/useMedia";
 import { checkEnv } from "@vnve/core";
 import { setDisableAudio } from "@/lib/core";
 import { Loading } from "@/components/editor/Loading";
+import { useSettingsStore } from "@/store/settings";
+import { cn } from "@/lib/utils";
 
 export function EditorPage() {
   const [isOpenSceneDetailDialog, setIsOpenSceneDetailDialog] = useState(false);
   const isMd = useMedia("(min-width: 768px)");
   const [isSupported, setIsSupported] = useState(null);
   const { toast } = useToast();
+  const canvasSetting = useSettingsStore((state) => state.canvas);
+
+  const isPortraitCanvas = useMemo(() => {
+    return (
+      canvasSetting.width < canvasSetting.height ||
+      (canvasSetting.width === canvasSetting.height && isMd)
+    );
+  }, [canvasSetting, isMd]);
 
   const handleOpenSceneDetailDialog = () => {
     setIsOpenSceneDetailDialog(true);
@@ -63,11 +73,22 @@ export function EditorPage() {
           <div className="relative hidden md:flex h-[calc(100vh-53px-1rem)]">
             {isMd && <SceneDetail />}
           </div>
-          <div className="relative flex h-full flex-col gap-2">
+          <div
+            className={cn(
+              "relative flex h-full flex-col gap-2",
+              isPortraitCanvas && "flex-row",
+            )}
+          >
             <SceneEditor />
-            <div className="flex gap-2 h-[50vh] md:h-[30vh] flex-col sm:flex-row">
-              <ChildEditor />
+            <div
+              className={cn(
+                "flex gap-2 h-[50vh] md:h-[30vh] flex-col sm:flex-row",
+                isPortraitCanvas && "h-full md:h-full sm:flex-col flex-1",
+              )}
+            >
+              <ChildEditor isPortraitCanvas={isPortraitCanvas} />
               <SceneList
+                isPortraitCanvas={isPortraitCanvas}
                 onOpenSceneDetailDialog={handleOpenSceneDetailDialog}
               />
             </div>

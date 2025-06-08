@@ -24,8 +24,9 @@ import {
 import { useTemplates } from "@/components/hooks/useTemplates";
 import { Scene } from "@vnve/core";
 import { useEffect, useRef } from "react";
+import { cn } from "@/lib/utils";
 
-export function SceneList({ onOpenSceneDetailDialog }) {
+export function SceneList({ onOpenSceneDetailDialog, isPortraitCanvas }) {
   const editor = useEditorStore((state) => state.editor);
   const activeScene = useEditorStore((state) => state.activeScene);
   const scenes = useEditorStore((state) => state.scenes);
@@ -63,7 +64,12 @@ export function SceneList({ onOpenSceneDetailDialog }) {
   };
 
   return (
-    <Card className="flex-1 shrink-0 max-h-[50%] sm:max-h-full rounded-md">
+    <Card
+      className={cn(
+        "flex-1 shrink-0 max-h-[50%] sm:max-h-full rounded-md",
+        isPortraitCanvas && "sm:max-h-[50%]",
+      )}
+    >
       <CardContent className="h-full p-1">
         <ScrollArea className="h-full p-2">
           <Table>

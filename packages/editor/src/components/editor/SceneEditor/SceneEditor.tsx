@@ -166,8 +166,6 @@ export function SceneEditor() {
         width = containerHeight * aspectRatio;
       }
 
-      console.log("canvas width", width, height);
-
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
     }
