@@ -158,7 +158,9 @@ export class Speak extends AnimationDirective<PIXI.Text> {
       await this.voiceDirective.load();
     }
 
-    this.target.text = ""; // 清空遗留的展示文本
+    if (this.target) {
+      this.target.text = ""; // 清空遗留的展示文本
+    }
 
     for (const item of this.inlineList) {
       if (item.type === "directive") {
@@ -180,7 +182,9 @@ export class Speak extends AnimationDirective<PIXI.Text> {
   }
 
   public execute(): void {
-    this.target.visible = true;
+    if (this.target) {
+      this.target.visible = true;
+    }
     this.tl.play();
     this.speakerDirective?.execute();
     this.voiceDirective?.execute();
