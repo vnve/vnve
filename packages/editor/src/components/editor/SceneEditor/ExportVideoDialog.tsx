@@ -13,6 +13,7 @@ import { useEditorStore } from "@/store";
 import { Progress } from "@/components/ui/progress";
 import { ActionProgress } from "./types";
 import { downloadSRT, genSRT } from "@/lib/srt";
+import { cn } from "@/lib/utils";
 
 export function ExportVideoDialog({
   progress,
@@ -48,7 +49,7 @@ export function ExportVideoDialog({
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent
-        className="min-w-[80vw]"
+        className={cn(aspectRatio > 1 ? "w-[80vw]" : "h-[90vh]")}
         onPointerDownOutside={(e) => e.preventDefault()}
       >
         <DialogHeader>
@@ -57,12 +58,14 @@ export function ExportVideoDialog({
         </DialogHeader>
         {!url && <Progress value={progress.value} />}
         {url && (
-          <video
-            src={url}
-            className="w-full"
-            style={{ aspectRatio }}
-            controls
-          ></video>
+          <div className="flex-1 flex justify-center">
+            <video
+              src={url}
+              className={aspectRatio > 1 ? "w-full" : "h-[calc(90vh-140px)]"}
+              style={{ aspectRatio }}
+              controls
+            ></video>
+          </div>
         )}
         <DialogFooter>
           {url && (
