@@ -311,6 +311,11 @@ export async function story2Scenes(
   backgroundAssetMap: Record<string, DBAsset>,
   sceneTemplateName?: string,
 ) {
+  const canvasOptions = {
+    width: editor.options.width,
+    height: editor.options.height,
+  };
+
   for (const item of story) {
     let scene: Scene;
     const type = item.type ?? sceneTemplateName;
@@ -342,9 +347,9 @@ export async function story2Scenes(
         }
       }
 
-      scene = createScene();
+      scene = createScene(canvasOptions);
     } else {
-      scene = createDialogueScene();
+      scene = createDialogueScene(canvasOptions);
     }
 
     scene.label = item.name;

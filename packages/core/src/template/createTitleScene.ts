@@ -1,29 +1,78 @@
 import { LayerZIndex } from "../editor";
 import { Scene, Text } from "../scene";
 
-export function createTitleScene() {
+interface TitleLayoutConfig {
+  titleText: {
+    x: number;
+    y: number;
+    fontSize: number;
+  };
+  subtitleText: {
+    x: number;
+    y: number;
+    fontSize: number;
+  };
+}
+
+const TITLE_LAYOUT_CONFIGS: Record<string, TitleLayoutConfig> = {
+  "1920x1080": {
+    titleText: {
+      x: 960, // 1920/2
+      y: 340, // 1080/2 - 200
+      fontSize: 100,
+    },
+    subtitleText: {
+      x: 960,
+      y: 500, // 1080/2 - 40
+      fontSize: 60,
+    },
+  },
+  "1080x1920": {
+    titleText: {
+      x: 540, // 1080/2
+      y: 760, // 1920/2 - 200
+      fontSize: 80,
+    },
+    subtitleText: {
+      x: 540,
+      y: 920, // 1920/2 - 40
+      fontSize: 48,
+    },
+  },
+};
+
+export function createTitleScene(options?: {
+  width?: number;
+  height?: number;
+}) {
+  const width = options?.width || 1920;
+  const height = options?.height || 1080;
+  const configKey = `${width}x${height}`;
+  const layout = TITLE_LAYOUT_CONFIGS[configKey];
+
   const scene = new Scene();
 
   const titleText = new Text("主标题", {
     fill: 0xffffff,
     breakWords: true,
-    fontSize: 100,
+    fontSize: layout.titleText.fontSize,
     fontWeight: "bold",
   });
 
-  titleText.x = 1920 / 2 - titleText.width / 2;
-  titleText.y = 1080 / 2 - 200;
+  // 由于Text的锚点默认在左上角，需要调整位置使其居中
+  titleText.x = layout.titleText.x - titleText.width / 2;
+  titleText.y = layout.titleText.y;
   titleText.zIndex = LayerZIndex.Text;
   titleText.label = "主标题";
 
   const subtitleText = new Text("副标题", {
     fill: 0xffffff,
     breakWords: true,
-    fontSize: 60,
+    fontSize: layout.subtitleText.fontSize,
   });
 
-  subtitleText.x = 1920 / 2 - subtitleText.width / 2;
-  subtitleText.y = 1080 / 2 - 40;
+  subtitleText.x = layout.subtitleText.x - subtitleText.width / 2;
+  subtitleText.y = layout.subtitleText.y;
   subtitleText.zIndex = LayerZIndex.Text;
   subtitleText.label = "副标题";
 
