@@ -32,8 +32,19 @@ export function useTemplates() {
   const customTemplates = useLiveQuery(() => templateDB.reverse().toArray());
 
   const handleAddDefaultTemplate =
-    (createTemplateScene: () => Scene, index?: number) => () => {
-      const newScene = createTemplateScene();
+    (
+      createTemplateScene: (options?: {
+        width?: number;
+        height?: number;
+      }) => Scene,
+      index?: number,
+    ) =>
+    () => {
+      const canvasOptions = {
+        width: editor.options.width,
+        height: editor.options.height,
+      };
+      const newScene = createTemplateScene(canvasOptions);
 
       editor.addScene(newScene, index);
       editor.setActiveSceneByName(newScene.name);
