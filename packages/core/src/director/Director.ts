@@ -167,6 +167,12 @@ export class Director {
       });
   }
 
+  public updateRendererSize(width: number, height: number) {
+    this.rendererOptions.width = width;
+    this.rendererOptions.height = height;
+    this.renderer.resize(width, height);
+  }
+
   public connect(connecter: Connector) {
     this.connecter = connecter;
     this.connecter.connect();

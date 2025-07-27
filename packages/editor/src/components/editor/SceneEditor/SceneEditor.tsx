@@ -387,6 +387,12 @@ export function SceneEditor() {
     if (editor) {
       editor.updateCanvasSize(canvasSetting.width, canvasSetting.height);
     }
+    if (director.current) {
+      director.current.updateRendererSize(
+        canvasSetting.width,
+        canvasSetting.height,
+      );
+    }
   }, [canvasSetting, editor]);
 
   return (

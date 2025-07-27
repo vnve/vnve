@@ -11,6 +11,7 @@ import { Icons } from "@/components/icons";
 import { forwardRef, useImperativeHandle, useRef } from "react";
 import { Progress } from "@/components/ui/progress";
 import { ActionProgress } from "./types";
+import { cn } from "@/lib/utils";
 
 export const PreviewVideoDialog = forwardRef(
   (
@@ -46,19 +47,22 @@ export const PreviewVideoDialog = forwardRef(
     return (
       <Dialog open={isOpen} onOpenChange={handleOpenChange}>
         <DialogContent
-          className="min-w-[80vw]"
+          className={cn(aspectRatio > 1 ? "w-[80vw]" : "h-[90vh]")}
           onPointerDownOutside={(e) => e.preventDefault()}
         >
           <DialogHeader>
             <DialogTitle>预览</DialogTitle>
             <DialogDescription></DialogDescription>
+          </DialogHeader>
+
+          <div className="flex-1 flex flex-col items-center">
             <canvas
               ref={previewCanvasRef}
-              className="w-full"
+              className={aspectRatio > 1 ? "w-full" : "h-[calc(90vh-160px)]"}
               style={{ aspectRatio }}
             ></canvas>
             <Progress value={progress.value} className="mt-2" />
-          </DialogHeader>
+          </div>
 
           <DialogFooter>
             <Button variant="ghost" onClick={onReplay}>
