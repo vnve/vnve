@@ -549,9 +549,10 @@ export class Editor {
   }
 
   private genSceneScript(scene: Scene): SceneScript {
-    const { dialogues, config } = scene;
+    const { dialogues, config, width, height } = scene;
     const sceneSpeakConfig = config.speak;
     const directives: DirectiveConfig[] = [];
+    const isPortal = width < height;
 
     const sceneBackground = scene.children.find(
       (item) => (item as Sprite).assetType === "Background",
@@ -595,8 +596,15 @@ export class Editor {
                 speakerTargetName:
                   dialogueSpeakConfig.speaker?.speakerTargetName,
                 autoShowSpeaker: dialogueSpeakConfig.speaker?.autoShowSpeaker,
-                autoMaskOtherSpeakers:
-                  dialogueSpeakConfig.speaker?.autoMaskOtherSpeakers,
+                // TODO: 竖屏时，使用autoHideOtherSpeakers替代autoMaskOtherSpeakers，待优化
+                autoMaskOtherSpeakers: isPortal
+                  ? undefined
+                  : dialogueSpeakConfig.speaker?.autoMaskOtherSpeakers,
+                autoHideOtherSpeakers: isPortal
+                  ? {
+                      outEffect: "Hide",
+                    }
+                  : undefined,
               }
             : undefined,
           voice: dialogueSpeakConfig.voice?.targetName
