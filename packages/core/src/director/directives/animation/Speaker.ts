@@ -4,14 +4,25 @@ import { Show } from "./Show";
 import { FadeIn } from "./FadeIn";
 import { BlackMaskFilter, Filter, Sprite } from "../../../scene";
 import { merge } from "lodash-es";
+import { Hide } from "./Hide";
+import { FadeOut } from "./FadeOut";
 
 const AUTO_MASK_FILTER_NAME = "AutoMaskFilter";
 const InAnimationDirectiveClassMap = {
   Show,
   FadeIn,
 };
+const HideAnimationDirectiveClassMap = {
+  Hide,
+  FadeOut,
+};
 export interface AutoShowSpeakerOptions extends AnimationDirectiveOptions {
   inEffect?: "Show" | "FadeIn";
+}
+
+export interface AutoHideOtherSpeakersOptions
+  extends AnimationDirectiveOptions {
+  outEffect?: "Hide" | "FadeOut";
 }
 
 export interface AutoMaskOtherSpeakersOptions {
@@ -29,6 +40,7 @@ export interface SpeakerDirectiveOptions extends AnimationDirectiveOptions {
   speakerTargetName?: string;
   autoShowSpeaker?: Omit<AutoShowSpeakerOptions, "targetName">;
   autoMaskOtherSpeakers?: AutoMaskOtherSpeakersOptions;
+  autoHideOtherSpeakers?: Omit<AutoHideOtherSpeakersOptions, "targetName">;
 }
 
 export class Speaker extends AnimationDirective<PIXI.Text> {
@@ -56,8 +68,13 @@ export class Speaker extends AnimationDirective<PIXI.Text> {
   }
 
   public execute() {
-    const { name, autoShowSpeaker, autoMaskOtherSpeakers, executeTime } =
-      this.options;
+    const {
+      name,
+      autoShowSpeaker,
+      autoMaskOtherSpeakers,
+      autoHideOtherSpeakers,
+      executeTime,
+    } = this.options;
 
     if (this.target) {
       this.target.visible = true;
@@ -99,6 +116,26 @@ export class Speaker extends AnimationDirective<PIXI.Text> {
           }
         }
       });
+
+      if (autoHideOtherSpeakers) {
+        const { outEffect = "Hide" } = autoHideOtherSpeakers;
+
+        this.stage.children.forEach((child) => {
+          if (
+            child !== this.speakerTarget &&
+            (child as Sprite).assetType === "Character"
+          ) {
+            new HideAnimationDirectiveClassMap[outEffect](
+              {
+                ...autoShowSpeaker,
+                executeTime,
+                targetName: child.name!,
+              },
+              this.stage,
+            ).execute();
+          }
+        });
+      }
     }
   }
 
