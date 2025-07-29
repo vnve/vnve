@@ -16,6 +16,7 @@ import { Loader2, Send, Settings } from "lucide-react";
 import { AssetStateCard } from "@/components/editor/AssetLibrary/AssetCard";
 import { useStoryConversion } from "@/components/hooks/useStoryConversion";
 import { Icons } from "@/components/icons";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export function HomePage() {
   const [storyInput, setStoryInput] = useState("");
@@ -65,6 +66,7 @@ export function HomePage() {
 
             {/* 右侧按钮组 */}
             <div className="flex items-center space-x-2">
+              <ThemeToggle />
               <Button variant="ghost" size="sm">
                 <Settings className="h-4 w-4" />
               </Button>
