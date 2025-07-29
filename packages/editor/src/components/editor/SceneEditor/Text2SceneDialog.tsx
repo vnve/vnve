@@ -8,17 +8,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useEditorStore } from "@/store";
 import { DBAssetType } from "@/db";
 import { TextFileEditor } from "@/components//ui/text-file-editor";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Loader2 } from "lucide-react";
 import { AssetStateCard } from "@/components/editor/AssetLibrary/AssetCard";
-import {
-  useStoryConversion,
-  StoryState,
-} from "@/components/hooks/useStoryConversion";
+import { useStoryConversion } from "@/components/hooks/useStoryConversion";
 
 interface Text2SceneDialogProps {
   isOpen: boolean;
@@ -60,6 +57,17 @@ export function Text2SceneDialog({
     isProcessing,
   } = state;
 
+  // 根据 type 设置初始步骤
+  useEffect(() => {
+    if (isOpen) {
+      if (type === "formatter") {
+        updateState({ step: 2 }); // 导入剧本直接跳到第2步
+      } else if (type === "ai") {
+        updateState({ step: 1 }); // AI功能从第1步开始
+      }
+    }
+  }, [isOpen, type, updateState]);
+
   function handleClose() {
     onClose();
     reset();
@@ -68,7 +76,8 @@ export function Text2SceneDialog({
   }
 
   const handleGoBack = () => {
-    updateState({ step: Math.max(1, step - 1) });
+    const minStep = type === "formatter" ? 2 : 1;
+    updateState({ step: Math.max(minStep, step - 1) });
   };
 
   const handleAiOperation = async (

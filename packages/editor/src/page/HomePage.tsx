@@ -17,10 +17,13 @@ import { AssetStateCard } from "@/components/editor/AssetLibrary/AssetCard";
 import { useStoryConversion } from "@/components/hooks/useStoryConversion";
 import { Icons } from "@/components/icons";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { EditorSettingsDialog } from "@/components/editor/SceneEditor/EditorSettingsDialog";
+import { Toaster } from "@/components/ui/toaster";
 
 export function HomePage() {
   const [storyInput, setStoryInput] = useState("");
   const [loadingText, setLoadingText] = useState("");
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const navigate = useNavigate();
   const editor = useEditorStore((state) => state.editor);
 
@@ -67,7 +70,11 @@ export function HomePage() {
             {/* 右侧按钮组 */}
             <div className="flex items-center space-x-2">
               <ThemeToggle />
-              <Button variant="ghost" size="sm">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsSettingsOpen(true)}
+              >
                 <Settings className="h-4 w-4" />
               </Button>
               <Button variant="ghost" size="sm" asChild>
@@ -93,7 +100,7 @@ export function HomePage() {
                 开始创作你的视觉小说视频
               </h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                在这里输入你的故事，我们将把故事转换成视觉小说剧本
+                在这里输入你的故事，我们将把故事智能换成视觉小说剧本
               </p>
             </div>
 
@@ -232,6 +239,13 @@ export function HomePage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Settings Dialog */}
+      <EditorSettingsDialog
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+      />
+      <Toaster />
     </>
   );
 }

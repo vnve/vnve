@@ -10,7 +10,7 @@ async function requestLLM(system: string, prompt: string) {
   let platform = urlParams.get("platform") ?? "deepseek";
 
   // 优先从 URL 参数中获取, 否则读取本地设置
-  if (!apiKey) {
+  if (aiSettings && !apiKey) {
     apiKey = aiSettings.key;
     model = aiSettings.model;
     platform = aiSettings.platform;
