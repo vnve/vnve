@@ -1,5 +1,6 @@
 import { Icons } from "@/components/icons";
 import { useEditorStore } from "@/store";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export function EditorHeader() {
   const project = useEditorStore((state) => state.project);
@@ -15,12 +16,15 @@ export function EditorHeader() {
         )}
       </h1>
 
-      <Icons.gitHub
-        className="size-5 cursor-pointer"
-        onClick={() => {
-          window.location.href = "https://github.com/vnve/vnve";
-        }}
-      ></Icons.gitHub>
+      <div className="flex items-center gap-2">
+        <ThemeToggle />
+        <Icons.gitHub
+          className="size-5 cursor-pointer"
+          onClick={() => {
+            window.location.href = "https://github.com/vnve/vnve";
+          }}
+        ></Icons.gitHub>
+      </div>
     </header>
   );
 }
