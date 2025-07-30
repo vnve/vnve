@@ -14,6 +14,7 @@ import { useEditorStore } from "@/store";
 import { DBAssetType } from "@/db";
 import { Loader2, Send, Settings } from "lucide-react";
 import { AssetStateCard } from "@/components/editor/AssetLibrary/AssetCard";
+import { AssetLibrary } from "@/components/editor/AssetLibrary";
 import { useStoryConversion } from "@/components/hooks/useStoryConversion";
 import { Icons } from "@/components/icons";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -152,7 +153,15 @@ export function HomePage() {
       </div>
 
       {/* Character Selection Dialog */}
-      <Dialog open={step === 2} onOpenChange={() => null}>
+      <Dialog
+        open={step === 2}
+        onOpenChange={(open) => {
+          if (!open) {
+            setLoadingText("");
+            reset();
+          }
+        }}
+      >
         <DialogContent className="min-w-[70vw]">
           <DialogHeader>
             <DialogTitle>选择角色</DialogTitle>
@@ -194,7 +203,15 @@ export function HomePage() {
       </Dialog>
 
       {/* Background Selection Dialog */}
-      <Dialog open={step === 3} onOpenChange={() => null}>
+      <Dialog
+        open={step === 3}
+        onOpenChange={(open) => {
+          if (!open) {
+            setLoadingText("");
+            reset();
+          }
+        }}
+      >
         <DialogContent className="min-w-[70vw]">
           <DialogHeader>
             <DialogTitle>选择场景</DialogTitle>
@@ -245,6 +262,7 @@ export function HomePage() {
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
       />
+      <AssetLibrary />
       <Toaster />
     </>
   );
