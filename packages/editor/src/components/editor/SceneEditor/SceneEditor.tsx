@@ -405,7 +405,7 @@ export function SceneEditor() {
           </MenubarTrigger>
           <MenubarContent>
             <MenubarItem onClick={() => setIsOpenCreateProjectDialog(true)}>
-              创建新作品
+              新建作品...
             </MenubarItem>
             <MenubarItem onClick={() => setIsOpenProjectLibrary(true)}>
               打开...

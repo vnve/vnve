@@ -77,7 +77,7 @@ export function CreateProjectDialog({
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>创建新作品</DialogTitle>
+          <DialogTitle>新建作品</DialogTitle>
           <DialogDescription></DialogDescription>
         </DialogHeader>
 
