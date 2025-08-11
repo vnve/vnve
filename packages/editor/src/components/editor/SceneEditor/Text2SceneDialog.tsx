@@ -61,12 +61,13 @@ export function Text2SceneDialog({
   useEffect(() => {
     if (isOpen) {
       if (type === "formatter") {
-        updateState({ step: 2 }); // 导入剧本直接跳到第2步
+        updateState({ step: 2 });
       } else if (type === "ai") {
-        updateState({ step: 1 }); // AI功能从第1步开始
+        updateState({ step: 1 });
       }
     }
-  }, [isOpen, type, updateState]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function handleClose() {
     onClose();
@@ -94,6 +95,7 @@ export function Text2SceneDialog({
     setLoadingText("剧本导入中");
     const success = await handleImportStory(text);
     setLoadingText("");
+    updateState({ step: 3 });
     return success;
   };
 
