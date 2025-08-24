@@ -9,28 +9,101 @@ import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState, useEffect } from "react";
-import { useEditorStore } from "@/store";
-import { DBAssetType } from "@/db";
+import { DBAssetType, db } from "@/db";
 import { TextFileEditor } from "@/components//ui/text-file-editor";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Loader2 } from "lucide-react";
 import { AssetStateCard } from "@/components/editor/AssetLibrary/AssetCard";
 import { useStoryConversion } from "@/components/hooks/useStoryConversion";
+import { usePendingSceneStore } from "@/store/pendingScene";
+import { useEditorStore } from "@/store";
 
 interface Text2SceneDialogProps {
   isOpen: boolean;
   type: "formatter" | "ai";
   onClose: () => void;
+  onSuccess?: () => void;
+  initialImportInputText?: string;
 }
 
 export function Text2SceneDialog({
   isOpen,
   type,
   onClose,
+  onSuccess,
+  initialImportInputText,
 }: Text2SceneDialogProps) {
   const editor = useEditorStore((state) => state.editor);
   const [aiInputText, setAiInputText] = useState("");
   const [loadingText, setLoadingText] = useState("");
+  const setPendingData = usePendingSceneStore((state) => state.setPendingData);
+  const isEditorReady = !!editor;
+
+  function handleClose() {
+    onClose();
+    reset();
+    setAiInputText("");
+    setLoadingText("");
+  }
+
+  const handleSuccess = () => {
+    onSuccess?.();
+    handleClose();
+  };
+
+  // 自定义的完成处理函数
+  const handleCustomFinish = async (): Promise<boolean> => {
+    if (!isEditorReady) {
+      // 如果没有 editor（在 HomePage 中），保存数据到 pending store
+      const hasUnselectedCharacter = Object.entries(
+        state.characterAssetMap,
+      ).some(([, asset]) => !asset);
+      const hasUnselectedBackground = Object.entries(
+        state.backgroundAssetMap,
+      ).some(([, asset]) => !asset);
+
+      if (hasUnselectedCharacter) {
+        return false;
+      }
+
+      if (hasUnselectedBackground) {
+        return false;
+      }
+
+      // 生成智能项目名称
+      const generateProjectName = async () => {
+        try {
+          // 获取所有项目的数量
+          const projectCount = await db.project.count();
+
+          // 新项目序号 = 已有项目数量 + 1
+          const nextNumber = projectCount + 1;
+
+          return `作品${nextNumber}`;
+        } catch (error) {
+          console.error("生成项目名称时出错:", error);
+          return "x新品";
+        }
+      };
+
+      const projectName = await generateProjectName();
+
+      setPendingData({
+        story: state.story,
+        characterAssetMap: state.characterAssetMap,
+        backgroundAssetMap: state.backgroundAssetMap,
+        sceneTemplateName: state.sceneTemplateName,
+        importInputText: state.importInputText,
+        projectName,
+      });
+
+      handleSuccess();
+      return true;
+    } else {
+      // 如果有 editor（在 EditorPage 中），直接生成场景
+      return await handleFinish();
+    }
+  };
 
   const {
     state,
@@ -45,7 +118,7 @@ export function Text2SceneDialog({
     reset,
   } = useStoryConversion({
     editor,
-    onSuccess: handleClose,
+    onSuccess: handleSuccess,
     onError: () => setLoadingText(""),
   });
 
@@ -69,12 +142,11 @@ export function Text2SceneDialog({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function handleClose() {
-    onClose();
-    reset();
-    setAiInputText("");
-    setLoadingText("");
-  }
+  useEffect(() => {
+    if (initialImportInputText) {
+      updateState({ importInputText: initialImportInputText });
+    }
+  }, [updateState, initialImportInputText]);
 
   const handleGoBack = () => {
     const minStep = type === "formatter" ? 2 : 1;
@@ -86,9 +158,9 @@ export function Text2SceneDialog({
     text: string,
   ) => {
     setLoadingText(type === "convert" ? "智能转换中" : "智能生成中");
-    const success = await handleAIConvert(type, text);
+    const result = await handleAIConvert(type, text);
     setLoadingText("");
-    return success;
+    return result.success;
   };
 
   const handleImportOperation = async (text: string) => {
@@ -251,11 +323,14 @@ export function Text2SceneDialog({
         >
           返回
         </Button>
-        <Button disabled={!!loadingText || isProcessing} onClick={handleFinish}>
+        <Button
+          disabled={!!loadingText || isProcessing}
+          onClick={handleCustomFinish}
+        >
           {(loadingText || isProcessing) && (
             <Loader2 className="animate-spin mr-1" />
           )}
-          {loadingText ? loadingText : "生成"}
+          {loadingText ? loadingText : isEditorReady ? "生成" : "下一步"}
         </Button>
       </div>
     </>

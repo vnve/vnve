@@ -1,60 +1,45 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
-import { useEditorStore } from "@/store";
-import { DBAssetType } from "@/db";
 import { Loader2, Send, Settings } from "lucide-react";
-import { AssetStateCard } from "@/components/editor/AssetLibrary/AssetCard";
 import { AssetLibrary } from "@/components/editor/AssetLibrary";
-import { useStoryConversion } from "@/components/hooks/useStoryConversion";
 import { Icons } from "@/components/icons";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { EditorSettingsDialog } from "@/components/editor/SceneEditor/EditorSettingsDialog";
 import { Toaster } from "@/components/ui/toaster";
+import { Text2SceneDialog } from "@/components/editor/SceneEditor/Text2SceneDialog";
+import { aiConvert2Story } from "@/lib/llm";
+import { story2Text } from "@/lib/core";
+import { useToast } from "@/components/hooks/use-toast";
 
 export function HomePage() {
   const [storyInput, setStoryInput] = useState("");
   const [loadingText, setLoadingText] = useState("");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [convertedScript, setConvertedScript] = useState("");
   const navigate = useNavigate();
-  const editor = useEditorStore((state) => state.editor);
+  const [isText2SceneDialogOpen, setIsText2SceneDialogOpen] = useState(false);
+  const { toast } = useToast();
 
-  const conversion = useStoryConversion({
-    editor,
-    onSuccess: () => {
-      navigate("/editor");
-      // 重置状态
-      setStoryInput("");
-      setLoadingText("");
-      reset();
-    },
-    onError: () => setLoadingText(""),
-  });
-
-  const {
-    state,
-    handleAIConvert,
-    handleSelectCharacter,
-    handleSelectBackground,
-    handleNextStep,
-    handleFinish,
-    reset,
-  } = conversion;
-  const { isProcessing, step, characterAssetMap, backgroundAssetMap } = state;
   const handleGenerate = async (text: string) => {
     if (!text.trim()) return;
 
     setLoadingText("智能转换中");
-    await handleAIConvert("convert", text);
+    try {
+      const story = await aiConvert2Story(text);
+      const convertedText = story2Text(story);
+      setConvertedScript(convertedText);
+      setIsText2SceneDialogOpen(true);
+    } catch (error) {
+      toast({
+        title: "转换失败",
+        description: error instanceof Error ? error.message : String(error),
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingText("");
+    }
   };
 
   return (
@@ -152,110 +137,24 @@ export function HomePage() {
         </main>
       </div>
 
-      {/* Character Selection Dialog */}
-      <Dialog
-        open={step === 2}
-        onOpenChange={(open) => {
-          if (!open) {
+      {isText2SceneDialogOpen && (
+        <Text2SceneDialog
+          isOpen={isText2SceneDialogOpen}
+          type={"formatter"}
+          initialImportInputText={convertedScript}
+          onSuccess={() => {
+            navigate("/editor");
+            // 重置状态
+            setStoryInput("");
             setLoadingText("");
-            reset();
-          }
-        }}
-      >
-        <DialogContent className="min-w-[70vw]">
-          <DialogHeader>
-            <DialogTitle>选择角色</DialogTitle>
-            <DialogDescription>
-              根据剧本解析出以下角色，请选择角色对应的素材
-            </DialogDescription>
-          </DialogHeader>
-          <ScrollArea>
-            <div className="flex gap-1 pb-4">
-              {characterAssetMap &&
-                Object.keys(characterAssetMap).map((name) => {
-                  const asset = characterAssetMap[name];
-                  let state = { name, id: 0, ext: "" };
-
-                  if (asset) {
-                    const hit =
-                      asset.states.find(
-                        (state) => state.id === asset.stateId,
-                      ) || asset.states[0];
-                    state = { ...hit, name };
-                  }
-
-                  return (
-                    <AssetStateCard
-                      key={name}
-                      type={DBAssetType.Character}
-                      state={state}
-                      onSelect={() => handleSelectCharacter(name)}
-                    />
-                  );
-                })}
-            </div>
-            <ScrollBar orientation="horizontal" />
-          </ScrollArea>
-          <div className="flex justify-end">
-            <Button onClick={handleNextStep}>下一步</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Background Selection Dialog */}
-      <Dialog
-        open={step === 3}
-        onOpenChange={(open) => {
-          if (!open) {
-            setLoadingText("");
-            reset();
-          }
-        }}
-      >
-        <DialogContent className="min-w-[70vw]">
-          <DialogHeader>
-            <DialogTitle>选择场景</DialogTitle>
-            <DialogDescription>
-              根据剧本解析出以下场景，请选择场景对应的素材
-            </DialogDescription>
-          </DialogHeader>
-          <ScrollArea>
-            <div className="flex gap-1 pb-4">
-              {backgroundAssetMap &&
-                Object.keys(backgroundAssetMap).map((name) => {
-                  const asset = backgroundAssetMap[name];
-                  let state = { name, id: 0, ext: "" };
-
-                  if (asset) {
-                    const hit =
-                      asset.states.find(
-                        (state) => state.id === asset.stateId,
-                      ) || asset.states[0];
-                    state = { ...hit, name };
-                  }
-
-                  return (
-                    <AssetStateCard
-                      key={name}
-                      type={DBAssetType.Background}
-                      state={state}
-                      onSelect={() => handleSelectBackground(name)}
-                    />
-                  );
-                })}
-            </div>
-            <ScrollBar orientation="horizontal" />
-          </ScrollArea>
-          <div className="flex justify-end">
-            <Button onClick={handleFinish} disabled={isProcessing}>
-              {isProcessing && (
-                <Loader2 className="animate-spin mr-2 h-4 w-4" />
-              )}
-              完成
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+            setConvertedScript("");
+          }}
+          onClose={() => {
+            setIsText2SceneDialogOpen(false);
+            setConvertedScript("");
+          }}
+        />
+      )}
 
       {/* Settings Dialog */}
       <EditorSettingsDialog

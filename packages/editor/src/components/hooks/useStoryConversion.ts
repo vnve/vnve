@@ -56,16 +56,19 @@ export function useStoryConversion(config: UseStoryConversionConfig) {
     });
     onError?.(error);
   };
-  const handleStory = async (newStory: StoryScene[]): Promise<boolean> => {
+  const handleStory = async (
+    newStory: StoryScene[],
+    importInputText?: string,
+  ): Promise<boolean> => {
     try {
-      updateState({ story: newStory });
-
       const result = await parseStory(newStory);
 
       updateState({
+        story: newStory,
         characterAssetMap: result.characterAssetMap,
         backgroundAssetMap: result.backgroundAssetMap,
         step: 2,
+        ...(importInputText && { importInputText }),
       });
       return true;
     } catch (error) {
@@ -77,21 +80,21 @@ export function useStoryConversion(config: UseStoryConversionConfig) {
   const handleAIConvert = async (
     type: "convert" | "generate",
     input: string,
-  ): Promise<boolean> => {
+  ): Promise<{ success: boolean; text?: string }> => {
     setProcessing(true);
     try {
       const story = await (type === "convert"
         ? aiConvert2Story(input)
         : aiGenStory(input));
       const text = story2Text(story);
-      updateState({ importInputText: text });
-      return await handleStory(story);
+      const success = await handleStory(story, text);
+      return { success, text: success ? text : undefined };
     } catch (error) {
       handleError(
         error instanceof Error ? error : new Error(String(error)),
         `${type === "convert" ? "转换" : "生成"}失败`,
       );
-      return false;
+      return { success: false };
     } finally {
       setProcessing(false);
     }
@@ -102,7 +105,7 @@ export function useStoryConversion(config: UseStoryConversionConfig) {
     try {
       const json = matchJSON(text); // 支持导入JSON格式
       const story = json?.scenes ? json.scenes : text2Story(text);
-      return await handleStory(story);
+      return await handleStory(story, text);
     } catch (error) {
       handleError(
         error instanceof Error ? error : new Error(String(error)),
@@ -190,6 +193,7 @@ export function useStoryConversion(config: UseStoryConversionConfig) {
       onSuccess?.();
       return true;
     } catch (error) {
+      console.error(error);
       handleError(
         error instanceof Error ? error : new Error(String(error)),
         "生成失败",
