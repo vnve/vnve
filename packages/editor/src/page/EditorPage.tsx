@@ -15,6 +15,10 @@ import { setDisableAudio } from "@/lib/core";
 import { Loading } from "@/components/editor/Loading";
 import { useSettingsStore } from "@/store/settings";
 import { cn } from "@/lib/utils";
+import { usePendingSceneStore } from "@/store/pendingScene";
+import { useEditorStore } from "@/store";
+import { story2Scenes } from "@/lib/core";
+import { DBAsset, projectDB } from "@/db";
 
 export function EditorPage() {
   const [isOpenSceneDetailDialog, setIsOpenSceneDetailDialog] = useState(false);
@@ -22,6 +26,66 @@ export function EditorPage() {
   const [isSupported, setIsSupported] = useState(null);
   const { toast } = useToast();
   const canvasSetting = useSettingsStore((state) => state.canvas);
+
+  // Pending scene data handling
+  const pendingData = usePendingSceneStore((state) => state.pendingData);
+  const clearPendingData = usePendingSceneStore(
+    (state) => state.clearPendingData,
+  );
+  const editor = useEditorStore((state) => state.editor);
+  const setProject = useEditorStore((state) => state.setProject);
+
+  // 处理来自 HomePage 的 pending 数据
+  useEffect(() => {
+    if (pendingData && editor) {
+      const processPendingData = async () => {
+        try {
+          // 先创建项目（如果还没有项目）
+          const currentProject = useEditorStore.getState().project;
+          if (!currentProject) {
+            const newProject = {
+              name: pendingData.projectName,
+              content: "",
+              time: Date.now(),
+            };
+            const projectId = await projectDB.add(newProject);
+
+            // 清空编辑器并设置新项目
+            editor.clear();
+            setProject({
+              id: projectId,
+              ...newProject,
+            });
+          }
+
+          // 然后生成场景
+          await story2Scenes(
+            pendingData.story,
+            editor,
+            pendingData.characterAssetMap as Record<string, DBAsset>,
+            pendingData.backgroundAssetMap as Record<string, DBAsset>,
+            pendingData.sceneTemplateName,
+          );
+
+          clearPendingData();
+          toast({
+            title: "场景生成成功",
+            description: "已从故事自动生成场景和作品",
+          });
+        } catch (error) {
+          console.error("处理 pending 数据失败:", error);
+          toast({
+            title: "场景生成失败",
+            description: error instanceof Error ? error.message : String(error),
+            variant: "destructive",
+          });
+          clearPendingData();
+        }
+      };
+
+      processPendingData();
+    }
+  }, [pendingData, editor, clearPendingData, toast, setProject]);
 
   const isPortraitCanvas = useMemo(() => {
     return (
