@@ -303,16 +303,17 @@ export function SceneEditor() {
     setCurExportVideoURL(null);
   };
 
-  const handleClosePreviewVideoDialog = () => {
+  const handleClosePreviewVideoDialog = async () => {
     setIsOpenPreviewVideoDialog(false);
 
     if (director.current.hasStarted()) {
-      director.current.cut();
+      await director.current.cut();
     }
   };
 
-  const handlePreviewToExport = () => {
-    setIsOpenPreviewVideoDialog(false);
+  const handlePreviewToExport = async () => {
+    await handleClosePreviewVideoDialog();
+
     handleExportScenes(...previewVideoRange);
   };
 
