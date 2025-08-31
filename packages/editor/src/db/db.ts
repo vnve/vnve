@@ -95,6 +95,10 @@ export interface DBProject {
   name: string;
   time: number;
   content: string;
+  canvas?: {
+    width: number;
+    height: number;
+  };
 }
 
 export class VNVEDexie extends Dexie {

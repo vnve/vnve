@@ -9,6 +9,10 @@ interface PendingSceneData {
   sceneTemplateName?: string;
   importInputText: string;
   projectName: string;
+  canvas?: {
+    width: number;
+    height: number;
+  };
 }
 
 interface PendingSceneStore {

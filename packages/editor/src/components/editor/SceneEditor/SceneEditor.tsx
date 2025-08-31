@@ -178,6 +178,10 @@ export function SceneEditor() {
         await projectDB.update(project.id, {
           content: editor.saveAsJSON(),
           time: date.getTime(),
+          canvas: {
+            width: editor.options.width,
+            height: editor.options.height,
+          },
         });
 
         setSaveTimeString(date.toLocaleString());

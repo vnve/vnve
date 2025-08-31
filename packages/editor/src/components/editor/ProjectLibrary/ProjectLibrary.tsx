@@ -17,6 +17,7 @@ import { projectDB, removeProjectTmpAssets } from "@/db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Icons } from "@/components/icons";
 import { useEditorStore } from "@/store";
+import { useSettingsStore } from "@/store/settings";
 import { useRef } from "react";
 
 export function ProjectLibrary({
@@ -28,6 +29,7 @@ export function ProjectLibrary({
 }) {
   const editor = useEditorStore((state) => state.editor);
   const setProject = useEditorStore((state) => state.setProject);
+  const updateCanvas = useSettingsStore((state) => state.updateCanvas);
   const projectList = useLiveQuery(() => projectDB.reverse().toArray());
   const openLoading = useRef(false);
 
@@ -47,6 +49,13 @@ export function ProjectLibrary({
     const project = await projectDB.get(id);
 
     editor.clear();
+
+    // 如果项目中有画布设置，先应用画布设置
+    if (project.canvas) {
+      // 同时更新编辑器的画布尺寸和全局的canvas设置
+      editor.updateCanvasSize(project.canvas.width, project.canvas.height);
+      updateCanvas(project.canvas);
+    }
 
     if (project.content) {
       await editor.loadFromJSON(project.content);
@@ -70,6 +79,7 @@ export function ProjectLibrary({
     await projectDB.add({
       name: `${project.name} - 副本`,
       content: project.content,
+      canvas: project.canvas, // 复制画布设置
       time: Date.now(),
     });
   };

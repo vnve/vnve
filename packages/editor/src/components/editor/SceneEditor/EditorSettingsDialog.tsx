@@ -29,6 +29,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useSettingsStore } from "@/store/settings";
 import { useEditorStore } from "@/store";
+import { usePendingSceneStore } from "@/store/pendingScene";
 
 const llmFormSchema = z.object({
   platform: z.string().min(1, "平台必选"),
@@ -60,10 +61,13 @@ export function EditorSettingsDialog({
   const [activeTab, setActiveTab] = useState("llm");
   const ai = useSettingsStore((state) => state.ai);
   const tts = useSettingsStore((state) => state.tts);
+  const canvas = useSettingsStore((state) => state.canvas);
   const updateAI = useSettingsStore((state) => state.updateAI);
   const updateTTS = useSettingsStore((state) => state.updateTTS);
   const updateCanvas = useSettingsStore((state) => state.updateCanvas);
   const editor = useEditorStore((state) => state.editor);
+  const pendingData = usePendingSceneStore((state) => state.pendingData);
+  const setPendingData = usePendingSceneStore((state) => state.setPendingData);
 
   const handleOpenChange = (value) => {
     if (!value) {
@@ -107,11 +111,32 @@ export function EditorSettingsDialog({
 
   function onSubmitCanvas(values: z.infer<typeof canvasFormSchema>) {
     const [width, height] = values.size.split("x").map(Number);
+
     if (editor) {
+      // 如果在编辑器页面，直接更新编辑器和全局设置
       updateCanvas({ width, height });
       editor.updateCanvasSize(width, height);
-      onClose();
+    } else {
+      // 如果在首页，将画布设置保存到 pendingData 中
+      // 如果已有 pendingData，则合并；否则创建新的
+      const newPendingData = pendingData
+        ? {
+            ...pendingData,
+            canvas: { width, height },
+          }
+        : {
+            story: [],
+            characterAssetMap: {},
+            backgroundAssetMap: {},
+            importInputText: "",
+            projectName: "新项目",
+            canvas: { width, height },
+          };
+
+      setPendingData(newPendingData);
     }
+
+    onClose();
   }
 
   useEffect(() => {
@@ -127,11 +152,22 @@ export function EditorSettingsDialog({
   }, [tts, ttsForm]);
 
   useEffect(() => {
+    // 优先级：编辑器实例 > pendingData中的画布设置 > 全局设置中的默认值
+    let size: string;
+
     if (editor) {
-      const size = `${editor.options.width}x${editor.options.height}`;
-      canvasForm.reset({ size });
+      // 在编辑器页面，使用编辑器当前的画布尺寸
+      size = `${editor.options.width}x${editor.options.height}`;
+    } else if (pendingData?.canvas) {
+      // 在首页且有待处理的画布设置，使用待处理的设置
+      size = `${pendingData.canvas.width}x${pendingData.canvas.height}`;
+    } else {
+      // 默认使用全局设置中的画布尺寸
+      size = `${canvas.width}x${canvas.height}`;
     }
-  }, [editor, canvasForm]);
+
+    canvasForm.reset({ size });
+  }, [editor, pendingData, canvas, canvasForm]);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>

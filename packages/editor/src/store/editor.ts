@@ -5,7 +5,7 @@ import { DBProject } from "@/db";
 import { useSettingsStore } from "./settings";
 
 export const useEditorStore = create<{
-  project: Pick<DBProject, "id" | "name"> | null;
+  project: Pick<DBProject, "id" | "name" | "canvas"> | null;
   editor: Editor;
   activeChild: Child | null;
   activeScene: Scene | null;
@@ -32,11 +32,13 @@ export const useEditorStore = create<{
           state.project = {
             id: project.id,
             name: project.name,
+            canvas: project.canvas,
           };
         });
       },
       initEditor(view: HTMLCanvasElement) {
         const { canvas } = useSettingsStore.getState();
+
         editor = new Editor({
           view,
           width: canvas.width,

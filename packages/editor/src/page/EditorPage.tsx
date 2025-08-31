@@ -34,12 +34,22 @@ export function EditorPage() {
   );
   const editor = useEditorStore((state) => state.editor);
   const setProject = useEditorStore((state) => state.setProject);
+  const updateCanvas = useSettingsStore((state) => state.updateCanvas);
 
   // 处理来自 HomePage 的 pending 数据
   useEffect(() => {
     if (pendingData && editor) {
       const processPendingData = async () => {
         try {
+          // 如果 pendingData 中有画布设置，先应用画布设置
+          if (pendingData.canvas) {
+            updateCanvas(pendingData.canvas);
+            editor.updateCanvasSize(
+              pendingData.canvas.width,
+              pendingData.canvas.height,
+            );
+          }
+
           // 先创建项目（如果还没有项目）
           const currentProject = useEditorStore.getState().project;
           if (!currentProject) {
@@ -47,6 +57,7 @@ export function EditorPage() {
               name: pendingData.projectName,
               content: "",
               time: Date.now(),
+              canvas: pendingData.canvas, // 包含画布设置
             };
             const projectId = await projectDB.add(newProject);
 
@@ -85,7 +96,7 @@ export function EditorPage() {
 
       processPendingData();
     }
-  }, [pendingData, editor, clearPendingData, toast, setProject]);
+  }, [pendingData, editor, clearPendingData, toast, setProject, updateCanvas]);
 
   const isPortraitCanvas = useMemo(() => {
     return (

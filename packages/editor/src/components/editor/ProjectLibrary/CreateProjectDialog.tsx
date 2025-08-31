@@ -55,6 +55,10 @@ export function CreateProjectDialog({
       name: values.projectName,
       content: "",
       time: Date.now(),
+      canvas: {
+        width: editor.options.width,
+        height: editor.options.height,
+      },
     };
     const id = await projectDB.add(newProject);
 
