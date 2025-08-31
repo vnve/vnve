@@ -153,12 +153,9 @@ export function Text2SceneDialog({
     updateState({ step: Math.max(minStep, step - 1) });
   };
 
-  const handleAiOperation = async (
-    type: "convert" | "generate",
-    text: string,
-  ) => {
-    setLoadingText(type === "convert" ? "智能转换中" : "智能生成中");
-    const result = await handleAIConvert(type, text);
+  const handleAiOperation = async (text: string) => {
+    setLoadingText("智能生成中");
+    const result = await handleAIConvert(text);
     setLoadingText("");
     return result.success;
   };
@@ -181,34 +178,13 @@ export function Text2SceneDialog({
         </DialogTitle>
         <DialogDescription />
       </DialogHeader>
-      <Tabs defaultValue="convert">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="convert" disabled={!!loadingText}>
-            转换剧本
-          </TabsTrigger>
-          <TabsTrigger value="generate" disabled={!!loadingText}>
-            生成剧本
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="convert">
-          <TextFileEditor
-            value={aiInputText}
-            onChange={setAiInputText}
-            placeholder="请输入小说、故事原文"
-            loading={loadingText}
-            onComplete={(text) => handleAiOperation("convert", text)}
-          />
-        </TabsContent>
-        <TabsContent value="generate">
-          <TextFileEditor
-            value={aiInputText}
-            onChange={setAiInputText}
-            placeholder="请输入剧情大纲"
-            loading={loadingText}
-            onComplete={(text) => handleAiOperation("generate", text)}
-          />
-        </TabsContent>
-      </Tabs>
+      <TextFileEditor
+        value={aiInputText}
+        onChange={setAiInputText}
+        placeholder="请输入小说、故事原文"
+        loading={loadingText}
+        onComplete={(text) => handleAiOperation(text)}
+      />
     </>
   );
 

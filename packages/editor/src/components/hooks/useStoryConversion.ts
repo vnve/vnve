@@ -3,7 +3,7 @@ import { useAssetLibrary } from "./useAssetLibrary";
 import { parseStory, story2Scenes, story2Text, text2Story } from "@/lib/core";
 import { useToast } from "@/components/hooks/use-toast";
 import { DBAsset, DBAssetType } from "@/db";
-import { aiConvert2Story, aiGenStory } from "@/lib/llm";
+import { aiConvert2Story } from "@/lib/llm";
 import { StoryScene } from "@/lib/core";
 import { matchJSON } from "@/lib/utils";
 import { Editor } from "@vnve/core";
@@ -78,21 +78,18 @@ export function useStoryConversion(config: UseStoryConversionConfig) {
   };
 
   const handleAIConvert = async (
-    type: "convert" | "generate",
     input: string,
   ): Promise<{ success: boolean; text?: string }> => {
     setProcessing(true);
     try {
-      const story = await (type === "convert"
-        ? aiConvert2Story(input)
-        : aiGenStory(input));
+      const story = await aiConvert2Story(input);
       const text = story2Text(story);
       const success = await handleStory(story, text);
       return { success, text: success ? text : undefined };
     } catch (error) {
       handleError(
         error instanceof Error ? error : new Error(String(error)),
-        `${type === "convert" ? "转换" : "生成"}失败`,
+        `AI生成失败`,
       );
       return { success: false };
     } finally {

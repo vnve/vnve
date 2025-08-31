@@ -109,7 +109,7 @@ export function TextFileEditor({
               </Select>
             </div>
           )}
-          <Button onClick={handleComplete} disabled={disabled}>
+          <Button onClick={handleComplete} disabled={disabled || !value}>
             {loading && <Loader2 className="animate-spin mr-1" />}
             {loading ? loading : completeButtonLabel || "确定"}
           </Button>
