@@ -96,7 +96,7 @@ export function HomePage() {
                 <Textarea
                   value={storyInput}
                   onChange={(e) => setStoryInput(e.target.value)}
-                  placeholder="在这里输入你的故事情节...&#10;&#10;例如：&#10;在一个阳光明媚的午后，小明走进了学校的图书馆。&#10;他看到了坐在窗边看书的小红。&#10;小明：你好，我可以坐在这里吗？&#10;小红：当然可以。&#10;..."
+                  placeholder="在这里输入你的故事..."
                   className="min-h-[300px] resize-none pr-12 text-base leading-relaxed"
                   disabled={!!loadingText}
                 />

@@ -49,7 +49,7 @@ export function ExportVideoDialog({
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent
-        className={cn(aspectRatio > 1 ? "w-[80vw]" : "h-[90vh]")}
+        className={cn(aspectRatio > 1 ? "max-w-[80vw]" : "h-[90vh]")}
         onPointerDownOutside={(e) => e.preventDefault()}
       >
         <DialogHeader>
